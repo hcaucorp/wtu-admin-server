@@ -4,5 +4,5 @@ export const dbconfig = {
     database: 'cgc-poc',
     host: 'localhost',
     dialect: 'postgres',
-    port: 5432
+    port: 5432,
 };
