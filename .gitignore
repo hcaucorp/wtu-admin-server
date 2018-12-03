@@ -1,5 +1,2 @@
 /.idea
-/node_modules
-/dist
-package-lock.json
-.env
+/target
