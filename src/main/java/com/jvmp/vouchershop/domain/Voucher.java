@@ -1,18 +1,44 @@
 package com.jvmp.vouchershop.domain;
 
-import lombok.Builder;
-import lombok.Value;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
+import javax.persistence.*;
+import javax.validation.constraints.*;
+import java.io.Serializable;
+import java.util.Date;
 
 @Value
 @Builder
-public class Voucher {
+@Entity
+@Table(name = "vouchers")
+@EntityListeners(AuditingEntityListener.class)
+@JsonIgnoreProperties(
+        value = {"createdAt"},
+        allowGetters = true
+)
+public class Voucher implements Serializable {
+
     public final long amount;
+
+    @NotBlank
+    @Size(min = 3, max = 3)
     public final String currency;
-    public final String id;
+
+    @Id
+    @GeneratedValue(generator = "voucher_generator")
+    @SequenceGenerator(
+            name = "voucher_generator",
+            sequenceName = "voucher_sequence"
+    )
+    public final Long id;
     public final boolean published;
     public final boolean redeemed;
-    public final long serialNumber;
-    public final LocalDate useBy;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @CreatedDate
+    private Date createdAt;
 }
