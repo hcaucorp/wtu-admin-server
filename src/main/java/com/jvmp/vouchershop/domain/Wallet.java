@@ -1,34 +1,29 @@
 package com.jvmp.vouchershop.domain;
 
+import lombok.*;
+
+import javax.persistence.*;
+
+@Value
+@Builder
+@Entity
+@Table(name = "wallets")
 public class Wallet {
 
-    private String description;
-    private String address;
-    private String extendedPrivateKey;
+    @Id
+    @GeneratedValue(generator = "wallet_generator")
+    @SequenceGenerator(
+            name = "wallet_generator",
+            sequenceName = "wallet_sequence"
+    )
+    public final Long id;
 
-    public String getDescription() {
-        return description;
-    }
+    public final String description;
+    public final String address;
+    public final String extendedPrivateKey;
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getExtendedPrivateKey() {
-        return extendedPrivateKey;
-    }
-
-    public void setExtendedPrivateKey(String extendedPrivateKey) {
-        this.extendedPrivateKey = extendedPrivateKey;
-    }
+    @Transient
+    public final org.bitcoinj.wallet.Wallet btcWallet;
 }
 
 
