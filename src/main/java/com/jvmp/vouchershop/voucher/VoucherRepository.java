@@ -1,4 +1,4 @@
-package com.jvmp.vouchershop.repository;
+package com.jvmp.vouchershop.voucher;
 
 import com.jvmp.vouchershop.domain.Voucher;
 import org.springframework.data.jpa.repository.JpaRepository;

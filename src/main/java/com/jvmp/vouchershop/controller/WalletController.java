@@ -1,38 +1,33 @@
 package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.domain.Wallet;
-import com.jvmp.vouchershop.exception.*;
-import com.jvmp.vouchershop.repository.WalletRepository;
+import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("/wallets")
+import java.util.List;
+
+@RestController
 @AllArgsConstructor
 public class WalletController {
 
-    private WalletRepository walletRepository;
+    private WalletService walletService;
 
-    @GetMapping
-    public Page<Wallet> getQuestions(Pageable pageable) {
-        return walletRepository.findAll(pageable);
+    @GetMapping("/wallets")
+    public List<Wallet> getAllWallets() {
+        return walletService.findAll();
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteQuestion(@PathVariable Long id) {
-        return walletRepository.findById(id)
-                .map(wallet -> {
+    @DeleteMapping("/wallets/{id}")
+    public ResponseEntity<?> deleteWallet(@PathVariable Long id) {
+        walletService.delete(id);
 
-                    // prevent deleting wallet with balance and loosing the money on it
-                    if (wallet.getBtcWallet().getBalance().isPositive()) {
-                        throw new IllegalOperationException("Wallet balance is positive and can't be deleted. Move money to different wallet before deleting this wallet " +
-                                "or else ALL the funds will be lost!");
-                    }
+        return ResponseEntity.noContent().build();
+    }
 
-                    walletRepository.delete(wallet);
-                    return ResponseEntity.ok().build();
-                })
-                .orElseThrow(() -> new ResourceNotFoundException("Wallet not found with id " + id));
+    @GetMapping("generate")
+    public Wallet generateWallet(@RequestParam("password") String password) {
+        return walletService.save(walletService.generateWallet(password));
     }
 }

@@ -1,17 +1,6 @@
-package com.jvmp.vouchershop;
+package com.jvmp.vouchershop.shopify;
 
-import com.jvmp.vouchershop.shopify.domain.CollectList;
-import com.jvmp.vouchershop.shopify.domain.Count;
-import com.jvmp.vouchershop.shopify.domain.CustomCollectionList;
-import com.jvmp.vouchershop.shopify.domain.CustomerList;
-import com.jvmp.vouchershop.shopify.domain.OrderList;
-import com.jvmp.vouchershop.shopify.domain.ProductList;
-import com.jvmp.vouchershop.shopify.domain.RecurringApplicationChargeRequest;
-import com.jvmp.vouchershop.shopify.domain.RecurringApplicationChargeResponse;
-import com.jvmp.vouchershop.shopify.domain.SmartCollectionList;
-import com.jvmp.vouchershop.shopify.domain.TransactionList;
-import com.jvmp.vouchershop.shopify.domain.Webhook;
-import com.jvmp.vouchershop.shopify.domain.WebhookList;
+import com.jvmp.vouchershop.shopify.domain.*;
 import feign.Param;
 import feign.RequestLine;
 

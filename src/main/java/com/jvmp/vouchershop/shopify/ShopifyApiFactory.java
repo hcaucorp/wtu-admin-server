@@ -1,4 +1,4 @@
-package com.jvmp.vouchershop;
+package com.jvmp.vouchershop.shopify;
 
 import com.jvmp.vouchershop.shopify.interceptors.ContentTypeRequestInterceptor;
 import com.jvmp.vouchershop.shopify.interceptors.OAuthRequestInterceptor;

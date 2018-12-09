@@ -1,11 +1,18 @@
 package com.jvmp.vouchershop.domain;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Wither;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
+import java.util.Date;
 
-@Value
-@Builder
+@Data
+@Wither
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "wallets")
 public class Wallet {
@@ -16,14 +23,19 @@ public class Wallet {
             name = "wallet_generator",
             sequenceName = "wallet_sequence"
     )
-    public final Long id;
+    Long id;
 
-    public final String description;
-    public final String address;
-    public final String extendedPrivateKey;
+    String description;
+    String address;
+    String extendedPrivateKey;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @CreatedDate
+    Date createdAt;
 
     @Transient
-    public final org.bitcoinj.wallet.Wallet btcWallet;
+    org.bitcoinj.wallet.Wallet btcWallet;
 }
 
 
