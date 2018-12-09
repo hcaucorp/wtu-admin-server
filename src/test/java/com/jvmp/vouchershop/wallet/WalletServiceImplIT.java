@@ -1,30 +1,24 @@
 package com.jvmp.vouchershop.wallet;
 
+import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.domain.Wallet;
-import com.jvmp.vouchershop.system.DatabaseConfig;
+import com.jvmp.vouchershop.repository.WalletRepository;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.bitcoinj.core.Context;
 import org.bitcoinj.params.UnitTestParams;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Instant;
 
 import static org.junit.Assert.*;
 
-/**
- * Created by Hubert Czerpak on 2018-12-08
- */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(
-        classes = {DatabaseConfig.class, WalletRepository.class},
-        loader = AnnotationConfigContextLoader.class)
-@Transactional
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = Application.class)
 public class WalletServiceImplIT {
 
     @Autowired
@@ -34,7 +28,8 @@ public class WalletServiceImplIT {
 
     @Before
     public void setUp() {
-        walletService = new WalletServiceImpl(walletRepository, new UnitTestParams());
+        Context btcContext = new Context(UnitTestParams.get());
+        walletService = new WalletServiceImpl(walletRepository, btcContext.getParams());
     }
 
 
@@ -54,14 +49,18 @@ public class WalletServiceImplIT {
     public void save() {
         String strongPassword = RandomStringUtils.randomAlphabetic(32);
         Wallet generatedWallet = walletService.generateWallet(strongPassword);
-        Wallet savedWallet = walletService.save(generatedWallet);
 
         assertNotNull(generatedWallet);
         assertNull(generatedWallet.getId());
         assertNull(generatedWallet.getCreatedAt());
 
+        Wallet savedWallet = walletService.save(generatedWallet);
+
         assertNotNull(savedWallet.getId());
         assertNotNull(savedWallet.getCreatedAt());
         assertTrue(savedWallet.getCreatedAt().toInstant().isBefore(Instant.now()));
+
+        assertEquals(1, walletRepository.count());
     }
+
 }

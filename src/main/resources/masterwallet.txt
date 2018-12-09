@@ -1,0 +1,4 @@
+# this should go into database
+#wallet.master.description=Master Wallet keeps funds to be used in voucher creation
+#wallet.master.address=bitcoincash:qps7dvqpf9da8qjsskkdh9h29hdcye62yvztalcew9
+#wallet.master.extendedPrivateKey=L29MQ9YgkPwpLXCJGMJXGGXfuPLCepM9fXVghM7sU3EGtgfFC8iz

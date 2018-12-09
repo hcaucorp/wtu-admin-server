@@ -1,10 +1,10 @@
-package com.jvmp.vouchershop.wallet;
+package com.jvmp.vouchershop.repository;
 
 import com.jvmp.vouchershop.domain.Wallet;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-interface WalletRepository extends JpaRepository<Wallet, Long> {
+public interface WalletRepository extends JpaRepository<Wallet, Long> {
 
 }

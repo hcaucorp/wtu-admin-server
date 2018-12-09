@@ -3,6 +3,7 @@ package com.jvmp.vouchershop.wallet;
 import com.jvmp.vouchershop.domain.Wallet;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
+import com.jvmp.vouchershop.repository.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.NetworkParameters;

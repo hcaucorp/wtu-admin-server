@@ -3,6 +3,7 @@ package com.jvmp.vouchershop.controller;
 import com.jvmp.vouchershop.domain.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,8 +27,10 @@ public class WalletController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("generate")
-    public Wallet generateWallet(@RequestParam("password") String password) {
-        return walletService.save(walletService.generateWallet(password));
+    @GetMapping("/wallets/new")
+    public ResponseEntity<Wallet> generateWallet(@RequestParam("password") String password) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(walletService.save(walletService.generateWallet(password)));
     }
 }

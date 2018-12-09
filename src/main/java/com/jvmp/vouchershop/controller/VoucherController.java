@@ -3,7 +3,7 @@ package com.jvmp.vouchershop.controller;
 import com.jvmp.vouchershop.domain.Voucher;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
-import com.jvmp.vouchershop.voucher.VoucherRepository;
+import com.jvmp.vouchershop.repository.VoucherRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;

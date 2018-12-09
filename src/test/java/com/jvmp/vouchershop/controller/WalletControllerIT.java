@@ -1,6 +1,6 @@
 package com.jvmp.vouchershop.controller;
 
-import com.google.common.collect.ImmutableMap;
+import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.domain.Wallet;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -22,7 +24,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        classes = Application.class
+)
 public class WalletControllerIT {
 
     @LocalServerPort
@@ -48,17 +53,15 @@ public class WalletControllerIT {
     public void generateWalletPersistsItImmediately() {
         String strongPassword = UUID.randomUUID().toString();
         Wallet generatedWallet = template
-                .getForEntity(
-                        base.toString() + "/generate",
-                        Wallet.class,
-                        ImmutableMap.builder().put("password", strongPassword).build()
-                )
+                .getForEntity(base.toString() + "/new?password=" + strongPassword, Wallet.class)
                 .getBody();
 
         assertNotNull(generatedWallet);
         assertNotNull(generatedWallet.getId());
 
-        List wallets = template.getForEntity(base.toString(), List.class).getBody();
+        List wallets = template.exchange(base.toString(), HttpMethod.GET, null,
+                new ParameterizedTypeReference<List<Wallet>>() {
+                }).getBody();
         assertNotNull(wallets);
         assertEquals(singletonList(generatedWallet), wallets);
     }

@@ -1,85 +1,58 @@
 package com.jvmp.vouchershop.controller;
 
-import com.jvmp.vouchershop.domain.Wallet;
-import com.jvmp.vouchershop.exception.IllegalOperationException;
-import com.jvmp.vouchershop.exception.ResourceNotFoundException;
-import com.jvmp.vouchershop.wallet.WalletService;
-import org.apache.commons.lang3.RandomUtils;
-import org.bitcoinj.core.Coin;
-import org.junit.Before;
+import com.jvmp.vouchershop.Application;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Created by Hubert Czerpak on 2018-12-08
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = Application.class)
+@AutoConfigureMockMvc
 public class WalletControllerTest {
 
-    @Mock
-    private WalletService walletService;
+    @Autowired
+    private MockMvc mvc;
 
-    @Mock
-    private org.bitcoinj.wallet.Wallet btcWallet;
-
-    private WalletController walletController;
-
-    private Wallet testWallet;
-
-    @Before
-    public void setUp() {
-        walletController = new WalletController(walletService);
-        testWallet = new Wallet()
-                .withAddress(UUID.randomUUID().toString())
-                .withBtcWallet(btcWallet);
+    @Test
+    public void getHello() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("Greetings from Spring Boot!")));
     }
 
     @Test
-    public void getAllWallets() {
-        when(walletService.findAll()).thenReturn(singletonList(testWallet));
-
-        assertEquals(singletonList(testWallet), walletController.getAllWallets());
-
-        verify(walletService, times(1)).findAll();
-    }
-
-    @Test(expected = ResourceNotFoundException.class)
-    public void return404IfNowWalletOnDeleteWallet() {
-        final long id = RandomUtils.nextLong(0, 1000);
-
-        walletController.deleteWallet(id);
-    }
-
-    @Test(expected = IllegalOperationException.class)
-    public void dontLetRemoveWalletWithBalance() {
-        final long id = RandomUtils.nextLong(0, 1000);
-        when(walletService.findById(eq(id))).thenReturn(Optional.of(testWallet));
-        when(btcWallet.getBalance()).thenReturn(Coin.valueOf(RandomUtils.nextLong(1_000, 2_000)));
-
-        walletController.deleteWallet(id);
+    public void getAllWallets() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/wallets"))
+                .andExpect(status().isOk());
     }
 
     @Test
-    public void deleteWalletSuccessfully() {
-        final long id = RandomUtils.nextLong(0, 1000);
-        when(walletService.findById(eq(id))).thenReturn(Optional.of(testWallet));
-        when(btcWallet.getBalance()).thenReturn(Coin.ZERO);
-
-        walletController.deleteWallet(id);
-
-        verify(walletService, times(1)).delete(eq(id));
+    public void deleteWallet() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.delete("/wallets"));
     }
 
     @Test
-    public void generateWallet() {
+    public void newWallet() throws Exception {
+        String password = RandomStringUtils.randomAlphabetic(32);
+        mvc.perform(MockMvcRequestBuilders.get("/wallets/new?password=" + password))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.address", notNullValue()))
+                .andExpect(jsonPath("$.extendedPrivateKey", notNullValue()));
     }
 }
