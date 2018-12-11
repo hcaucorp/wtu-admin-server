@@ -48,7 +48,9 @@ public class WalletServiceImplIT {
     @Test
     public void save() {
         String strongPassword = RandomStringUtils.randomAlphabetic(32);
-        Wallet generatedWallet = walletService.generateWallet(strongPassword);
+        Wallet generatedWallet = walletService.generateWallet(
+                strongPassword,
+                RandomStringUtils.randomAlphabetic(32));
 
         assertNotNull(generatedWallet);
         assertNull(generatedWallet.getId());

@@ -1,6 +1,8 @@
 package com.jvmp.vouchershop.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jvmp.vouchershop.Application;
+import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,13 +48,20 @@ public class WalletControllerTest {
     }
 
     @Test
-    public void newWallet() throws Exception {
+    public void generateWallet() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
         String password = RandomStringUtils.randomAlphabetic(32);
-        mvc.perform(MockMvcRequestBuilders.get("/wallets/new?password=" + password))
+        String description = "Wallet Description (" + RandomStringUtils.randomAlphabetic(32) + ")";
+        String payload = objectMapper.writeValueAsString(new WalletController.GenerateWalletPayload(password, description));
+        mvc.perform(MockMvcRequestBuilders.post("/wallets/generate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload)
+        )
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.address", notNullValue()))
                 .andExpect(jsonPath("$.extendedPrivateKey", notNullValue()));
     }
+
 }

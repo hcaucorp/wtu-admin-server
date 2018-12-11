@@ -18,6 +18,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -49,11 +50,13 @@ public class WalletServiceImplTest {
     @Test
     public void generateWallet() {
         String strongPassword = RandomStringUtils.randomAlphabetic(32);
-        Wallet generatedWallet = walletService.generateWallet(strongPassword);
+        String description = RandomStringUtils.randomAlphabetic(32);
+        Wallet generatedWallet = walletService.generateWallet(strongPassword, description);
 
         assertNotNull(generatedWallet);
         assertNotNull(generatedWallet.getAddress());
         assertNotNull(generatedWallet.getExtendedPrivateKey());
+        assertEquals(description, generatedWallet.getDescription());
     }
 
     @Test(expected = ResourceNotFoundException.class)

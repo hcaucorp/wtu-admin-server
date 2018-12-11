@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface WalletService {
 
-    Wallet generateWallet(String password);
+    Wallet generateWallet(String password, String description);
 
     List<Wallet> findAll();
 

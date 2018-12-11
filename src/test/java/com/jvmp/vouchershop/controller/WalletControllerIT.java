@@ -14,6 +14,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.UUID;
@@ -52,12 +53,17 @@ public class WalletControllerIT {
     @Test
     public void generateWalletPersistsItImmediately() {
         String strongPassword = UUID.randomUUID().toString();
-        Wallet generatedWallet = template
-                .getForEntity(base.toString() + "/new?password=" + strongPassword, Wallet.class)
-                .getBody();
+        String description = UUID.randomUUID().toString();
+        URI walletLocation = template
+                .postForLocation(
+                        base.toString() + "/generate" + strongPassword,
+                        new WalletController.GenerateWalletPayload(strongPassword, description));
+
+        ResponseEntity<Wallet> generatedWallet = template.getForEntity(walletLocation, Wallet.class);
 
         assertNotNull(generatedWallet);
         assertNotNull(generatedWallet.getId());
+        assertEquals(description, generatedWallet.getDescription());
 
         List wallets = template.exchange(base.toString(), HttpMethod.GET, null,
                 new ParameterizedTypeReference<List<Wallet>>() {

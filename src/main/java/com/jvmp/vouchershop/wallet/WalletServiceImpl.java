@@ -27,7 +27,7 @@ public class WalletServiceImpl implements WalletService {
     private final NetworkParameters networkParameters;
 
     @Override
-    public Wallet generateWallet(String password) {
+    public Wallet generateWallet(String password, String description) {
 
 //        Wallet btcWallet = new Wallet(networkParameters);
 
@@ -52,6 +52,7 @@ public class WalletServiceImpl implements WalletService {
                         .getKey(KeyChain.KeyPurpose.AUTHENTICATION)
                         .serializePubB58(networkParameters)
                 )
+                .withDescription(description)
                 .withExtendedPrivateKey(walletWords)
                 .withBtcWallet(bitcoinjWallet);
 
