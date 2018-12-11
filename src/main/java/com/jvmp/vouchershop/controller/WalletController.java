@@ -1,6 +1,7 @@
 package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.domain.Wallet;
+import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -29,6 +30,12 @@ public class WalletController {
         return walletService.findAll();
     }
 
+    @GetMapping("/wallets/{id}")
+    public ResponseEntity<?> getWallet(@PathVariable Long id) {
+        return ResponseEntity.ok(walletService.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Wallet not found")));
+    }
+
     @DeleteMapping("/wallets/{id}")
     public ResponseEntity<?> deleteWallet(@PathVariable Long id) {
         walletService.delete(id);
@@ -43,7 +50,7 @@ public class WalletController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .location(URI.create("/wallets/" + wallet.getId()))
-                .body(wallet);
+                .build();
     }
 
     @AllArgsConstructor

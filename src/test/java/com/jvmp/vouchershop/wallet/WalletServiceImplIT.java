@@ -15,7 +15,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Instant;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
@@ -61,8 +63,6 @@ public class WalletServiceImplIT {
         assertNotNull(savedWallet.getId());
         assertNotNull(savedWallet.getCreatedAt());
         assertTrue(savedWallet.getCreatedAt().toInstant().isBefore(Instant.now()));
-
-        assertEquals(1, walletRepository.count());
     }
 
 }

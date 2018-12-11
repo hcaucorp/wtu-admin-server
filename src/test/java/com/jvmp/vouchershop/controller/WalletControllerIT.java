@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -41,12 +42,12 @@ public class WalletControllerIT {
 
     @Before
     public void setUp() throws Exception {
-        this.base = new URL("http://localhost:" + port + "/wallets");
+        this.base = new URL("http://localhost:" + port);
     }
 
     @Test
     public void getAllWallets() {
-        ResponseEntity<List> response = template.getForEntity(base.toString(), List.class);
+        ResponseEntity<List> response = template.getForEntity(base.toString() + "/wallets", List.class);
         assertEquals(emptyList(), response.getBody());
     }
 
@@ -54,21 +55,17 @@ public class WalletControllerIT {
     public void generateWalletPersistsItImmediately() {
         String strongPassword = UUID.randomUUID().toString();
         String description = UUID.randomUUID().toString();
-        URI walletLocation = template
+        URI location = template
                 .postForLocation(
-                        base.toString() + "/generate" + strongPassword,
+                        base.toString() + "/wallets/generate",
                         new WalletController.GenerateWalletPayload(strongPassword, description));
 
-        ResponseEntity<Wallet> generatedWallet = template.getForEntity(walletLocation, Wallet.class);
+        assertNotNull(location);
+
+        Wallet generatedWallet = template.getForEntity(base.toString() + location, Wallet.class).getBody();
 
         assertNotNull(generatedWallet);
         assertNotNull(generatedWallet.getId());
         assertEquals(description, generatedWallet.getDescription());
-
-        List wallets = template.exchange(base.toString(), HttpMethod.GET, null,
-                new ParameterizedTypeReference<List<Wallet>>() {
-                }).getBody();
-        assertNotNull(wallets);
-        assertEquals(singletonList(generatedWallet), wallets);
     }
 }
