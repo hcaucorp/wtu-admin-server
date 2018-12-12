@@ -1,6 +1,7 @@
 package com.jvmp.vouchershop.wallet;
 
-import com.jvmp.vouchershop.domain.Wallet;
+import com.jvmp.vouchershop.crypto.btc.WalletServiceImpl;
+import com.jvmp.vouchershop.domain.VWallet;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.WalletRepository;
@@ -27,7 +28,7 @@ import static org.mockito.Mockito.*;
  * Created by Hubert Czerpak on 2018-12-08
  */
 @RunWith(MockitoJUnitRunner.class)
-public class WalletServiceImplTest {
+public class VWalletServiceImplTest {
 
     @Mock
     private WalletRepository walletRepository;
@@ -36,27 +37,28 @@ public class WalletServiceImplTest {
 
     @Mock
     private org.bitcoinj.wallet.Wallet btcWallet;
-    private Wallet testWallet;
+    private VWallet testVWallet;
 
     @Before
     public void setUp() {
         Context btcContext = new Context(UnitTestParams.get());
         walletService = new WalletServiceImpl(walletRepository, btcContext.getParams());
-        testWallet = new Wallet()
-                .withAddress(UUID.randomUUID().toString())
-                .withBtcWallet(btcWallet);
+        testVWallet = new VWallet()
+                .withMnemonic("behave snap girl enforce sadness boil fine during use anchor screen sample")
+                .withId(RandomUtils.nextLong(1, 1_000))
+                .withAddress(UUID.randomUUID().toString());
     }
 
     @Test
     public void generateWallet() {
         String strongPassword = RandomStringUtils.randomAlphabetic(32);
         String description = RandomStringUtils.randomAlphabetic(32);
-        Wallet generatedWallet = walletService.generateWallet(strongPassword, description);
+        VWallet generatedVWallet = walletService.generateWallet(strongPassword, description);
 
-        assertNotNull(generatedWallet);
-        assertNotNull(generatedWallet.getAddress());
-        assertNotNull(generatedWallet.getExtendedPrivateKey());
-        assertEquals(description, generatedWallet.getDescription());
+        assertNotNull(generatedVWallet);
+        assertNotNull(generatedVWallet.getAddress());
+        assertNotNull(generatedVWallet.getMnemonic());
+        assertEquals(description, generatedVWallet.getDescription());
     }
 
     @Test(expected = ResourceNotFoundException.class)
@@ -79,20 +81,20 @@ public class WalletServiceImplTest {
         verify(walletRepository, times(1)).findById(id);
     }
 
-
-    @Test(expected = IllegalOperationException.class)
-    public void dontLetRemoveWalletWithBalance() {
-        final long id = RandomUtils.nextLong(0, 1000);
-        when(walletRepository.findById(eq(id))).thenReturn(Optional.of(testWallet));
-        when(btcWallet.getBalance()).thenReturn(Coin.valueOf(RandomUtils.nextLong(1_000, 2_000)));
-
-        walletService.delete(id);
-    }
+// TODO have to convert restoreWallet() function into "wallet restoration service"
+//    @Test(expected = IllegalOperationException.class)
+//    public void dontLetRemoveWalletWithBalance() {
+//        final long id = RandomUtils.nextLong(0, 1000);
+//        when(walletRepository.findById(eq(id))).thenReturn(Optional.of(testVWallet));
+//        when(btcWallet.getBalance()).thenReturn(Coin.valueOf(RandomUtils.nextLong(1_000, 2_000)));
+//
+//        walletService.delete(id);
+//    }
 
     @Test
     public void deleteWalletSuccessfully() {
         final long id = RandomUtils.nextLong(0, 1000);
-        when(walletRepository.findById(eq(id))).thenReturn(Optional.of(testWallet));
+        when(walletRepository.findById(eq(id))).thenReturn(Optional.of(testVWallet));
         when(btcWallet.getBalance()).thenReturn(Coin.ZERO);
 
         walletService.delete(id);

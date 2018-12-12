@@ -1,7 +1,7 @@
 package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.Application;
-import com.jvmp.vouchershop.domain.Wallet;
+import com.jvmp.vouchershop.domain.VWallet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -20,7 +18,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -30,7 +27,7 @@ import static org.junit.Assert.assertNotNull;
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = Application.class
 )
-public class WalletControllerIT {
+public class VWalletControllerIT {
 
     @LocalServerPort
     private int port;
@@ -62,10 +59,10 @@ public class WalletControllerIT {
 
         assertNotNull(location);
 
-        Wallet generatedWallet = template.getForEntity(base.toString() + location, Wallet.class).getBody();
+        VWallet generatedVWallet = template.getForEntity(base.toString() + location, VWallet.class).getBody();
 
-        assertNotNull(generatedWallet);
-        assertNotNull(generatedWallet.getId());
-        assertEquals(description, generatedWallet.getDescription());
+        assertNotNull(generatedVWallet);
+        assertNotNull(generatedVWallet.getId());
+        assertEquals(description, generatedVWallet.getDescription());
     }
 }

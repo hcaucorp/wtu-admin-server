@@ -1,8 +1,8 @@
 package com.jvmp.vouchershop.controller;
 
-import com.jvmp.vouchershop.domain.Wallet;
+import com.jvmp.vouchershop.domain.VWallet;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
-import com.jvmp.vouchershop.wallet.WalletService;
+import com.jvmp.vouchershop.crypto.btc.WalletService;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,14 +26,14 @@ public class WalletController {
     private WalletService walletService;
 
     @GetMapping("/wallets")
-    public List<Wallet> getAllWallets() {
+    public List<VWallet> getAllWallets() {
         return walletService.findAll();
     }
 
     @GetMapping("/wallets/{id}")
     public ResponseEntity<?> getWallet(@PathVariable Long id) {
         return ResponseEntity.ok(walletService.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Wallet not found")));
+                .orElseThrow(() -> new ResourceNotFoundException("VWallet not found")));
     }
 
     @DeleteMapping("/wallets/{id}")
@@ -44,12 +44,12 @@ public class WalletController {
     }
 
     @PostMapping("/wallets/generate")
-    public ResponseEntity<Wallet> generateWallet(@RequestBody GenerateWalletPayload payload) {
-        Wallet wallet = walletService.save(walletService.generateWallet(payload.password, payload.description));
+    public ResponseEntity<VWallet> generateWallet(@RequestBody GenerateWalletPayload payload) {
+        VWallet VWallet = walletService.save(walletService.generateWallet(payload.password, payload.description));
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .location(URI.create("/wallets/" + wallet.getId()))
+                .location(URI.create("/wallets/" + VWallet.getId()))
                 .build();
     }
 
