@@ -1,7 +1,7 @@
 package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.Application;
-import com.jvmp.vouchershop.domain.VWallet;
+import com.jvmp.vouchershop.domain.Wallet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,16 +18,16 @@ import java.util.List;
 import java.util.UUID;
 
 import static java.util.Collections.emptyList;
-import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = Application.class
 )
-public class VWalletControllerIT {
+public class WalletControllerIT {
 
     @LocalServerPort
     private int port;
@@ -59,10 +59,13 @@ public class VWalletControllerIT {
 
         assertNotNull(location);
 
-        VWallet generatedVWallet = template.getForEntity(base.toString() + location, VWallet.class).getBody();
+        Wallet generatedWallet = template.getForEntity(base.toString() + location, Wallet.class).getBody();
 
-        assertNotNull(generatedVWallet);
-        assertNotNull(generatedVWallet.getId());
-        assertEquals(description, generatedVWallet.getDescription());
+        assertNotNull(generatedWallet);
+        assertNotNull(generatedWallet.getId());
+        assertEquals(description, generatedWallet.getDescription());
+
+        // created_at doesn't have to go to frontend
+        assertNull(generatedWallet.getCreatedAt());
     }
 }

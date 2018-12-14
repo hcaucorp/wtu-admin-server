@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
-public class VWalletControllerTest {
+public class WalletControllerTest {
 
     @Autowired
     private MockMvc mvc;
@@ -52,7 +52,7 @@ public class VWalletControllerTest {
     public void generateWallet() throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         String password = RandomStringUtils.randomAlphabetic(32);
-        String description = "VWallet Description (" + RandomStringUtils.randomAlphabetic(32) + ")";
+        String description = "Wallet Description (" + RandomStringUtils.randomAlphabetic(32) + ")";
         String payload = objectMapper.writeValueAsString(new WalletController.GenerateWalletPayload(password, description));
         mvc.perform(MockMvcRequestBuilders.post("/wallets/generate")
                 .contentType(MediaType.APPLICATION_JSON)

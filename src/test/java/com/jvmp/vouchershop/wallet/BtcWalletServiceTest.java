@@ -1,13 +1,11 @@
 package com.jvmp.vouchershop.wallet;
 
-import com.jvmp.vouchershop.crypto.btc.WalletServiceImpl;
-import com.jvmp.vouchershop.domain.VWallet;
-import com.jvmp.vouchershop.exception.IllegalOperationException;
+import com.jvmp.vouchershop.crypto.btc.BtcWalletService;
+import com.jvmp.vouchershop.domain.Wallet;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
-import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.Context;
 import org.bitcoinj.params.UnitTestParams;
 import org.junit.Before;
@@ -16,11 +14,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -28,37 +28,40 @@ import static org.mockito.Mockito.*;
  * Created by Hubert Czerpak on 2018-12-08
  */
 @RunWith(MockitoJUnitRunner.class)
-public class VWalletServiceImplTest {
+public class BtcWalletServiceTest {
 
     @Mock
     private WalletRepository walletRepository;
 
-    private WalletServiceImpl walletService;
+    private BtcWalletService walletService;
 
-    @Mock
-    private org.bitcoinj.wallet.Wallet btcWallet;
-    private VWallet testVWallet;
+//    @Mock
+//    private org.bitcoinj.wallet.Wallet btcWallet;
+
+    private Wallet testWallet;
 
     @Before
     public void setUp() {
         Context btcContext = new Context(UnitTestParams.get());
-        walletService = new WalletServiceImpl(walletRepository, btcContext.getParams());
-        testVWallet = new VWallet()
+        walletService = new BtcWalletService(walletRepository, btcContext.getParams());
+        testWallet = new Wallet()
                 .withMnemonic("behave snap girl enforce sadness boil fine during use anchor screen sample")
                 .withId(RandomUtils.nextLong(1, 1_000))
-                .withAddress(UUID.randomUUID().toString());
+                .withAddress(UUID.randomUUID().toString())
+                .withCreatedAt(new Date())
+                .withCurrency("BTC");
     }
 
     @Test
     public void generateWallet() {
         String strongPassword = RandomStringUtils.randomAlphabetic(32);
         String description = RandomStringUtils.randomAlphabetic(32);
-        VWallet generatedVWallet = walletService.generateWallet(strongPassword, description);
+        Wallet generatedWallet = walletService.generateWallet(strongPassword, description);
 
-        assertNotNull(generatedVWallet);
-        assertNotNull(generatedVWallet.getAddress());
-        assertNotNull(generatedVWallet.getMnemonic());
-        assertEquals(description, generatedVWallet.getDescription());
+        assertNotNull(generatedWallet);
+        assertNotNull(generatedWallet.getAddress());
+        assertNotNull(generatedWallet.getMnemonic());
+        assertEquals(description, generatedWallet.getDescription());
     }
 
     @Test(expected = ResourceNotFoundException.class)
@@ -85,7 +88,7 @@ public class VWalletServiceImplTest {
 //    @Test(expected = IllegalOperationException.class)
 //    public void dontLetRemoveWalletWithBalance() {
 //        final long id = RandomUtils.nextLong(0, 1000);
-//        when(walletRepository.findById(eq(id))).thenReturn(Optional.of(testVWallet));
+//        when(walletRepository.findById(eq(id))).thenReturn(Optional.of(testWallet));
 //        when(btcWallet.getBalance()).thenReturn(Coin.valueOf(RandomUtils.nextLong(1_000, 2_000)));
 //
 //        walletService.delete(id);
@@ -94,11 +97,16 @@ public class VWalletServiceImplTest {
     @Test
     public void deleteWalletSuccessfully() {
         final long id = RandomUtils.nextLong(0, 1000);
-        when(walletRepository.findById(eq(id))).thenReturn(Optional.of(testVWallet));
-        when(btcWallet.getBalance()).thenReturn(Coin.ZERO);
+        when(walletRepository.findById(eq(id))).thenReturn(Optional.of(testWallet));
+//        when(btcWallet.getBalance()).thenReturn(Coin.ZERO);
 
         walletService.delete(id);
 
         verify(walletRepository, times(1)).deleteById(id);
+    }
+
+    @Test
+    public void findBalance() {
+        fail("not implemented");
     }
 }
