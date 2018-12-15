@@ -2,6 +2,7 @@ package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.domain.Wallet;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -37,6 +39,7 @@ public class WalletControllerIT {
     @Autowired
     private TestRestTemplate template;
 
+
     @Before
     public void setUp() throws Exception {
         this.base = new URL("http://localhost:" + port);
@@ -51,15 +54,12 @@ public class WalletControllerIT {
     @Test
     public void generateWalletPersistsItImmediately() {
         String strongPassword = UUID.randomUUID().toString();
-        String description = UUID.randomUUID().toString();
-        URI location = template
-                .postForLocation(
-                        base.toString() + "/wallets/generate",
-                        new WalletController.GenerateWalletPayload(strongPassword, description));
+        String description = "Description with number: " + RandomStringUtils.randomNumeric(12);
+        URI location = generateWallet(strongPassword, description);
 
         assertNotNull(location);
 
-        Wallet generatedWallet = template.getForEntity(base.toString() + location, Wallet.class).getBody();
+        Wallet generatedWallet = getWalletFromController(location);
 
         assertNotNull(generatedWallet);
         assertNotNull(generatedWallet.getId());
@@ -67,5 +67,33 @@ public class WalletControllerIT {
 
         // created_at doesn't have to go to frontend
         assertNull(generatedWallet.getCreatedAt());
+    }
+
+    private URI generateWallet(String strongPassword, String description) {
+        return template.postForLocation(
+                base.toString() + "/wallets/generate",
+                new WalletController.GenerateWalletPayload(strongPassword, description));
+    }
+
+    private Wallet getWalletFromController(URI location) {
+        ResponseEntity<Wallet> entity = template.getForEntity(base.toString() + location, Wallet.class);
+        return entity.getStatusCode() == HttpStatus.OK ?entity.getBody() : null;
+    }
+
+    @Test
+    public void getWalletById() {
+        // done in generateWalletPersistsItImmediately()
+    }
+
+    @Test
+    public void deleteWalletById() {
+        String strongPassword = UUID.randomUUID().toString();
+        String description = "Description with number: " + RandomStringUtils.randomNumeric(12);
+        URI location = generateWallet(strongPassword, description);
+        assertNotNull(getWalletFromController(location));
+
+        template.delete(base.toString() + location);
+
+        assertNull(getWalletFromController(location));
     }
 }

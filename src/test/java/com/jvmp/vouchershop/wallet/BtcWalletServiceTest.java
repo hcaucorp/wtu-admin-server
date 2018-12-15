@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.jvmp.vouchershop.voucher.WalletRandomUtils.wallet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -44,12 +45,7 @@ public class BtcWalletServiceTest {
     public void setUp() {
         Context btcContext = new Context(UnitTestParams.get());
         walletService = new BtcWalletService(walletRepository, btcContext.getParams());
-        testWallet = new Wallet()
-                .withMnemonic("behave snap girl enforce sadness boil fine during use anchor screen sample")
-                .withId(RandomUtils.nextLong(1, 1_000))
-                .withAddress(UUID.randomUUID().toString())
-                .withCreatedAt(new Date())
-                .withCurrency("BTC");
+        testWallet = wallet();
     }
 
     @Test
@@ -71,19 +67,6 @@ public class BtcWalletServiceTest {
         walletService.delete(id);
     }
 
-    @Test
-    public void findAllWallets() {
-        walletService.findAll();
-        verify(walletRepository, times(1)).findAll();
-    }
-
-    @Test
-    public void findById() {
-        final long id = RandomUtils.nextLong(0, 1000);
-        walletService.findById(id);
-        verify(walletRepository, times(1)).findById(id);
-    }
-
 // TODO have to convert restoreWallet() function into "wallet restoration service"
 //    @Test(expected = IllegalOperationException.class)
 //    public void dontLetRemoveWalletWithBalance() {
@@ -98,15 +81,9 @@ public class BtcWalletServiceTest {
     public void deleteWalletSuccessfully() {
         final long id = RandomUtils.nextLong(0, 1000);
         when(walletRepository.findById(eq(id))).thenReturn(Optional.of(testWallet));
-//        when(btcWallet.getBalance()).thenReturn(Coin.ZERO);
 
         walletService.delete(id);
 
         verify(walletRepository, times(1)).deleteById(id);
-    }
-
-    @Test
-    public void findBalance() {
-        fail("not implemented");
     }
 }

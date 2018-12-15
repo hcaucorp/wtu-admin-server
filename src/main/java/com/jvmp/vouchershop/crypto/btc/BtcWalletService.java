@@ -39,21 +39,6 @@ public class BtcWalletService implements WalletService {
 
     @Override
     public Wallet generateWallet(String password, String description) {
-
-//        Wallet btcWallet = new Wallet(networkParameters);
-
-//
-//        BlockChain chain = null;
-//        try {
-//            chain = new BlockChain(networkParameters, btcWallet, blockStore);
-//        } catch (BlockStoreException e) {
-//            log.error("Cannot create Wallet. See stacktrace below for more info", e);
-//            throw new InternalServerException("Cause by BlockStoreException, original message: " + e.getMessage(), e);
-//        }
-//        PeerGroup peerGroup = new PeerGroup(networkParameters, chain);
-//        peerGroup.addWallet(btcWallet);
-//        peerGroup.start();
-
         org.bitcoinj.wallet.Wallet bitcoinjWallet = new org.bitcoinj.wallet.Wallet(networkParameters);
         String walletWords = walletWords(bitcoinjWallet);
         long creationTime = bitcoinjWallet.getKeyChainSeed().getCreationTimeSeconds();
@@ -94,17 +79,20 @@ public class BtcWalletService implements WalletService {
 
     @Override
     public void delete(long id) {
-        Wallet wallet = findById(id).orElseThrow(() -> new ResourceNotFoundException("Wallet not found with id " + id));
+        findById(id).orElseThrow(() -> new ResourceNotFoundException("Wallet not found with id " + id));
 
         // prevent deleting wallet with balance and loosing the money on it
-        findBalance(wallet).ifPresent(
-                coin -> {
-                    if (coin.isPositive())
-                        throw new IllegalOperationException("Wallet balance is positive and can't be deleted. Move money to different wallet before deleting this wallet " +
-                                "or else ALL the funds will be lost!");
+//        findBalance(wallet).ifPresent(
+//                coin -> {
+//                    if (coin.isPositive())
+//                        throw new IllegalOperationException("Wallet balance is positive and can't be deleted. Move money to different wallet before deleting this wallet " +
+//                                "or else ALL the funds will be lost!");
+//
+//                    walletRepository.deleteById(id);
+//                });
+//
 
-                    walletRepository.deleteById(id);
-                });
+        walletRepository.deleteById(id);
     }
 
     @Override

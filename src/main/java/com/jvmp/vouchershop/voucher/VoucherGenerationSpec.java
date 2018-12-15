@@ -1,9 +1,17 @@
 package com.jvmp.vouchershop.voucher;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Wither;
+
+import java.io.Serializable;
 
 @Data
-public class VoucherGenerationSpec {
+@AllArgsConstructor
+@NoArgsConstructor
+@Wither
+public class VoucherGenerationSpec implements Serializable {
 
     /**
      * Number of vouchers to generate

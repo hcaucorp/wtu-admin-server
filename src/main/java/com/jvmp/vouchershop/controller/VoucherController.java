@@ -1,8 +1,6 @@
 package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.domain.Voucher;
-import com.jvmp.vouchershop.exception.IllegalOperationException;
-import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.voucher.VoucherGenerationSpec;
 import com.jvmp.vouchershop.voucher.VoucherService;
 import lombok.AllArgsConstructor;
@@ -12,10 +10,11 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -32,20 +31,17 @@ public class VoucherController {
 
     @DeleteMapping("/vouchers/{id}")
     public ResponseEntity<?> deleteVoucherById(@PathVariable long id) {
-        Voucher voucher = voucherService.findById(id).orElseThrow(() -> new ResourceNotFoundException("Voucher not found with id " + id));
-
-        if (voucher.isPublished()) throw new IllegalOperationException("Voucher has been published for sale and cannot be deleted");
-
-        voucherService.delete(voucher.getId());
-
+        voucherService.delete(id);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/vouchers")
+    @PostMapping("/vouchers")
     public ResponseEntity<?> generateVouchers(@RequestBody VoucherGenerationSpec details) {
-        List<Voucher> vouchers = voucherService.generateVouchers(details);
-        voucherService.save(vouchers);
+        voucherService.save(voucherService.generateVouchers(details));
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .location(URI.create("/vouchers"))
+                .build();
     }
 }

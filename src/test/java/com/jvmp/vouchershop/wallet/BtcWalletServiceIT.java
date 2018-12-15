@@ -3,9 +3,9 @@ package com.jvmp.vouchershop.wallet;
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.crypto.btc.BtcWalletService;
 import com.jvmp.vouchershop.domain.Wallet;
+import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.bitcoinj.core.Context;
 import org.bitcoinj.params.UnitTestParams;
 import org.junit.Before;
@@ -16,16 +16,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.Optional;
 
-import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
+import static com.jvmp.vouchershop.voucher.WalletRandomUtils.wallet;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
@@ -42,26 +43,19 @@ public class BtcWalletServiceIT {
         walletService = new BtcWalletService(walletRepository, btcContext.getParams());
     }
 
-
-    @Test
-    public void findAll() {
-        List<Wallet> expected = IntStream.range(0, 100)
-                .mapToObj(value -> walletService.generateWallet(RandomStringUtils.randomAlphabetic(12), "Integration Test wallet #" + value))
-                .collect(toList());
-        walletRepository.saveAll(expected);
-
-        List<Wallet> result = walletService.findAll();
-        assertEquals(expected, result);
-    }
-
-    @Test
-    public void findById() {
-        fail("not implemented");
+    @Test(expected = ResourceNotFoundException.class)
+    public void deleteVoucherByIdNotFound() {
+        walletService.delete(1);
     }
 
     @Test
     public void delete() {
-        fail("not implemented");
+        Wallet wallet = wallet().withId(1L);
+        when(walletRepository.findById(any())).thenReturn(Optional.of(wallet));
+
+        walletService.delete(wallet.getId());
+
+        verify(walletRepository, times(1)).delete(eq(wallet));
     }
 
     @Test
@@ -80,5 +74,4 @@ public class BtcWalletServiceIT {
         assertNotNull(savedWallet.getId());
         assertTrue(savedWallet.getCreatedAt().toInstant().isBefore(Instant.now()));
     }
-
 }

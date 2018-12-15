@@ -34,9 +34,9 @@ public class ShopifyControllerIT {
         this.base = new URL("http://localhost:" + port + "/");
     }
 
-    @Test
-    public void getHello() {
-        ResponseEntity<String> response = template.getForEntity(base.toString(), String.class);
-        assertThat(response.getBody(), equalTo("Greetings from Spring Boot!"));
-    }
+//    @Test
+//    public void getHello() {
+//        ResponseEntity<String> response = template.getForEntity(base.toString(), String.class);
+//        assertThat(response.getBody(), equalTo("Greetings from Spring Boot!"));
+//    }
 }

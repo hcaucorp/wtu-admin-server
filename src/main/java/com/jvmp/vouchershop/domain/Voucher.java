@@ -66,6 +66,9 @@ public class Voucher implements Serializable {
     @CreatedDate
     Date createdAt;
 
+    @Column(name = "expires_at")
+    Date expiresAt;
+
     public Voucher(String code, @Positive long amount, @Size(min = 3, max = 3) String currency) {
         this.amount = amount;
         this.currency = currency;

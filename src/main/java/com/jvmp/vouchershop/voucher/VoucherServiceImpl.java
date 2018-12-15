@@ -28,13 +28,13 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     public List<Voucher> generateVouchers(VoucherGenerationSpec spec) {
-        String currency = walletService.findById(spec.walletId)
-                .map(Wallet::getCurrency)
-                .orElseThrow(() -> new ResourceNotFoundException("Wallet with id " + spec.walletId + "not found."));
-
         if (spec.totalAmount % spec.count != 0)
             throw new IllegalOperationException("Total amount must be divisible by count because all vouchers must be identical. Current specification is " +
                     "incorrect: can't split amount of: " + spec.totalAmount + " into " + spec.count + " equal pieces.");
+
+        String currency = walletService.findById(spec.walletId)
+                .map(Wallet::getCurrency)
+                .orElseThrow(() -> new ResourceNotFoundException("Wallet with id " + spec.walletId + " not found."));
 
         long amount = spec.totalAmount / spec.count;
 
@@ -57,6 +57,10 @@ public class VoucherServiceImpl implements VoucherService {
     public void delete(long id) {
         Voucher voucher = voucherRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Voucher with id " + id + "not found."));
+
+        if (voucher.isPublished())
+            throw new IllegalOperationException("Voucher has been published for sale and cannot be deleted");
+
         voucherRepository.delete(voucher);
     }
 

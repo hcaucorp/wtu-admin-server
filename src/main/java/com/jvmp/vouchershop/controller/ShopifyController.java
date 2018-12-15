@@ -6,18 +6,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
 
-@RestController("/shopify")
+@RestController()
 public class ShopifyController {
-    
-    @RequestMapping("/")
-    public String index() {
-        return "Greetings from Spring Boot!";
-    }
 
 
-    @PostMapping("/vouchers")
+    @PostMapping("/shopify/vouchers")
     public String abct(@RequestParam("quantity") long quantity) {
 
 
@@ -37,7 +31,7 @@ public class ShopifyController {
     /**
      * Triggered when something has been sold on Shopify and needs fullfilling
      */
-    @GetMapping
+    @GetMapping("/shopify/fullfill")
     public ResponseEntity<?> fullFillmentHook() {
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
