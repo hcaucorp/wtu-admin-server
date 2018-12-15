@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
@@ -26,7 +25,7 @@ import java.util.List;
 import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucher;
 import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucherGenerationSpec;
 import static com.jvmp.vouchershop.voucher.WalletRandomUtils.wallet;
-import static java.util.Collections.singleton;
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -56,44 +55,42 @@ public class VoucherControllerIT {
     @Autowired
     private WalletRepository walletRepository;
 
-    private Voucher testVoucher;
+    private List<Voucher> testVouchers;
 
     @Before
     public void setUp() throws Exception {
         base = new URL("http://localhost:" + port + "/");
-        testVoucher = voucherRepository.save(voucher());
+        testVouchers = asList(
+                voucherRepository.save(voucher()),
+                voucherRepository.save(voucher())
+        );
+//        objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
     }
 
     @Test
     public void getAllVouchers() {
-        assertTrue(voucherRepository.findById(testVoucher.getId()).isPresent());
-
-        ResponseEntity<List> response = template.getForEntity(base.toString() + "/vouchers", List.class);
-        assertEquals(singleton(testVoucher), response.getBody());
+        testVouchers.forEach(voucher -> assertTrue(voucherRepository.findById(voucher.getId()).isPresent()));
+        ResponseEntity<List<Voucher>> response = template.exchange(base.toString() + "/vouchers", HttpMethod.GET, null, new VoucherList());
+        assertEquals(testVouchers, response.getBody());
     }
 
     @Test
     public void deleteVoucherById() {
-        assertTrue(voucherRepository.findById(testVoucher.getId()).isPresent());
-
-        template.delete(base.toString() + "/vouchers/" + testVoucher.getId());
-
-        assertFalse(voucherRepository.findById(testVoucher.getId()).isPresent());
+        testVouchers.stream().map(Voucher::getId).forEach(id -> {
+            assertTrue(voucherRepository.findById(id).isPresent());
+            template.delete(base.toString() + "/vouchers/" + id);
+            assertFalse(voucherRepository.findById(id).isPresent());
+        });
     }
 
     @Test
     public void generateVouchers() {
         Wallet wallet = walletRepository.save(wallet());
 
-        URI location = template.exchange(
-                base.toString() + "/vouchers",
-                HttpMethod.POST,
-                null,
-                new ParameterizedTypeReference<List<Voucher>>() {},
-                voucherGenerationSpec().withWalletId(wallet.getId()))
-                .getHeaders()
-                .getLocation();
+        URI location = template.postForLocation(base.toString() + "/vouchers", voucherGenerationSpec().withWalletId(wallet.getId()), String.class);
 
         assertNotNull(location);
     }
+
+    private static class VoucherList extends ParameterizedTypeReference<List<Voucher>> {}
 }

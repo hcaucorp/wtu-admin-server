@@ -1,11 +1,9 @@
 package com.jvmp.vouchershop.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Wither;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -30,10 +28,6 @@ import java.util.Date;
 @Entity
 @Table(name = "vouchers")
 @EntityListeners(AuditingEntityListener.class)
-@JsonIgnoreProperties(
-        value = {"createdAt"},
-        allowGetters = true
-)
 public class Voucher implements Serializable {
 
     @Column(nullable = false, updatable = false)

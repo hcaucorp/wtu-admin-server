@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 import static com.jvmp.vouchershop.voucher.WalletRandomUtils.wallet;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -50,12 +51,12 @@ public class BtcWalletServiceIT {
 
     @Test
     public void delete() {
-        Wallet wallet = wallet().withId(1L);
-        when(walletRepository.findById(any())).thenReturn(Optional.of(wallet));
+        Wallet wallet = walletRepository.save(wallet());
+        assertNotNull(walletRepository.findById(wallet.getId()));
 
         walletService.delete(wallet.getId());
 
-        verify(walletRepository, times(1)).delete(eq(wallet));
+        assertFalse(walletRepository.findById(wallet.getId()).isPresent());
     }
 
     @Test

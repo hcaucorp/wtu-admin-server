@@ -22,7 +22,6 @@ import java.util.UUID;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -59,14 +58,15 @@ public class WalletControllerIT {
 
         assertNotNull(location);
 
-        Wallet generatedWallet = getWalletFromController(location);
+
+        ResponseEntity<Wallet> entity = template.getForEntity(base.toString() + location, Wallet.class);
+        assertEquals(HttpStatus.OK, entity.getStatusCode());
+        Wallet generatedWallet = entity.getBody();
 
         assertNotNull(generatedWallet);
         assertNotNull(generatedWallet.getId());
         assertEquals(description, generatedWallet.getDescription());
-
-        // created_at doesn't have to go to frontend
-        assertNull(generatedWallet.getCreatedAt());
+        assertNotNull(generatedWallet.getCreatedAt());
     }
 
     private URI generateWallet(String strongPassword, String description) {
@@ -75,14 +75,9 @@ public class WalletControllerIT {
                 new WalletController.GenerateWalletPayload(strongPassword, description));
     }
 
-    private Wallet getWalletFromController(URI location) {
-        ResponseEntity<Wallet> entity = template.getForEntity(base.toString() + location, Wallet.class);
-        return entity.getStatusCode() == HttpStatus.OK ?entity.getBody() : null;
-    }
-
     @Test
     public void getWalletById() {
-        // done in generateWalletPersistsItImmediately()
+        // done in #generateWalletPersistsItImmediately()
     }
 
     @Test
@@ -90,10 +85,14 @@ public class WalletControllerIT {
         String strongPassword = UUID.randomUUID().toString();
         String description = "Description with number: " + RandomStringUtils.randomNumeric(12);
         URI location = generateWallet(strongPassword, description);
-        assertNotNull(getWalletFromController(location));
+        ResponseEntity<Wallet> entity;
+
+        entity = template.getForEntity(base.toString() + location, Wallet.class);
+        assertEquals(HttpStatus.OK, entity.getStatusCode());
 
         template.delete(base.toString() + location);
 
-        assertNull(getWalletFromController(location));
+        entity = template.getForEntity(base.toString() + location, Wallet.class);
+        assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
     }
 }

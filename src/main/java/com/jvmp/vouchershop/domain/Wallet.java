@@ -1,15 +1,18 @@
 package com.jvmp.vouchershop.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.experimental.Wither;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
@@ -20,9 +23,6 @@ import java.util.Date;
 @NoArgsConstructor
 @Entity
 @Table(name = "wallets")
-@JsonIgnoreProperties(
-        value = {"createdAt"},
-        allowGetters = true)
 public class Wallet implements Serializable {
 
     @Id
