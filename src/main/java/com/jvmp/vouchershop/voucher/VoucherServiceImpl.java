@@ -39,7 +39,7 @@ public class VoucherServiceImpl implements VoucherService {
         long amount = spec.totalAmount / spec.count;
 
         return IntStream.range(0, spec.count)
-                .mapToObj(next -> new Voucher(DEFAULT_ID_GENERATOR.get(), amount, currency))
+                .mapToObj(next -> new Voucher(DEFAULT_ID_GENERATOR.get(), amount, currency, spec.walletId))
                 .collect(toList());
     }
 

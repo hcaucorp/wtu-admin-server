@@ -49,11 +49,17 @@ public class Voucher implements Serializable {
     )
     Long id;
 
+    @Column(name = "wallet_id", nullable = false)
+    long walletId;
+
     @Column(nullable = false)
     boolean published;
 
     @Column(nullable = false)
     boolean redeemed;
+
+    @Column(nullable = false)
+    boolean sold;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -63,11 +69,13 @@ public class Voucher implements Serializable {
     @Column(name = "expires_at")
     Date expiresAt;
 
-    public Voucher(String code, @Positive long amount, @Size(min = 3, max = 3) String currency) {
+    public Voucher(String code, @Positive long amount, @Size(min = 3, max = 3) String currency, long walletId) {
         this.amount = amount;
         this.currency = currency;
         this.code = code;
+        this.walletId = walletId;
         this.redeemed = false;
         this.published = false;
+        this.sold = false;
     }
 }

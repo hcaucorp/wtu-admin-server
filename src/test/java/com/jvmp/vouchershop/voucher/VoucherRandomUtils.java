@@ -18,6 +18,8 @@ public class VoucherRandomUtils {
                 "integration-test-voucher-" + RandomStringUtils.randomNumeric(12),
                 "BTC",
                 RandomUtils.nextLong(1, 1_000),
+                RandomUtils.nextLong(1, 1_000),
+                false,
                 false,
                 false,
                 Date.from(Instant.now()),
