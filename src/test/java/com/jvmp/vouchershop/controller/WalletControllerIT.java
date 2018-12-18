@@ -71,7 +71,7 @@ public class WalletControllerIT {
 
     private URI generateWallet(String strongPassword, String description) {
         return template.postForLocation(
-                base.toString() + "/wallets/generate",
+                base.toString() + "/wallets",
                 new WalletController.GenerateWalletPayload(strongPassword, description));
     }
 

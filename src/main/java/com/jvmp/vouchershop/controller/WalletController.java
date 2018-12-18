@@ -43,7 +43,7 @@ public class WalletController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/wallets/generate")
+    @PostMapping("/wallets")
     public ResponseEntity<Wallet> generateWallet(@RequestBody GenerateWalletPayload payload) {
         Wallet Wallet = walletService.save(walletService.generateWallet(payload.password, payload.description));
 

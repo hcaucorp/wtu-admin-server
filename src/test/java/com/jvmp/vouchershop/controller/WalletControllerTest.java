@@ -44,7 +44,7 @@ public class WalletControllerTest {
         String password = RandomStringUtils.randomAlphabetic(32);
         String description = "Wallet Description (" + RandomStringUtils.randomAlphabetic(32) + ")";
         String payload = objectMapper.writeValueAsString(new WalletController.GenerateWalletPayload(password, description));
-        mvc.perform(MockMvcRequestBuilders.post("/wallets/generate")
+        mvc.perform(MockMvcRequestBuilders.post("/wallets")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(payload)
         )
