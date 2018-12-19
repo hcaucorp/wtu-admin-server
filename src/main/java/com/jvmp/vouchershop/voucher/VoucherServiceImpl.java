@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -49,11 +48,6 @@ public class VoucherServiceImpl implements VoucherService {
     }
 
     @Override
-    public Optional<Voucher> findById(long id) {
-        return voucherRepository.findById(id);
-    }
-
-    @Override
     public void delete(long id) {
         Voucher voucher = voucherRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Voucher with id " + id + "not found."));
@@ -62,11 +56,6 @@ public class VoucherServiceImpl implements VoucherService {
             throw new IllegalOperationException("Voucher has been published for sale and cannot be deleted");
 
         voucherRepository.delete(voucher);
-    }
-
-    @Override
-    public Voucher save(Voucher voucher) {
-        return voucherRepository.save(voucher);
     }
 
     @Override

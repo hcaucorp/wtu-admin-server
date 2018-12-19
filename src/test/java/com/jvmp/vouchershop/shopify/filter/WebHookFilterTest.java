@@ -12,6 +12,5 @@ public class WebHookFilterTest {
 
     @Test
     public void doFilter() {
-        String headerHashFromShopify = "PlhLPNwIwxmYR6T17qJOZ1k4l2sbSZmtnp529Pbp8/A=";
     }
 }
