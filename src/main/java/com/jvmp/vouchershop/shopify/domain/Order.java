@@ -13,6 +13,8 @@ import java.util.Date;
 import java.util.List;
 
 @JsonNaming(SnakeCaseStrategy.class)
+
+//@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class Order
 {
