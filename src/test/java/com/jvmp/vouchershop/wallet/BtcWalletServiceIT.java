@@ -16,7 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Instant;
 
-import static com.jvmp.vouchershop.RandomUtils.wallet;
+import static com.jvmp.vouchershop.RandomUtils.randomWallet;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -44,7 +44,7 @@ public class BtcWalletServiceIT {
 
     @Test
     public void delete() {
-        Wallet wallet = walletRepository.save(wallet());
+        Wallet wallet = walletRepository.save(randomWallet());
         assertNotNull(walletRepository.findById(wallet.getId()));
 
         walletService.delete(wallet.getId());

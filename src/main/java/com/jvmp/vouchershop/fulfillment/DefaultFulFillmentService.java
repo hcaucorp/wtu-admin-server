@@ -18,16 +18,16 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.completed;
 import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.initiated;
 import static com.jvmp.vouchershop.shopify.domain.FinancialStatus.paid;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 @Service
@@ -57,31 +57,30 @@ public class DefaultFulFillmentService implements FulFillmentService {
         Fulfillment fulfillment = initiateFulFillment(order, supplyForDemand);
 
         emailService.sendVouchers(supplyForDemand, order.getCustomer().getEmail());
+        shopifyService.markOrderFulfilled(fulfillment.getOrderId());
 
         completeFulFillment(fulfillment);
-
-        shopifyService.markOrderFulfilled(fulfillment.getOrderId());
     }
 
     @VisibleForTesting
-    void completeFulFillment(Fulfillment fulfillment) {
+    void completeFulFillment(@Nonnull Fulfillment fulfillment) {
         fulfillment.setStatus(completed);
         fulfillmentRepository.save(fulfillment);
+        fulfillment.getVouchers().forEach(voucher -> voucherRepository.save(voucher.withSold(true)));
     }
 
     @VisibleForTesting
-    Fulfillment initiateFulFillment(Order order, List<Voucher> supplyForDemand) {
+    Fulfillment initiateFulFillment(@Nonnull Order order, @Nonnull Set<Voucher> supplyForDemand) {
         Fulfillment fulfillment = new Fulfillment()
                 .withVouchers(supplyForDemand)
                 .withOrderId(order.getId())
                 .withStatus(initiated);
 
-        fulfillmentRepository.save(fulfillment);
-        return fulfillment;
+        return fulfillmentRepository.save(fulfillment);
     }
 
     @VisibleForTesting
-    void checkIfSupplyIsEnough(List<ImmutablePair<String, Integer>> lineItemsQuantities, List<Voucher> supplyForDemand) {
+    void checkIfSupplyIsEnough(Set<ImmutablePair<String, Integer>> lineItemsQuantities, Set<Voucher> supplyForDemand) {
         int totalCount = lineItemsQuantities.stream().mapToInt(value -> value.right).sum();
         int availableCount = supplyForDemand.size();
 
@@ -100,22 +99,21 @@ public class DefaultFulFillmentService implements FulFillmentService {
     }
 
     @VisibleForTesting
-    List<Voucher> findSupplyForDemand(List<ImmutablePair<String, Integer>> lineItemsQuantities) {
-
+    Set<Voucher> findSupplyForDemand(Set<ImmutablePair<String, Integer>> lineItemsQuantities) {
         return lineItemsQuantities.stream()
                 .flatMap(skuQuantity -> voucherRepository.findBySoldFalseAndSku(skuQuantity.left)
                         .stream()
                         .limit(skuQuantity.getRight()))
-                .collect(toList());
+                .collect(toSet());
     }
 
     @VisibleForTesting
-    List<ImmutablePair<String, Integer>> findVouchersSkuAndQuantity(@Nonnull Order order) {
+    Set<ImmutablePair<String, Integer>> findVouchersSkuAndQuantity(@Nonnull Order order) {
         return Optional.ofNullable(order.getLineItems())
                 .map(Collection::stream)
                 .orElse(Stream.empty())
                 .map(li -> ImmutablePair.of(li.getSku(), li.getQuantity()))
-                .collect(toList());
+                .collect(toSet());
     }
 
     @VisibleForTesting
@@ -146,7 +144,7 @@ public class DefaultFulFillmentService implements FulFillmentService {
     void checkIfOrderHasBeenFullyPaid(@Nonnull Order order) {
         Optional.of(order)
                 .map(Order::getFinancialStatus)
-                .filter(status -> status != paid)
+                .filter(status -> status == paid)
                 .orElseThrow(() -> {
                     log.error("Financial status is {} but should be paid. Aborting, full order data: {}", order.getFinancialStatus(), order);
                     return new InvalidOrderException("Financial status should be paid");

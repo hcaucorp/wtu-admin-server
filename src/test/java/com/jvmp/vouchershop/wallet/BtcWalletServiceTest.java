@@ -15,7 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Optional;
 
-import static com.jvmp.vouchershop.RandomUtils.wallet;
+import static com.jvmp.vouchershop.RandomUtils.randomWallet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
@@ -43,7 +43,7 @@ public class BtcWalletServiceTest {
     public void setUp() {
         Context btcContext = new Context(UnitTestParams.get());
         walletService = new BtcWalletService(walletRepository, btcContext.getParams());
-        testWallet = wallet();
+        testWallet = randomWallet();
     }
 
     @Test

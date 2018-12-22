@@ -19,7 +19,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 @Data
 @Wither
@@ -39,7 +39,7 @@ public class Fulfillment {
     private Long id;
 
     @OneToMany
-    private List<Voucher> vouchers;
+    private Set<Voucher> vouchers;
 
     @Column(nullable = false, updatable = false)
     private Long orderId;

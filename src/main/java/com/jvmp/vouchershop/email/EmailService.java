@@ -2,9 +2,9 @@ package com.jvmp.vouchershop.email;
 
 import com.jvmp.vouchershop.voucher.Voucher;
 
-import java.util.List;
+import java.util.Set;
 
 public interface EmailService {
 
-    void sendVouchers(List<Voucher> vouchers, String email);
+    void sendVouchers(Set<Voucher> vouchers, String email);
 }

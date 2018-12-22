@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Wither;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 @Data
@@ -14,9 +14,9 @@ import java.io.Serializable;
 @Wither
 public class VoucherRedeemnDetails implements Serializable {
 
-    @NotNull(message = "destinationAddress cannot be empty")
+    @NotBlank
     private String destinationAddress;
 
-    @NotNull(message = "voucherCode cannot be empty")
+    @NotBlank
     private String voucherCode;
 }

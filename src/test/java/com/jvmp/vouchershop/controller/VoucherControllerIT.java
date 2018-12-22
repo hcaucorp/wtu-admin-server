@@ -23,7 +23,8 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
-import static com.jvmp.vouchershop.RandomUtils.wallet;
+import static com.jvmp.vouchershop.RandomUtils.randomString;
+import static com.jvmp.vouchershop.RandomUtils.randomWallet;
 import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucher;
 import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucherGenerationSpec;
 import static java.util.Arrays.asList;
@@ -83,12 +84,19 @@ public class VoucherControllerIT {
 
     @Test
     public void generateVouchers() {
-        Wallet wallet = walletRepository.save(wallet());
+        Wallet wallet = walletRepository.save(randomWallet());
 
-        URI location = template.postForLocation(base.toString() + "/vouchers", voucherGenerationSpec().withWalletId(wallet.getId()), String.class);
+        URI location = template.postForLocation(
+                base.toString() + "/vouchers",
+                voucherGenerationSpec()
+                        .withWalletId(wallet.getId())
+                        .withSku(randomString()),
+                String.class
+        );
 
         assertNotNull(location);
     }
 
-    private static class VoucherList extends ParameterizedTypeReference<List<Voucher>> {}
+    private static class VoucherList extends ParameterizedTypeReference<List<Voucher>> {
+    }
 }

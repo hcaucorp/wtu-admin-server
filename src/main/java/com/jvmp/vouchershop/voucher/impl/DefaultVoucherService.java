@@ -43,7 +43,8 @@ public class DefaultVoucherService implements VoucherService {
                         .withAmount(amount)
                         .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get())
                         .withCurrency(currency)
-                        .withWalletId(spec.walletId))
+                        .withWalletId(spec.walletId)
+                        .withSku(spec.getSku()))
                 // TODO add more info?
                 .collect(toList());
     }

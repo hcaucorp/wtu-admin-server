@@ -16,7 +16,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.List;
 import java.util.Optional;
 
-import static com.jvmp.vouchershop.RandomUtils.wallet;
+import static com.jvmp.vouchershop.RandomUtils.randomWallet;
 import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucher;
 import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucherGenerationSpec;
 import static org.junit.Assert.assertEquals;
@@ -60,7 +60,7 @@ public class DefaultVoucherServiceTest {
 
     @Test
     public void generateVouchers() {
-        Wallet wallet = wallet().withId(1L);
+        Wallet wallet = randomWallet().withId(1L);
         VoucherGenerationDetails spec = voucherGenerationSpec().withWalletId(wallet.getId());
         when(walletService.findById(wallet.getId())).thenReturn(Optional.of(wallet));
 

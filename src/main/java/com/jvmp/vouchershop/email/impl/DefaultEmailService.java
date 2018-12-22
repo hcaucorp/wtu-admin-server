@@ -5,12 +5,12 @@ import com.jvmp.vouchershop.voucher.Voucher;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Set;
 
 @Service
 public class DefaultEmailService implements EmailService {
     @Override
-    public void sendVouchers(List<Voucher> vouchers, String email) {
+    public void sendVouchers(Set<Voucher> vouchers, String email) {
         throw new NotImplementedException("sendVouchers()");
     }
 }
