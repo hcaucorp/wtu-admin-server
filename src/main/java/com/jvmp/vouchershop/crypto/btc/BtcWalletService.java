@@ -1,9 +1,8 @@
 package com.jvmp.vouchershop.crypto.btc;
 
-import com.jvmp.vouchershop.domain.Wallet;
-import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.WalletRepository;
+import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

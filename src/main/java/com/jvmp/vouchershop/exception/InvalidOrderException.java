@@ -1,4 +1,4 @@
-package com.jvmp.vouchershop.fulfillment;
+package com.jvmp.vouchershop.exception;
 
 
 import org.springframework.http.HttpStatus;

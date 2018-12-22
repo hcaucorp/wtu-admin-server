@@ -1,7 +1,7 @@
 package com.jvmp.vouchershop.controller;
 
-import com.jvmp.vouchershop.domain.Wallet;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
+import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;

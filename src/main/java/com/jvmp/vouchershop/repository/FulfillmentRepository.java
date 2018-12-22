@@ -1,5 +1,6 @@
-package com.jvmp.vouchershop.fulfillment;
+package com.jvmp.vouchershop.repository;
 
+import com.jvmp.vouchershop.fulfillment.Fulfillment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

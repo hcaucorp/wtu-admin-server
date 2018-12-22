@@ -1,7 +1,6 @@
 package com.jvmp.vouchershop.wallet;
 
 import com.jvmp.vouchershop.crypto.btc.BtcWalletService;
-import com.jvmp.vouchershop.domain.Wallet;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -14,16 +13,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Date;
 import java.util.Optional;
-import java.util.UUID;
 
-import static com.jvmp.vouchershop.voucher.WalletRandomUtils.wallet;
+import static com.jvmp.vouchershop.RandomUtils.wallet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by Hubert Czerpak on 2018-12-08

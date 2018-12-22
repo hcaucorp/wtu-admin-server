@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @RestController
@@ -39,8 +40,17 @@ public class ShopifyController {
         String calculatedHash = HmacUtil.encode(webhookSecret, body);
 
         if (calculatedHash != null && calculatedHash.equals(hashFromRequest)) {
+            Order order = objectMapper.readValue(body, Order.class);
+//            Flowable.fromCallable(() -> {
+//                Thread.sleep(1000); //  imitate expensive computation
+//                return "Done";
+//            })
 
-            fulFillmentService.fulfillOrder(objectMapper.readValue(body, Order.class));
+
+            // TODO change to Flowable
+            // TODO 2: need a stress test to check race conditions (eg. if one voucher can be claimed for 2 orders?)
+            CompletableFuture.runAsync(
+                    () -> fulFillmentService.fulfillOrder(order));
 
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();
         } else {

@@ -1,7 +1,7 @@
 package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.Application;
-import com.jvmp.vouchershop.domain.Wallet;
+import com.jvmp.vouchershop.wallet.Wallet;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;

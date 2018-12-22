@@ -1,10 +1,11 @@
-package com.jvmp.vouchershop.voucher;
+package com.jvmp.vouchershop.voucher.impl;
 
-import com.jvmp.vouchershop.domain.Voucher;
-import com.jvmp.vouchershop.domain.Wallet;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.VoucherRepository;
+import com.jvmp.vouchershop.voucher.Voucher;
+import com.jvmp.vouchershop.voucher.VoucherService;
+import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,15 +19,15 @@ import static java.util.stream.Collectors.toList;
 
 @Component
 @RequiredArgsConstructor
-public class VoucherServiceImpl implements VoucherService {
+public class DefaultVoucherService implements VoucherService {
 
     private final WalletService walletService;
     private final VoucherRepository voucherRepository;
 
-    private final Supplier<String> DEFAULT_ID_GENERATOR = () -> UUID.randomUUID().toString();
+    public static final Supplier<String> DEFAULT_VOUCHER_CODE_GENERATOR = () -> UUID.randomUUID().toString();
 
     @Override
-    public List<Voucher> generateVouchers(VoucherGenerationSpec spec) {
+    public List<Voucher> generateVouchers(VoucherGenerationDetails spec) {
         if (spec.totalAmount % spec.count != 0)
             throw new IllegalOperationException("Total amount must be divisible by count because all vouchers must be identical. Current specification is " +
                     "incorrect: can't split amount of: " + spec.totalAmount + " into " + spec.count + " equal pieces.");
@@ -38,7 +39,12 @@ public class VoucherServiceImpl implements VoucherService {
         long amount = spec.totalAmount / spec.count;
 
         return IntStream.range(0, spec.count)
-                .mapToObj(next -> new Voucher(DEFAULT_ID_GENERATOR.get(), amount, currency, spec.walletId))
+                .mapToObj(next -> new Voucher()
+                        .withAmount(amount)
+                        .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get())
+                        .withCurrency(currency)
+                        .withWalletId(spec.walletId))
+                // TODO add more info?
                 .collect(toList());
     }
 

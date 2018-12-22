@@ -1,8 +1,9 @@
 package com.jvmp.vouchershop.controller;
 
-import com.jvmp.vouchershop.domain.Voucher;
-import com.jvmp.vouchershop.voucher.VoucherGenerationSpec;
+import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.voucher.VoucherService;
+import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
+import com.jvmp.vouchershop.voucher.impl.VoucherRedeemnDetails;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,9 +12,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
@@ -36,7 +39,7 @@ public class VoucherController {
     }
 
     @PostMapping("/vouchers")
-    public ResponseEntity<?> generateVouchers(@RequestBody VoucherGenerationSpec details) {
+    public ResponseEntity<?> generateVouchers(@RequestBody @Valid VoucherGenerationDetails details) {
         voucherService.save(voucherService.generateVouchers(details));
 
         return ResponseEntity
@@ -44,4 +47,10 @@ public class VoucherController {
                 .location(URI.create("/vouchers"))
                 .build();
     }
+
+    @PutMapping("/vouchers/{id}/redeem")
+    public ResponseEntity<?> redeemVoucher(@RequestBody @Valid VoucherRedeemnDetails detail) {
+        return ResponseEntity.ok().build();
+    }
+
 }

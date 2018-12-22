@@ -1,10 +1,11 @@
 package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.Application;
-import com.jvmp.vouchershop.domain.Voucher;
-import com.jvmp.vouchershop.domain.Wallet;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.repository.WalletRepository;
+import com.jvmp.vouchershop.system.DatabaseConfig;
+import com.jvmp.vouchershop.voucher.Voucher;
+import com.jvmp.vouchershop.wallet.Wallet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,9 +23,9 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
+import static com.jvmp.vouchershop.RandomUtils.wallet;
 import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucher;
 import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucherGenerationSpec;
-import static com.jvmp.vouchershop.voucher.WalletRandomUtils.wallet;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -35,10 +36,7 @@ import static org.junit.Assert.assertTrue;
 @SpringBootTest(
         classes = Application.class,
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes = {
-        VoucherRepository.class, Voucher.class,
-        WalletRepository.class, Wallet.class
-})
+@ContextConfiguration(classes = DatabaseConfig.class)
 public class VoucherControllerIT {
 
     @LocalServerPort

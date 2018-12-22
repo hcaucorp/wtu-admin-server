@@ -1,4 +1,4 @@
-package com.jvmp.vouchershop.domain;
+package com.jvmp.vouchershop.voucher;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,14 +32,14 @@ public class Voucher implements Serializable {
 
     @Column(nullable = false, updatable = false)
     @Positive
-    long amount;
+    private long amount;
 
     @Column(nullable = false, updatable = false, unique = true)
-    String code;
+    private String code;
 
     @Column(nullable = false, updatable = false, length = 3)
     @Size(min = 3, max = 3)
-    String currency;
+    private String currency;
 
     @Id
     @GeneratedValue(generator = "voucher_generator")
@@ -47,35 +47,29 @@ public class Voucher implements Serializable {
             name = "voucher_generator",
             sequenceName = "voucher_sequence"
     )
-    Long id;
+    private Long id;
 
     @Column(name = "wallet_id", nullable = false)
-    long walletId;
+    private long walletId;
 
     @Column(nullable = false)
-    boolean published;
+    private boolean published;
 
     @Column(nullable = false)
-    boolean redeemed;
+    private boolean redeemed;
 
     @Column(nullable = false)
-    boolean sold;
+    private boolean sold;
+
+    @Column(nullable = false, updatable = false)
+    private String sku;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreatedDate
-    Date createdAt;
+    private Date createdAt;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "expires_at")
-    Date expiresAt;
-
-    public Voucher(String code, @Positive long amount, @Size(min = 3, max = 3) String currency, long walletId) {
-        this.amount = amount;
-        this.currency = currency;
-        this.code = code;
-        this.walletId = walletId;
-        this.redeemed = false;
-        this.published = false;
-        this.sold = false;
-    }
+    private Date expiresAt;
 }

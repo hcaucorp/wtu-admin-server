@@ -1,4 +1,4 @@
-package com.jvmp.vouchershop.domain;
+package com.jvmp.vouchershop.wallet;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,24 +31,24 @@ public class Wallet implements Serializable {
             name = "wallet_generator",
             sequenceName = "wallet_sequence"
     )
-    Long id;
+    private Long id;
 
     @Column(nullable = false)
-    String description;
+    private String description;
 
     @Column(unique = true)
-    String address;
+    private String address;
 
     @Column(nullable = false, updatable = false)
-    String mnemonic;
+    private String mnemonic;
 
     @Column(nullable = false, updatable = false, length = 3)
     @Size(min = 3, max = 3)
-    String currency;
+    private String currency;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false, updatable = false)
-    Date createdAt;
+    private Date createdAt;
 }
 
 

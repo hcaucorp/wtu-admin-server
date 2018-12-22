@@ -1,63 +1,137 @@
 package com.jvmp.vouchershop.fulfillment;
 
-import com.jvmp.vouchershop.domain.Voucher;
+import com.google.common.annotations.VisibleForTesting;
+import com.jvmp.vouchershop.email.EmailService;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
+import com.jvmp.vouchershop.exception.InvalidOrderException;
+import com.jvmp.vouchershop.repository.FulfillmentRepository;
 import com.jvmp.vouchershop.repository.VoucherRepository;
+import com.jvmp.vouchershop.shopify.ShopifyService;
 import com.jvmp.vouchershop.shopify.domain.Customer;
 import com.jvmp.vouchershop.shopify.domain.Order;
+import com.jvmp.vouchershop.voucher.Voucher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Example;
+import lombok.val;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
+import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.completed;
 import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.initiated;
 import static com.jvmp.vouchershop.shopify.domain.FinancialStatus.paid;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class DefaultFulFillmentService implements FulFillmentService {
 
-    private FulfillmentRepository fulfillmentRepository;
-    private VoucherRepository voucherRepository;
+    private final FulfillmentRepository fulfillmentRepository;
+    private final VoucherRepository voucherRepository;
+    private final ShopifyService shopifyService;
+    private final EmailService emailService;
 
     @Override
-    public CompletableFuture<?> fulfillOrder(Order order) {
+    public void fulfillOrder(Order order) {
+
+        log.info("Accepted order for fulfilment: {}", order);
 
         // order verification
         checkIfOrderIsValid(order);
         checkIfOrderHasBeenFullyPaid(order);
         checkIfOrderIHasNotBeenFulFilledYet(order);
 
-        String email = order.getCustomer().getEmail();
+        val skuAndQuantity = findVouchersSkuAndQuantity(order);
+        val supplyForDemand = findSupplyForDemand(skuAndQuantity);
 
-        Set<Voucher> vouchers = voucherRepository.findAll(new Example<>())
+        checkIfSupplyIsEnough(skuAndQuantity, supplyForDemand);
 
-        fulfillmentRepository.save(Fulfillment.builder()
-                .orderId(order.getId())
-                .status(initiated)
-                .vouchers()
-                .build());
+        Fulfillment fulfillment = initiateFulFillment(order, supplyForDemand);
 
-        return null;
+        emailService.sendVouchers(supplyForDemand, order.getCustomer().getEmail());
+
+        completeFulFillment(fulfillment);
+
+        shopifyService.markOrderFulfilled(fulfillment.getOrderId());
     }
 
-    private void checkIfOrderIHasNotBeenFulFilledYet(Order order) {
+    @VisibleForTesting
+    void completeFulFillment(Fulfillment fulfillment) {
+        fulfillment.setStatus(completed);
+        fulfillmentRepository.save(fulfillment);
+    }
+
+    @VisibleForTesting
+    Fulfillment initiateFulFillment(Order order, List<Voucher> supplyForDemand) {
+        Fulfillment fulfillment = new Fulfillment()
+                .withVouchers(supplyForDemand)
+                .withOrderId(order.getId())
+                .withStatus(initiated);
+
+        fulfillmentRepository.save(fulfillment);
+        return fulfillment;
+    }
+
+    @VisibleForTesting
+    void checkIfSupplyIsEnough(List<ImmutablePair<String, Integer>> lineItemsQuantities, List<Voucher> supplyForDemand) {
+        int totalCount = lineItemsQuantities.stream().mapToInt(value -> value.right).sum();
+        int availableCount = supplyForDemand.size();
+
+        if (totalCount != availableCount) {
+            String skuList = lineItemsQuantities.stream().map(pair -> pair.left + "(" + pair.right + ")").collect(joining(", "));
+            String vouchersList = supplyForDemand.stream().map(Voucher::getSku)
+                    .collect(toMap(sku -> sku, sku -> 1L, (Long s, Long a) -> s + a))
+                    .entrySet().stream()
+                    .map(pair -> pair.getKey() + "(" + pair.getValue() + ")").collect(joining(", "));
+
+            log.error("Order contains {} products: {} but we only have avaliable {} vouchers: {}", totalCount, availableCount, supplyForDemand);
+            log.error("You asked for vouchers with sku: \n{} \nbut found: \n{}", skuList, vouchersList);
+
+            throw new InvalidOrderException("Order can't be fulfilled. See error log for more details.");
+        }
+    }
+
+    @VisibleForTesting
+    List<Voucher> findSupplyForDemand(List<ImmutablePair<String, Integer>> lineItemsQuantities) {
+
+        return lineItemsQuantities.stream()
+                .flatMap(skuQuantity -> voucherRepository.findBySoldFalseAndSku(skuQuantity.left)
+                        .stream()
+                        .limit(skuQuantity.getRight()))
+                .collect(toList());
+    }
+
+    @VisibleForTesting
+    List<ImmutablePair<String, Integer>> findVouchersSkuAndQuantity(@Nonnull Order order) {
+        return Optional.ofNullable(order.getLineItems())
+                .map(Collection::stream)
+                .orElse(Stream.empty())
+                .map(li -> ImmutablePair.of(li.getSku(), li.getQuantity()))
+                .collect(toList());
+    }
+
+    @VisibleForTesting
+    void checkIfOrderIHasNotBeenFulFilledYet(@Nonnull Order order) {
         Optional.ofNullable(fulfillmentRepository.findByOrderId(order.getId()))
                 .ifPresent(fulfillment -> {
-                    if (fulfillment.status == FulfillmentStatus.completed)
+                    if (fulfillment.getStatus() == FulfillmentStatus.completed)
                         throw new IllegalOperationException(
                                 String.format("Order with id %d has already been fulfilled. Check fulfillment id %d here %s", order.getId(),
-                                        fulfillment.id, "[[//TODO fulfillment link here]]"));
+                                        fulfillment.getId(), "[[//TODO fulfillment link here]]"));
                 });
     }
 
-    private void checkIfOrderIsValid(Order order) {
-        Optional.ofNullable(order)
+    @VisibleForTesting
+    void checkIfOrderIsValid(@Nonnull Order order) {
+        Optional.of(order)
                 .map(Order::getCustomer)
                 .map(Customer::getEmail)
                 .orElseThrow(() -> {
@@ -68,7 +142,8 @@ public class DefaultFulFillmentService implements FulFillmentService {
         // TODO check if order contains id, non empty list of products
     }
 
-    private void checkIfOrderHasBeenFullyPaid(Order order) {
+    @VisibleForTesting
+    void checkIfOrderHasBeenFullyPaid(@Nonnull Order order) {
         Optional.of(order)
                 .map(Order::getFinancialStatus)
                 .filter(status -> status != paid)

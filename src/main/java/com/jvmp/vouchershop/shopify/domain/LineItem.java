@@ -1,37 +1,38 @@
 package com.jvmp.vouchershop.shopify.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Wither;
 
 import java.math.BigDecimal;
 
 @Data
+@Wither
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class LineItem
 {
-    @JsonProperty(value = JsonConstants.ID)
     private long id;
 
-    @JsonProperty(value = JsonConstants.PRODUCT_ID)
     private long productId;
 
-    @JsonProperty(value = JsonConstants.PRODUCT_EXISTS)
     private boolean productExists;
 
-    @JsonProperty(value = JsonConstants.VARIANT_ID)
     private long variantId;
 
-    @JsonProperty(value = JsonConstants.TITLE)
     private String title;
 
-    @JsonProperty(value = JsonConstants.NAME)
     private String name;
 
-    @JsonProperty(value = JsonConstants.VARIANT_TITLE)
     private String variantTitle;
 
-    @JsonProperty(value = JsonConstants.QUANTITY)
     private int quantity;
 
-    @JsonProperty(value = JsonConstants.PRICE)
+    private String sku;
+
     private BigDecimal price;
 }

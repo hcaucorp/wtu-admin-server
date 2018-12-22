@@ -2,7 +2,6 @@ package com.jvmp.vouchershop.wallet;
 
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.crypto.btc.BtcWalletService;
-import com.jvmp.vouchershop.domain.Wallet;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -16,18 +15,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Instant;
-import java.util.Optional;
 
-import static com.jvmp.vouchershop.voucher.WalletRandomUtils.wallet;
+import static com.jvmp.vouchershop.RandomUtils.wallet;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
