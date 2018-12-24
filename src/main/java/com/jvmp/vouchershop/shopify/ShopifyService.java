@@ -1,6 +1,8 @@
 package com.jvmp.vouchershop.shopify;
 
+import com.jvmp.vouchershop.shopify.domain.Fulfillment;
+
 public interface ShopifyService {
 
-    void markOrderFulfilled(long orderId);
+    void markOrderFulfilled(Fulfillment fulfillment) throws InterruptedException;
 }

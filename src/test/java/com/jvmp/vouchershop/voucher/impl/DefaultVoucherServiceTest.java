@@ -1,10 +1,9 @@
-package com.jvmp.vouchershop.voucher;
+package com.jvmp.vouchershop.voucher.impl;
 
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.VoucherRepository;
-import com.jvmp.vouchershop.voucher.impl.DefaultVoucherService;
-import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
+import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import org.junit.Before;
@@ -20,6 +19,7 @@ import static com.jvmp.vouchershop.RandomUtils.randomWallet;
 import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucher;
 import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucherGenerationSpec;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -90,5 +90,10 @@ public class DefaultVoucherServiceTest {
         subject.delete(voucher.getId());
 
         verify(voucherRepository, times(1)).delete(eq(voucher));
+    }
+
+    @Test
+    public void redeemVoucher() {
+        fail("not implemented");
     }
 }

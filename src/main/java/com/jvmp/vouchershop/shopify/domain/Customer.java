@@ -16,7 +16,6 @@ import java.util.Date;
 import java.util.List;
 
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Wither

@@ -9,6 +9,7 @@ import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.List;
 import java.util.UUID;
@@ -44,8 +45,10 @@ public class DefaultVoucherService implements VoucherService {
                         .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get())
                         .withCurrency(currency)
                         .withWalletId(spec.walletId)
+                        .withSold(false)
+                        .withPublished(false)
+                        .withRedeemed(false)
                         .withSku(spec.getSku()))
-                // TODO add more info?
                 .collect(toList());
     }
 
@@ -68,5 +71,14 @@ public class DefaultVoucherService implements VoucherService {
     @Override
     public void save(List<Voucher> vouchers) {
         voucherRepository.saveAll(vouchers);
+    }
+
+    @Override
+    public void redeemVoucher(VoucherRedemptionDetails detail) {
+
+        // send money
+        // save voucher.withRedeemed(true)
+
+        throw new NotImplementedException();
     }
 }

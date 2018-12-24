@@ -3,7 +3,7 @@ package com.jvmp.vouchershop.controller;
 import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.voucher.VoucherService;
 import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
-import com.jvmp.vouchershop.voucher.impl.VoucherRedeemnDetails;
+import com.jvmp.vouchershop.voucher.impl.VoucherRedemptionDetails;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +49,10 @@ public class VoucherController {
     }
 
     @PutMapping("/vouchers/{id}/redeem")
-    public ResponseEntity<?> redeemVoucher(@RequestBody @Valid VoucherRedeemnDetails detail) {
+    public ResponseEntity<?> redeemVoucher(@RequestBody @Valid VoucherRedemptionDetails detail) {
+
+        voucherService.redeemVoucher(detail);
+
         return ResponseEntity.ok().build();
     }
 

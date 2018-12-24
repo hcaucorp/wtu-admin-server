@@ -12,7 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Wither
-public class VoucherRedeemnDetails implements Serializable {
+public class VoucherRedemptionDetails implements Serializable {
 
     @NotBlank
     private String destinationAddress;

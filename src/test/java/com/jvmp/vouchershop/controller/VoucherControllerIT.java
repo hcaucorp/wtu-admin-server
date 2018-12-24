@@ -5,6 +5,7 @@ import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.system.DatabaseConfig;
 import com.jvmp.vouchershop.voucher.Voucher;
+import com.jvmp.vouchershop.voucher.impl.VoucherRedemptionDetails;
 import com.jvmp.vouchershop.wallet.Wallet;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,7 +64,6 @@ public class VoucherControllerIT {
                 voucherRepository.save(voucher()),
                 voucherRepository.save(voucher())
         );
-//        objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
     }
 
     @Test
@@ -97,6 +97,25 @@ public class VoucherControllerIT {
         assertNotNull(location);
     }
 
+    @Test
+    public void redeemVoucher() {
+        Voucher voucher = voucher()
+                .withSold(true)
+                .withPublished(true)
+                .withId(null)
+                .withCreatedAt(null)
+                .withExpiresAt(null);
+
+        voucherRepository.save(voucher);
+
+        String walletAddress = randomString();
+
+        template.put("/vouchers/{id}/redeem", new VoucherRedemptionDetails(voucher.getCode(), walletAddress));
+
+
+    }
+
     private static class VoucherList extends ParameterizedTypeReference<List<Voucher>> {
+        //
     }
 }

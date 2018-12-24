@@ -27,11 +27,12 @@ public class ShopifyController {
 
     private final ObjectMapper objectMapper;
     private final FulFillmentService fulFillmentService;
+
     @Value(PropertyNames.SHOPIFY_WEBHOOK_SHARED_SECRET)
     private String webhookSecret;
 
     /**
-     * Triggered when something has been sold on Shopify and needs fullfilling
+     * Triggered when something has been sold on Shopify and needs fullfilling, fulfillment/create webhook
      */
     @PostMapping("/shopify/webhook/fulfill")
     public ResponseEntity<?> fullFillmentHook(@RequestBody String body, @RequestHeader HttpHeaders headers)
@@ -41,16 +42,11 @@ public class ShopifyController {
 
         if (calculatedHash != null && calculatedHash.equals(hashFromRequest)) {
             Order order = objectMapper.readValue(body, Order.class);
-//            Flowable.fromCallable(() -> {
-//                Thread.sleep(1000); //  imitate expensive computation
-//                return "Done";
-//            })
 
-
-            // TODO change to Flowable
             // TODO 2: need a stress test to check race conditions (eg. if one voucher can be claimed for 2 orders?)
             CompletableFuture.runAsync(
-                    () -> fulFillmentService.fulfillOrder(order));
+                    () -> fulFillmentService.fulfillOrder(order))
+                    .thenAccept(ignore -> log.info("Order {} fulfilled.", order.getId()));
 
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();
         } else {
