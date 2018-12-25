@@ -16,9 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import java.util.Date;
+import javax.validation.constraints.Min;
 import java.util.Set;
 
 @Data
@@ -47,8 +45,8 @@ public class Fulfillment {
     @Column(nullable = false, updatable = false)
     private FulfillmentStatus status;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "completed_at", nullable = false, updatable = false)
     @CreatedDate
-    private Date completedAt;
+    @Min(1322697600) // 12/01/2011 @ 12:00am (UTC)
+    private long completedAt;
 }

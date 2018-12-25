@@ -4,18 +4,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Wither;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Date;
 
 @Data
 @Wither
@@ -23,6 +24,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Entity
 @Table(name = "wallets")
+@EntityListeners(AuditingEntityListener.class)
 public class Wallet implements Serializable {
 
     @Id
@@ -46,9 +48,10 @@ public class Wallet implements Serializable {
     @Size(min = 3, max = 3)
     private String currency;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Date createdAt;
+    @CreatedDate
+    @Min(1322697600) // 12/01/2011 @ 12:00am (UTC)
+    private long createdAt;
 }
 
 

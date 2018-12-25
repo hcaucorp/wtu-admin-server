@@ -14,4 +14,6 @@ public interface WalletService {
     void delete(long id);
 
     Wallet save(Wallet Wallet);
+
+    String sendMoney(Wallet from, String toAddress, long amount);
 }

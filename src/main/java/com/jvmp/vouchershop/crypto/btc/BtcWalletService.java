@@ -1,11 +1,13 @@
 package com.jvmp.vouchershop.crypto.btc;
 
+import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.NotImplementedException;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.wallet.DeterministicSeed;
@@ -16,7 +18,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,7 +49,7 @@ public class BtcWalletService implements WalletService {
                         .getKey(KeyChain.KeyPurpose.AUTHENTICATION)
                         .serializePubB58(networkParameters)
                 )
-                .withCreatedAt(new Date(Instant.ofEpochSecond(creationTime).toEpochMilli()))
+                .withCreatedAt(Instant.ofEpochSecond(creationTime).toEpochMilli())
                 .withCurrency("BTC")
                 .withDescription(description)
                 .withMnemonic(walletWords);
@@ -80,7 +81,7 @@ public class BtcWalletService implements WalletService {
     public void delete(long id) {
         findById(id).orElseThrow(() -> new ResourceNotFoundException("Wallet not found with id " + id));
 
-        // prevent deleting wallet with balance and loosing the money on it
+//         prevent deleting wallet with balance and loosing the money on it
 //        findBalance(wallet).ifPresent(
 //                coin -> {
 //                    if (coin.isPositive())
@@ -89,14 +90,21 @@ public class BtcWalletService implements WalletService {
 //
 //                    walletRepository.deleteById(id);
 //                });
-//
 
-        walletRepository.deleteById(id);
+
+        throw new IllegalOperationException("Wallet removing is disabled.");
+
+//        walletRepository.deleteById(id);
     }
 
     @Override
     public Wallet save(Wallet Wallet) {
         return walletRepository.save(Wallet);
+    }
+
+    @Override
+    public String sendMoney(Wallet from, String toAddress, long amount) {
+        throw new NotImplementedException("kevin!");
     }
 
     public Optional<Coin> findBalance(Wallet w) {
@@ -105,7 +113,6 @@ public class BtcWalletService implements WalletService {
         if (!restoredWallets.containsKey(id))
             restoreWallet(w).ifPresent(wallet -> restoredWallets.put(id, wallet));
 
-
         return restoredWallets.containsKey(w.getId()) ?
                 Optional.of(restoredWallets.get(w.getId()).getBalance()) :
                 Optional.empty();
@@ -113,7 +120,7 @@ public class BtcWalletService implements WalletService {
 
     private Optional<org.bitcoinj.wallet.Wallet> restoreWallet(Wallet wallet) {
         try {
-            long creationTime = wallet.getCreatedAt().toInstant().getEpochSecond();
+            long creationTime = wallet.getCreatedAt();
             DeterministicSeed seed = new DeterministicSeed(wallet.getMnemonic(), null, "", creationTime);
             return Optional.of(org.bitcoinj.wallet.Wallet.fromSeed(networkParameters, seed));
         } catch (UnreadableWalletException e) {

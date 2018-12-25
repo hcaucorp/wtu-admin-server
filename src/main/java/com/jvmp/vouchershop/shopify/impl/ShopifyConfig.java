@@ -28,9 +28,6 @@ public class ShopifyConfig {
 
     @Bean
     public ShopifyService shopifyService() {
-        return new ThrottlingShopifyService(
-                new DefaultShopifyService(shopName, apiKey, apiPassword),
-                Duration.ofSeconds(12))
-                ;
+        return new ThrottlingShopifyService(new DefaultShopifyService(shopName, apiKey, apiPassword, locationId), Duration.ofSeconds(12));
     }
 }

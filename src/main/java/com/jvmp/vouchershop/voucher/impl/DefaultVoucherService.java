@@ -1,5 +1,6 @@
 package com.jvmp.vouchershop.voucher.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.VoucherRepository;
@@ -8,16 +9,21 @@ import com.jvmp.vouchershop.voucher.VoucherService;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import javax.annotation.Nonnull;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.toList;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DefaultVoucherService implements VoucherService {
@@ -73,12 +79,60 @@ public class DefaultVoucherService implements VoucherService {
         voucherRepository.saveAll(vouchers);
     }
 
+    @VisibleForTesting
+    static void checkVoucher(@Nonnull Voucher voucher) {
+        Objects.requireNonNull(voucher, "voucher");
+
+        if (!voucher.isPublished()) {
+            log.error("Attempting to redeem not published voucher {}", voucher);
+            throw new IllegalOperationException("Voucher " + voucher.getCode() + " hasn't been published for sale yet.");
+        }
+
+        if (!voucher.isSold()) {
+            log.error("Attempting to redeem not sold voucher {}", voucher);
+            throw new IllegalOperationException("Voucher " + voucher.getCode() + " hasn't been sold yet.");
+        }
+
+        if (voucher.isRedeemed()) {
+            log.warn("Attempting to redeem already redeemed voucher {}", voucher);
+            throw new IllegalOperationException("Voucher " + voucher.getCode() + " has already been redeemed.");
+        }
+
+        if (isExpired(voucher)) {
+            log.error("Attempting to redeem expired voucher {}", voucher);
+            throw new IllegalOperationException("Voucher " + voucher.getCode() + " has expired.");
+        }
+    }
+
+    @VisibleForTesting
+    static boolean isExpired(@Nonnull Voucher voucher) {
+        Objects.requireNonNull(voucher, "voucher");
+
+        LocalDateTime today = LocalDateTime.now();
+        LocalDateTime createdAt = LocalDateTime.from(Instant.ofEpochMilli(voucher.getCreatedAt()));
+        LocalDateTime expiresAt = createdAt.plusDays(voucher.getExpirationDays());
+
+        return today.isAfter(expiresAt);
+    }
+
     @Override
-    public void redeemVoucher(VoucherRedemptionDetails detail) {
+    public String redeemVoucher(@Nonnull VoucherRedemptionDetails detail) {
+        Objects.requireNonNull(detail, "voucher redemption details");
+
+        Voucher voucher = voucherRepository.findByCode(detail.getVoucherCode())
+                .orElseThrow(() -> new ResourceNotFoundException("Voucher " + detail.getVoucherCode() + " not found."));
+
+        checkVoucher(voucher);
+
+        Wallet wallet = walletService.findById(voucher.getWalletId())
+                .orElseThrow(() -> new ResourceNotFoundException("Wallet " + voucher.getWalletId() + " not found."));
 
         // send money
-        // save voucher.withRedeemed(true)
+        String txIdentifier /* txHash */ = walletService.sendMoney(wallet, detail.getDestinationAddress(), voucher.getAmount());
 
-        throw new NotImplementedException();
+        // save voucher.withRedeemed(true);
+        voucherRepository.save(voucher.withRedeemed(true));
+
+        return txIdentifier;
     }
 }

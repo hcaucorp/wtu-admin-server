@@ -23,11 +23,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 
 import static com.jvmp.vouchershop.RandomUtils.randomString;
+import static com.jvmp.vouchershop.RandomUtils.randomVoucher;
+import static com.jvmp.vouchershop.RandomUtils.randomVoucherGenerationSpec;
 import static com.jvmp.vouchershop.RandomUtils.randomWallet;
-import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucher;
-import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucherGenerationSpec;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -61,8 +62,8 @@ public class VoucherControllerIT {
     public void setUp() throws Exception {
         base = new URL("http://localhost:" + port + "/");
         testVouchers = asList(
-                voucherRepository.save(voucher()),
-                voucherRepository.save(voucher())
+                voucherRepository.save(randomVoucher()),
+                voucherRepository.save(randomVoucher())
         );
     }
 
@@ -88,7 +89,7 @@ public class VoucherControllerIT {
 
         URI location = template.postForLocation(
                 base.toString() + "/vouchers",
-                voucherGenerationSpec()
+                randomVoucherGenerationSpec()
                         .withWalletId(wallet.getId())
                         .withSku(randomString()),
                 String.class
@@ -99,12 +100,10 @@ public class VoucherControllerIT {
 
     @Test
     public void redeemVoucher() {
-        Voucher voucher = voucher()
+        Voucher voucher = randomVoucher()
                 .withSold(true)
                 .withPublished(true)
-                .withId(null)
-                .withCreatedAt(null)
-                .withExpiresAt(null);
+                .withRedeemed(false);
 
         voucherRepository.save(voucher);
 
@@ -112,7 +111,10 @@ public class VoucherControllerIT {
 
         template.put("/vouchers/{id}/redeem", new VoucherRedemptionDetails(voucher.getCode(), walletAddress));
 
+        Optional<Voucher> byId = voucherRepository.findById(voucher.getId());
 
+        assertTrue(byId.isPresent());
+        assertTrue(byId.get().isRedeemed());
     }
 
     private static class VoucherList extends ParameterizedTypeReference<List<Voucher>> {

@@ -12,14 +12,19 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
+import static com.jvmp.vouchershop.RandomUtils.randomString;
+import static com.jvmp.vouchershop.RandomUtils.randomVoucher;
+import static com.jvmp.vouchershop.RandomUtils.randomVoucherGenerationSpec;
 import static com.jvmp.vouchershop.RandomUtils.randomWallet;
-import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucher;
-import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucherGenerationSpec;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -44,7 +49,7 @@ public class DefaultVoucherServiceTest {
 
     @Test(expected = IllegalOperationException.class)
     public void generateVouchersWithIndivisibleInput() {
-        VoucherGenerationDetails spec = voucherGenerationSpec()
+        VoucherGenerationDetails spec = randomVoucherGenerationSpec()
                 .withCount(10)
                 .withTotalAmount(99);
 
@@ -53,7 +58,7 @@ public class DefaultVoucherServiceTest {
 
     @Test(expected = ResourceNotFoundException.class)
     public void generateVouchersButWalletDoesntExist() {
-        VoucherGenerationDetails spec = voucherGenerationSpec();
+        VoucherGenerationDetails spec = randomVoucherGenerationSpec();
 
         subject.generateVouchers(spec);
     }
@@ -61,7 +66,7 @@ public class DefaultVoucherServiceTest {
     @Test
     public void generateVouchers() {
         Wallet wallet = randomWallet().withId(1L);
-        VoucherGenerationDetails spec = voucherGenerationSpec().withWalletId(wallet.getId());
+        VoucherGenerationDetails spec = randomVoucherGenerationSpec().withWalletId(wallet.getId());
         when(walletService.findById(wallet.getId())).thenReturn(Optional.of(wallet));
 
         List<Voucher> vouchers = subject.generateVouchers(spec);
@@ -76,7 +81,7 @@ public class DefaultVoucherServiceTest {
 
     @Test(expected = IllegalOperationException.class)
     public void deletePublishedVoucher() {
-        Voucher publishedVoucher = voucher().withPublished(true);
+        Voucher publishedVoucher = randomVoucher().withPublished(true);
         when(voucherRepository.findById(any())).thenReturn(Optional.of(publishedVoucher));
 
         subject.delete(1);
@@ -84,7 +89,7 @@ public class DefaultVoucherServiceTest {
 
     @Test
     public void deleteVoucherById() {
-        Voucher voucher = voucher();
+        Voucher voucher = randomVoucher();
         when(voucherRepository.findById(any())).thenReturn(Optional.of(voucher));
 
         subject.delete(voucher.getId());
@@ -92,8 +97,87 @@ public class DefaultVoucherServiceTest {
         verify(voucherRepository, times(1)).delete(eq(voucher));
     }
 
+    @Test(expected = ResourceNotFoundException.class)
+    public void redeemVoucher_noVoucher() {
+        String code = randomString();
+
+        when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.empty());
+
+        subject.redeemVoucher(new VoucherRedemptionDetails(randomString(), code));
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void redeemVoucher_noWallet() {
+        Wallet wallet = randomWallet();
+        Voucher voucher = randomVoucher()
+                .withSold(true)
+                .withPublished(true)
+                .withRedeemed(false);
+        String code = voucher.getCode();
+        String destinationAddress = randomString();
+
+        when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.of(voucher));
+        when(walletService.findById(eq(wallet.getId()))).thenReturn(Optional.empty());
+
+        subject.redeemVoucher(new VoucherRedemptionDetails(destinationAddress, code));
+    }
+
     @Test
-    public void redeemVoucher() {
-        fail("not implemented");
+    public void redeemVoucher_happyEnding() {
+        Wallet wallet = randomWallet();
+        Voucher voucher = randomVoucher()
+                .withWalletId(wallet.getId())
+                .withSold(true)
+                .withPublished(true)
+                .withRedeemed(false);
+        String code = voucher.getCode();
+        String destinationAddress = randomString();
+
+        when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.of(voucher));
+        when(walletService.findById(eq(wallet.getId()))).thenReturn(Optional.of(wallet));
+
+        subject.redeemVoucher(new VoucherRedemptionDetails(destinationAddress, code));
+
+        verify(walletService, times(1)).sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()));
+        verify(voucherRepository, times(1)).save(eq(voucher.withRedeemed(true)));
+    }
+
+    @Test(expected = IllegalOperationException.class)
+    public void checkVoucher_expired() {
+        DefaultVoucherService.checkVoucher(randomVoucher()
+                .withCreatedAt(LocalDateTime.of(2015, 1, 1, 1, 1).toInstant(ZoneOffset.UTC).toEpochMilli())
+                .withExpirationDays(2));
+    }
+
+    @Test(expected = IllegalOperationException.class)
+    public void checkVoucher_alreadyRedeemed() {
+        DefaultVoucherService.checkVoucher(randomVoucher()
+                .withPublished(true)
+                .withSold(true)
+                .withRedeemed(true)
+        );
+    }
+
+    @Test(expected = IllegalOperationException.class)
+    public void checkVoucher_notSoldYet() {
+        DefaultVoucherService.checkVoucher(randomVoucher()
+                .withPublished(true)
+        );
+    }
+
+    @Test(expected = IllegalOperationException.class)
+    public void checkVoucher_notPublished() {
+        DefaultVoucherService.checkVoucher(randomVoucher());
+    }
+
+    @Test
+    public void isExpired() {
+        assertFalse(DefaultVoucherService.isExpired(randomVoucher()
+                .withCreatedAt(Instant.now().toEpochMilli())
+                .withExpirationDays(365)));
+
+        assertTrue(DefaultVoucherService.isExpired(randomVoucher()
+                .withCreatedAt(LocalDateTime.of(2015, 1, 1, 1, 1).toInstant(ZoneOffset.UTC).toEpochMilli())
+                .withExpirationDays(2)));
     }
 }

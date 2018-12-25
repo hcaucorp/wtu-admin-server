@@ -1,7 +1,7 @@
 package com.jvmp.vouchershop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jvmp.vouchershop.fulfillment.FulFillmentService;
+import com.jvmp.vouchershop.fulfillment.FulfillmentService;
 import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.system.PropertyNames;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
 public class ShopifyController {
 
     private final ObjectMapper objectMapper;
-    private final FulFillmentService fulFillmentService;
+    private final FulfillmentService fulfillmentService;
 
     @Value(PropertyNames.SHOPIFY_WEBHOOK_SHARED_SECRET)
     private String webhookSecret;
@@ -45,7 +45,7 @@ public class ShopifyController {
 
             // TODO 2: need a stress test to check race conditions (eg. if one voucher can be claimed for 2 orders?)
             CompletableFuture.runAsync(
-                    () -> fulFillmentService.fulfillOrder(order))
+                    () -> fulfillmentService.fulfillOrder(order))
                     .thenAccept(ignore -> log.info("Order {} fulfilled.", order.getId()));
 
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();

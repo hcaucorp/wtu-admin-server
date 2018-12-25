@@ -61,11 +61,11 @@ public class BtcWalletServiceIT {
 
         assertNotNull(generatedWallet);
         assertNull(generatedWallet.getId());
-        assertNotNull(generatedWallet.getCreatedAt());
+        assertTrue(generatedWallet.getCreatedAt() > 0);
 
         Wallet savedWallet = walletService.save(generatedWallet);
 
         assertNotNull(savedWallet.getId());
-        assertTrue(savedWallet.getCreatedAt().toInstant().isBefore(Instant.now()));
+        assertTrue(Instant.ofEpochMilli(savedWallet.getCreatedAt()).isBefore(Instant.now()));
     }
 }

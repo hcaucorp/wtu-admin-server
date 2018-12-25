@@ -9,5 +9,5 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class FulfillmentResource {
-    private Fulfillment fulfillment;
+    private FulfillmentItem fulfillment;
 }

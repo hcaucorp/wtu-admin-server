@@ -15,5 +15,13 @@ public interface VoucherService {
 
     void save(List<Voucher> vouchers);
 
-    void redeemVoucher(VoucherRedemptionDetails detail);
+    /**
+     * Sends money represented by the voucher to a prescribed recepient (wallet address)
+     *
+     * @param detail
+     * @return A transaction identifier, currency agnostic, a way to uniquely identify transaction and provide a tracking info or kind of proof the transaction
+     * has been performed. For BTC/~BCH it would be a transaction hash which allows to see the transaciton in the blockchain (blockchain explorer link for
+     * tracking information)
+     */
+    String redeemVoucher(VoucherRedemptionDetails detail);
 }

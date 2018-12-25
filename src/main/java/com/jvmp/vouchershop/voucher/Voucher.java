@@ -14,12 +14,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Date;
 
 @Data
 @Wither
@@ -35,6 +34,7 @@ public class Voucher implements Serializable {
     private long amount;
 
     @Column(nullable = false, updatable = false, unique = true)
+    @Size(min = 10, max = 32)
     private String code;
 
     @Column(nullable = false, updatable = false, length = 3)
@@ -50,6 +50,7 @@ public class Voucher implements Serializable {
     private Long id;
 
     @Column(name = "wallet_id", nullable = false)
+    @NotBlank
     private long walletId;
 
     @Column(nullable = false)
@@ -62,14 +63,18 @@ public class Voucher implements Serializable {
     private boolean sold;
 
     @Column(nullable = false, updatable = false)
+    @NotBlank
     private String sku;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreatedDate
-    private Date createdAt;
+    @Min(1322697600) // 12/01/2011 @ 12:00am (UTC)
+    private long createdAt;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "expires_at")
-    private Date expiresAt;
+    /**
+     * by convention expires after a year
+     */
+    @Column(name = "expiration_days")
+    @Positive
+    private long expirationDays = 365;
 }

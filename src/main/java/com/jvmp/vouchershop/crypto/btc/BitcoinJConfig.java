@@ -18,8 +18,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class BitcoinJConfig {
 
-    private final static String BLOCK_CHAIN_FILE_PREFIX = "voucher-shop-";
-
     @Bean
     public NetworkParameters networkParameters(@Value(PropertyNames.BITCOIN_NETWORK) String networkType) {
         switch (networkType) {

@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static com.jvmp.vouchershop.Collections.asSet;
-import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucher;
+import static com.jvmp.vouchershop.RandomUtils.randomVoucher;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -24,7 +24,7 @@ public class DefaultEmailServiceIT {
     @Ignore
     public void sendVouchers() {
         defaultEmailService.sendVouchers(asSet(
-                voucher(), voucher(), voucher()
+                randomVoucher(), randomVoucher(), randomVoucher()
         ), "dziukula@gmail.com");
     }
 }

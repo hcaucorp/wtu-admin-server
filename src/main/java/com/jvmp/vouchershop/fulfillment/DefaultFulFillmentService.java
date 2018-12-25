@@ -32,7 +32,7 @@ import static java.util.stream.Collectors.toSet;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DefaultFulFillmentService implements FulFillmentService {
+public class DefaultFulFillmentService implements FulfillmentService {
 
     private final FulfillmentRepository fulfillmentRepository;
     private final VoucherRepository voucherRepository;

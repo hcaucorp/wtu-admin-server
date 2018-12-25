@@ -11,7 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucherGenerationSpec;
+import static com.jvmp.vouchershop.RandomUtils.randomVoucherGenerationSpec;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,7 +36,7 @@ public class VoucherControllerTest {
     public void generateVouchers() throws Exception {
         mvc.perform(post("/vouchers")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(new ObjectMapper().writeValueAsString(voucherGenerationSpec())))
+                .content(new ObjectMapper().writeValueAsString(randomVoucherGenerationSpec())))
                 .andExpect(status().isNotFound());
     }
 

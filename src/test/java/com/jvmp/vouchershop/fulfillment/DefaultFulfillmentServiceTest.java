@@ -23,12 +23,13 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.jvmp.vouchershop.Collections.asSet;
 import static com.jvmp.vouchershop.RandomUtils.randomOrder;
 import static com.jvmp.vouchershop.RandomUtils.randomSku;
 import static com.jvmp.vouchershop.RandomUtils.randomString;
+import static com.jvmp.vouchershop.RandomUtils.randomVoucher;
 import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.completed;
 import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.initiated;
-import static com.jvmp.vouchershop.voucher.VoucherRandomUtils.voucher;
 import static com.jvmp.vouchershop.voucher.impl.DefaultVoucherService.DEFAULT_VOUCHER_CODE_GENERATOR;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
@@ -71,16 +72,16 @@ public class DefaultFulfillmentServiceTest {
     public void fulfillOrder() {
         long orderId = nextLong(0, Long.MAX_VALUE);
         String sku = randomSku();
-        Voucher v = voucher()
+        Voucher voucher = randomVoucher()
                 .withAmount(100)
                 .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get())
                 .withSku(sku);
         String email = "test@email." + RandomStringUtils.randomAlphabetic(3);
 
-        when(voucherRepository.findBySoldFalseAndSku(eq(sku))).thenReturn(singletonList(v));
+        when(voucherRepository.findBySoldFalseAndSku(eq(sku))).thenReturn(singletonList(voucher));
 
         Fulfillment fulfillment = new Fulfillment()
-                .withVouchers(singleton(v))
+                .withVouchers(singleton(voucher))
                 .withOrderId(orderId)
                 .withStatus(initiated);
 
@@ -98,21 +99,23 @@ public class DefaultFulfillmentServiceTest {
         );
 
         verify(shopifyService, times(1)).markOrderFulfilled(eq(orderId));
-        verify(emailService, times(1)).sendVouchers(eq(singleton(v)), eq(email));
+        verify(emailService, times(1)).sendVouchers(eq(singleton(voucher)), eq(email));
+        verify(fulfillmentRepository, times(1)).save(eq(fulfillment.withStatus(FulfillmentStatus.completed)));
+        verify(voucherRepository, times(1)).save(eq(voucher.withSold(true)));
     }
 
     @Test
     public void completeFulFillment() {
-        Set<Voucher> vouchers = new HashSet<>(asList(
-                voucher()
+        Set<Voucher> vouchers = asSet(
+                randomVoucher()
                         .withSku(randomSku())
                         .withAmount(100)
                         .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get()),
-                voucher()
+                randomVoucher()
                         .withSku(randomSku())
                         .withAmount(100)
                         .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get())
-        ));
+        );
 
         fulfillment.setVouchers(vouchers);
 
@@ -135,11 +138,11 @@ public class DefaultFulfillmentServiceTest {
                         .withQuantity(RandomUtils.nextInt(1, 5))
         ));
         Set<Voucher> vouchers = new HashSet<>(asList(
-                voucher()
+                randomVoucher()
                         .withSku(order.getLineItems().get(0).getSku())
                         .withAmount(100)
                         .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get()),
-                voucher()
+                randomVoucher()
                         .withSku(order.getLineItems().get(1).getSku())
                         .withAmount(100)
                         .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get())
