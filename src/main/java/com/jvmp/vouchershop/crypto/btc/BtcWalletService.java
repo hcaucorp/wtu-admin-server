@@ -44,7 +44,7 @@ public class BtcWalletService implements WalletService {
     public BtcWalletService(WalletRepository walletRepository, NetworkParameters networkParameters, String fileSuffix) {
         this.walletRepository = walletRepository;
         this.networkParameters = networkParameters;
-        this.bitcoinj = new WalletAppKit(networkParameters, new File("."), fileSuffix);
+        this.bitcoinj = new WalletAppKit(networkParameters, new File(".btc"), fileSuffix);
     }
 
     @PostConstruct
