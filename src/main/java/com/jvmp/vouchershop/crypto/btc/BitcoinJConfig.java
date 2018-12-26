@@ -11,9 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Created by Hubert Czerpak on 2018-12-08
- */
 @Slf4j
 @Configuration
 public class BitcoinJConfig {

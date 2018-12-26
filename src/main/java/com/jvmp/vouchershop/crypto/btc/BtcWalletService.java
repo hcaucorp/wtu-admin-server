@@ -1,45 +1,87 @@
 package com.jvmp.vouchershop.crypto.btc;
 
 import com.jvmp.vouchershop.exception.IllegalOperationException;
-import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
-import lombok.RequiredArgsConstructor;
+import io.reactivex.Observable;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.NotImplementedException;
+import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.wallet.DeterministicSeed;
+import org.bitcoinj.core.Transaction;
+import org.bitcoinj.kits.WalletAppKit;
 import org.bitcoinj.wallet.KeyChain;
-import org.bitcoinj.wallet.UnreadableWalletException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.ThreadSafe;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.File;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Collections.emptyList;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
-@ThreadSafe
 public class BtcWalletService implements WalletService {
-
-    private final Map<Long, org.bitcoinj.wallet.Wallet> restoredWallets = new ConcurrentHashMap<>();
 
     private final WalletRepository walletRepository;
 
     private final NetworkParameters networkParameters;
 
-    @Override
-    public Wallet generateWallet(String password, String description) {
-        org.bitcoinj.wallet.Wallet bitcoinjWallet = new org.bitcoinj.wallet.Wallet(networkParameters);
+    private final WalletAppKit bitcoinj;
+
+    @Autowired
+    public BtcWalletService(WalletRepository walletRepository, NetworkParameters networkParameters) {
+        this(walletRepository, networkParameters, "wallet.storage");
+    }
+
+    public BtcWalletService(WalletRepository walletRepository, NetworkParameters networkParameters, String fileSuffix) {
+        this.walletRepository = walletRepository;
+        this.networkParameters = networkParameters;
+        this.bitcoinj = new WalletAppKit(networkParameters, new File("."), fileSuffix);
+    }
+
+    @PostConstruct
+    public void init() {
+        try {
+
+            bitcoinj.startAsync();
+            bitcoinj.awaitRunning();
+
+            org.bitcoinj.wallet.Wallet bitcoinjWallet = bitcoinj.wallet();
+            Wallet wallet = walletRepository.findAll().stream() //if there is a wallet in db then it should be the same as bitcoinj one
+                    .findFirst()
+                    .orElseGet(() -> fromBitcoinjWallet(bitcoinjWallet)); //if there is no wallet in db, then take one from bitcoinj
+
+            // check if these are the same
+            if (!wallet.getMnemonic().equals(walletWords(bitcoinjWallet))) {
+
+                if (walletRepository.count() > 0)
+                    log.error("Found other wallet in the database: \n{}\n but bitcoinj is configured with yet another one \n{}\n",
+                            wallet.getMnemonic(),
+                            walletWords(bitcoinjWallet));
+                // this "save" should happen only once on system setup, every other time bitcoinj and db wallet should be in sync
+                // and there should be only one wallet per currency in DB
+                walletRepository.save(wallet);
+            }
+        } catch (IllegalStateException ise) {
+            log.error("BitcoinJ has failed to start", ise);
+        }
+    }
+
+    @PreDestroy
+    public void close() {
+        bitcoinj.stopAsync();
+        bitcoinj.awaitRunning();
+    }
+
+    private Wallet fromBitcoinjWallet(org.bitcoinj.wallet.Wallet bitcoinjWallet) {
         String walletWords = walletWords(bitcoinjWallet);
         long creationTime = bitcoinjWallet.getKeyChainSeed().getCreationTimeSeconds();
 
@@ -51,7 +93,6 @@ public class BtcWalletService implements WalletService {
                 )
                 .withCreatedAt(Instant.ofEpochSecond(creationTime).toEpochMilli())
                 .withCurrency("BTC")
-                .withDescription(description)
                 .withMnemonic(walletWords);
 
         log.info("Seed words are: {}", walletWords);
@@ -78,55 +119,30 @@ public class BtcWalletService implements WalletService {
     }
 
     @Override
-    public void delete(long id) {
-        findById(id).orElseThrow(() -> new ResourceNotFoundException("Wallet not found with id " + id));
-
-//         prevent deleting wallet with balance and loosing the money on it
-//        findBalance(wallet).ifPresent(
-//                coin -> {
-//                    if (coin.isPositive())
-//                        throw new IllegalOperationException("Wallet balance is positive and can't be deleted. Move money to different wallet before deleting this wallet " +
-//                                "or else ALL the funds will be lost!");
-//
-//                    walletRepository.deleteById(id);
-//                });
-
-
-        throw new IllegalOperationException("Wallet removing is disabled.");
-
-//        walletRepository.deleteById(id);
-    }
-
-    @Override
     public Wallet save(Wallet Wallet) {
         return walletRepository.save(Wallet);
     }
 
     @Override
-    public String sendMoney(Wallet from, String toAddress, long amount) {
-        throw new NotImplementedException("kevin!");
-    }
+    public Observable<String> sendMoney(Wallet from, String toAddress, long amount) {
+        if (!"BTC".equals(from.getCurrency()))
+            throw new IllegalOperationException("Wallet " + from.toString() + " can provide only for vouchers in BTC");
 
-    public Optional<Coin> findBalance(Wallet w) {
-        long id = w.getId();
+        Address targetAddress = Address.fromBase58(networkParameters, toAddress);
 
-        if (!restoredWallets.containsKey(id))
-            restoreWallet(w).ifPresent(wallet -> restoredWallets.put(id, wallet));
-
-        return restoredWallets.containsKey(w.getId()) ?
-                Optional.of(restoredWallets.get(w.getId()).getBalance()) :
-                Optional.empty();
-    }
-
-    private Optional<org.bitcoinj.wallet.Wallet> restoreWallet(Wallet wallet) {
+        org.bitcoinj.wallet.Wallet.SendResult result;
         try {
-            long creationTime = wallet.getCreatedAt();
-            DeterministicSeed seed = new DeterministicSeed(wallet.getMnemonic(), null, "", creationTime);
-            return Optional.of(org.bitcoinj.wallet.Wallet.fromSeed(networkParameters, seed));
-        } catch (UnreadableWalletException e) {
-            log.error("Wallet id={} can't be restored by bitcoinj library. Who the fuck knows why...", wallet.getId());
-            log.error("Cause: ", e);
-            return Optional.empty();
+            result = bitcoinj.wallet()
+                    .sendCoins(bitcoinj.peerGroup(), targetAddress, Coin.COIN);
+
+            return Observable
+                    .fromFuture(result.broadcastComplete)
+                    .map(Transaction::getHashAsString);
+
+        } catch (InsufficientMoneyException e) {
+            log.error("Well, sending money has failed. Not enough funds on the wallet {}", from);
+            log.error("Stack trace: not needed lol");
+            return Observable.error(e);
         }
     }
 }

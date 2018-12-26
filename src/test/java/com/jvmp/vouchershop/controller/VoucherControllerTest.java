@@ -22,7 +22,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class VoucherControllerTest {
 
-
     @Autowired
     private MockMvc mvc;
 

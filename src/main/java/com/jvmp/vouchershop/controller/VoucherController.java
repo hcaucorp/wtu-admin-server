@@ -48,7 +48,7 @@ public class VoucherController {
                 .build();
     }
 
-    @PutMapping("/vouchers/{id}/redeem")
+    @PutMapping("/vouchers/redeem")
     public ResponseEntity<?> redeemVoucher(@RequestBody @Valid VoucherRedemptionDetails detail) {
 
         voucherService.redeemVoucher(detail);

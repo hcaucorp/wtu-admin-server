@@ -22,6 +22,7 @@ public class RandomUtils {
 
     public static Wallet randomWallet() {
         return new Wallet()
+                .withId(nextLong(0, Long.MAX_VALUE))
                 .withAddress("Test wallet address #" + RandomStringUtils.randomNumeric(12))
                 .withCreatedAt(Instant.now().toEpochMilli())
                 .withCurrency(RandomStringUtils.randomAlphabetic(3).toUpperCase())
@@ -30,9 +31,7 @@ public class RandomUtils {
                         .map(word -> ImmutablePair.of(word, nextLong(1, 20)))
                         .sorted(Comparator.comparingLong(ImmutablePair::getRight))
                         .map(ImmutablePair::getLeft)
-                        .collect(joining(" "))
-                )
-                .withDescription("Description for integration test " + RandomStringUtils.randomNumeric(12));
+                        .collect(joining(" ")));
     }
 
     public static Order randomOrder() {

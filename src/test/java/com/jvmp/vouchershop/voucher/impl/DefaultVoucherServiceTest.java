@@ -6,6 +6,7 @@ import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
+import io.reactivex.Observable;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -117,7 +118,6 @@ public class DefaultVoucherServiceTest {
         String destinationAddress = randomString();
 
         when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.of(voucher));
-        when(walletService.findById(eq(wallet.getId()))).thenReturn(Optional.empty());
 
         subject.redeemVoucher(new VoucherRedemptionDetails(destinationAddress, code));
     }
@@ -135,6 +135,7 @@ public class DefaultVoucherServiceTest {
 
         when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.of(voucher));
         when(walletService.findById(eq(wallet.getId()))).thenReturn(Optional.of(wallet));
+        when(walletService.sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()))).thenReturn(Observable.just(randomString()));
 
         subject.redeemVoucher(new VoucherRedemptionDetails(destinationAddress, code));
 

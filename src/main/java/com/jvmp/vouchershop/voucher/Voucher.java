@@ -34,7 +34,7 @@ public class Voucher implements Serializable {
     private long amount;
 
     @Column(nullable = false, updatable = false, unique = true)
-    @Size(min = 10, max = 32)
+    @NotBlank
     private String code;
 
     @Column(nullable = false, updatable = false, length = 3)
@@ -50,7 +50,6 @@ public class Voucher implements Serializable {
     private Long id;
 
     @Column(name = "wallet_id", nullable = false)
-    @NotBlank
     private long walletId;
 
     @Column(nullable = false)

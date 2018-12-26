@@ -8,6 +8,7 @@ import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.voucher.VoucherService;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
+import io.reactivex.Observable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Nonnull;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -109,14 +111,14 @@ public class DefaultVoucherService implements VoucherService {
         Objects.requireNonNull(voucher, "voucher");
 
         LocalDateTime today = LocalDateTime.now();
-        LocalDateTime createdAt = LocalDateTime.from(Instant.ofEpochMilli(voucher.getCreatedAt()));
+        LocalDateTime createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(voucher.getCreatedAt()), ZoneOffset.UTC);
         LocalDateTime expiresAt = createdAt.plusDays(voucher.getExpirationDays());
 
         return today.isAfter(expiresAt);
     }
 
     @Override
-    public String redeemVoucher(@Nonnull VoucherRedemptionDetails detail) {
+    public Observable<String> redeemVoucher(@Nonnull VoucherRedemptionDetails detail) {
         Objects.requireNonNull(detail, "voucher redemption details");
 
         Voucher voucher = voucherRepository.findByCode(detail.getVoucherCode())
@@ -128,11 +130,14 @@ public class DefaultVoucherService implements VoucherService {
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet " + voucher.getWalletId() + " not found."));
 
         // send money
-        String txIdentifier /* txHash */ = walletService.sendMoney(wallet, detail.getDestinationAddress(), voucher.getAmount());
+        Observable<String> transactionHash = walletService.sendMoney(wallet, detail.getDestinationAddress(), voucher.getAmount());
 
-        // save voucher.withRedeemed(true);
-        voucherRepository.save(voucher.withRedeemed(true));
+        //noinspection ResultOfMethodCallIgnored
+        transactionHash
+                .subscribe(
+                        s -> voucherRepository.save(voucher.withRedeemed(true)),
+                        throwable -> log.error(throwable.getMessage()));
 
-        return txIdentifier;
+        return transactionHash;
     }
 }

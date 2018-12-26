@@ -1,0 +1,44 @@
+package com.jvmp.vouchershop.crypto.btc;
+
+import com.jvmp.vouchershop.Application;
+import com.jvmp.vouchershop.repository.WalletRepository;
+import com.jvmp.vouchershop.wallet.Wallet;
+import org.bitcoinj.core.Context;
+import org.bitcoinj.params.UnitTestParams;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import java.time.Instant;
+
+import static com.jvmp.vouchershop.RandomUtils.randomString;
+import static com.jvmp.vouchershop.RandomUtils.randomWallet;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = Application.class)
+public class BtcWalletServiceIT {
+
+    @Autowired
+    private WalletRepository walletRepository;
+
+    private BtcWalletService walletService;
+
+    @Before
+    public void setUp() {
+        Context btcContext = new Context(UnitTestParams.get());
+        walletService = new BtcWalletService(walletRepository, btcContext.getParams(), randomString());
+    }
+
+    @Test
+    public void save() {
+        Wallet savedWallet = walletService.save(randomWallet());
+
+        assertNotNull(savedWallet.getId());
+        assertTrue(Instant.ofEpochMilli(savedWallet.getCreatedAt()).isBefore(Instant.now()));
+    }
+}

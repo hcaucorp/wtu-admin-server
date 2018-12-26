@@ -85,7 +85,9 @@ public class DefaultFulfillmentServiceTest {
                 .withOrderId(orderId)
                 .withStatus(initiated);
 
-        when(fulfillmentRepository.save(eq(fulfillment))).thenReturn(fulfillment.withId(nextLong(1, Long.MAX_VALUE)));
+        Fulfillment savedFulfillment = fulfillment.withId(nextLong(1, Long.MAX_VALUE));
+
+        when(fulfillmentRepository.save(eq(fulfillment))).thenReturn(savedFulfillment);
 
         service.fulfillOrder(randomOrder()
                 .withId(orderId)
@@ -100,7 +102,8 @@ public class DefaultFulfillmentServiceTest {
 
         verify(shopifyService, times(1)).markOrderFulfilled(eq(orderId));
         verify(emailService, times(1)).sendVouchers(eq(singleton(voucher)), eq(email));
-        verify(fulfillmentRepository, times(1)).save(eq(fulfillment.withStatus(FulfillmentStatus.completed)));
+        verify(fulfillmentRepository, times(1)).save(eq(fulfillment.withStatus(FulfillmentStatus.initiated)));
+        verify(fulfillmentRepository, times(1)).save(eq(savedFulfillment.withStatus(FulfillmentStatus.completed)));
         verify(voucherRepository, times(1)).save(eq(voucher.withSold(true)));
     }
 

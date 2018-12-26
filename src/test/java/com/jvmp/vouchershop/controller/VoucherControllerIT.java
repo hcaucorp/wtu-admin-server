@@ -1,6 +1,8 @@
 package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.Application;
+import com.jvmp.vouchershop.crypto.btc.BitcoinJConfig;
+import com.jvmp.vouchershop.crypto.btc.BitcoinJConfigForTests;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.system.DatabaseConfig;
@@ -39,7 +41,7 @@ import static org.junit.Assert.assertTrue;
 @SpringBootTest(
         classes = Application.class,
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes = DatabaseConfig.class)
+@ContextConfiguration(classes = {DatabaseConfig.class, BitcoinJConfig.class, BitcoinJConfigForTests.class})
 public class VoucherControllerIT {
 
     @LocalServerPort
@@ -100,16 +102,17 @@ public class VoucherControllerIT {
 
     @Test
     public void redeemVoucher() {
-        Voucher voucher = randomVoucher()
+        Wallet wallet = walletRepository.save(randomWallet()
+                .withCurrency("BTC"));
+        Voucher voucher = voucherRepository.save(randomVoucher()
+                .withWalletId(wallet.getId())
                 .withSold(true)
                 .withPublished(true)
-                .withRedeemed(false);
+                .withRedeemed(false));
 
-        voucherRepository.save(voucher);
-
-        String walletAddress = randomString();
-
-        template.put("/vouchers/{id}/redeem", new VoucherRedemptionDetails(voucher.getCode(), walletAddress));
+        template.put("/vouchers/redeem", new VoucherRedemptionDetails()
+                .withVoucherCode(voucher.getCode())
+                .withDestinationAddress("mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G"));
 
         Optional<Voucher> byId = voucherRepository.findById(voucher.getId());
 

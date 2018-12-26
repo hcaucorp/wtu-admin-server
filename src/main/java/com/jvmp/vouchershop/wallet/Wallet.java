@@ -35,9 +35,6 @@ public class Wallet implements Serializable {
     )
     private Long id;
 
-    @Column(nullable = false)
-    private String description;
-
     @Column(unique = true)
     private String address;
 
