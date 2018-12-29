@@ -3,6 +3,7 @@ package com.jvmp.vouchershop.crypto.btc;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import org.bitcoinj.core.Context;
+import org.bitcoinj.kits.WalletAppKit;
 import org.bitcoinj.params.UnitTestParams;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,12 +20,15 @@ public class BtcWalletServiceTest {
     @Mock
     private WalletRepository walletRepository;
 
+    @Mock
+    private WalletAppKit walletAppKit;
+
     private BtcWalletService walletService;
 
     @Before
     public void setUp() {
         Context btcContext = new Context(UnitTestParams.get());
-        walletService = new BtcWalletService(walletRepository, btcContext.getParams());
+        walletService = new BtcWalletService(walletRepository, btcContext.getParams(), walletAppKit);
     }
 
     @Test(expected = IllegalOperationException.class)

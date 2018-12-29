@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface WalletService {
 
+    Wallet generateWallet();
+
     List<Wallet> findAll();
 
     Optional<Wallet> findById(Long id);
