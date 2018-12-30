@@ -7,13 +7,7 @@ import lombok.experimental.Wither;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
@@ -37,6 +31,9 @@ public class Wallet implements Serializable {
 
     @Column(unique = true)
     private String address;
+
+    @Transient
+    private long balance;
 
     @Column(nullable = false, updatable = false)
     private String mnemonic;

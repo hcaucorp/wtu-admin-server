@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 import static org.bitcoinj.wallet.Wallet.fromSeed;
 
 @Slf4j
@@ -42,7 +43,7 @@ public class BtcWalletService implements WalletService, AutoCloseable {
 
     @PostConstruct
     public void init() {
-        if (!findAll().isEmpty())
+        if (!walletRepository.findAll().isEmpty())
             start();
     }
 
@@ -54,7 +55,7 @@ public class BtcWalletService implements WalletService, AutoCloseable {
 
     @VisibleForTesting
     void start() {
-        if (findAll().isEmpty())
+        if (walletRepository.findAll().isEmpty())
             throw new IllegalOperationException("There is no wallet found in the system. Generate a wallet first before attempting to use Bitcoin (BTC) wallet library.");
 
         if (bitcoinj.isRunning())
@@ -70,7 +71,7 @@ public class BtcWalletService implements WalletService, AutoCloseable {
 
     @VisibleForTesting
     public Wallet importWallet(String mnemonics, long creationTime) throws UnreadableWalletException {
-        if (!findAll().isEmpty())
+        if (!walletRepository.findAll().isEmpty())
             throw new IllegalOperationException("BTC wallet already exists. Currently we support only single wallet per currency");
 
         return restoreWalletAndStart(fromSeed(networkParameters, new DeterministicSeed(mnemonics, null, "", creationTime)));
@@ -90,8 +91,11 @@ public class BtcWalletService implements WalletService, AutoCloseable {
         return wallet;
     }
 
-    public Wallet generateWallet() {
-        if (!findAll().isEmpty())
+    public Wallet generateWallet(String currency) {
+        if (!"BTC".equals(currency))
+            throw new IllegalOperationException("Currency " + currency + " is not supported.");
+
+        if (!walletRepository.findAll().isEmpty())
             throw new IllegalOperationException("BTC wallet already exists. Currently we support only single wallet per currency");
 
         org.bitcoinj.wallet.Wallet bitcoinjWallet = new org.bitcoinj.wallet.Wallet(networkParameters);
@@ -106,7 +110,10 @@ public class BtcWalletService implements WalletService, AutoCloseable {
 
     @Override
     public List<Wallet> findAll() {
-        return walletRepository.findAll();
+        return walletRepository.findAll().stream()
+                .peek(wallet -> start())
+                .map(wallet -> wallet.withBalance(bitcoinj.wallet().getBalance().value))
+                .collect(toList());
     }
 
     @Override
