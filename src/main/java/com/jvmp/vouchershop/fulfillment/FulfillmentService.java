@@ -4,5 +4,5 @@ import com.jvmp.vouchershop.shopify.domain.Order;
 
 public interface FulfillmentService {
 
-    void fulfillOrder(Order order);
+    Fulfillment fulfillOrder(Order order);
 }

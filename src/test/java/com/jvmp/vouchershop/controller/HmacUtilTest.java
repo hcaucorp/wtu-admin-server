@@ -1,30 +1,27 @@
 package com.jvmp.vouchershop.controller;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
 
 public class HmacUtilTest {
 
-    private static final String headerHashFromShopify = "PlhLPNwIwxmYR6T17qJOZ1k4l2sbSZmtnp529Pbp8/A=";
-    private static final String secret = "3c023263872ba9675e166569ee160a7ac6c282210328ef27591099d507d99523";
+    private static final String headerHashFromShopify = "gMAzAzlEoMtRAKhlazsa0cwDMzb5HQAnsvBgmY/zdrI=";
+    private static final String secret = "4aa1c538138e6dcb09f6d4d92ba4087c14415079c26fb6fb8a51bc6e6dca5ca3";
 
-    private String content;
+    private byte[] content;
 
     @Before
     public void setUp() throws Exception {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                // TODO put correct data into the sample
-                HmacUtilTest.class.getResourceAsStream("/samples/order_payment_test_notification.json")))) {
-            content = reader.lines().collect(joining());
+        try (InputStream input = HmacUtilTest.class.getResourceAsStream("/samples/Order820982911946154508")) {
+            content = IOUtils.toByteArray(input);
         }
     }
 

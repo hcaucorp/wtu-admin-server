@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jvmp.vouchershop.fulfillment.FulfillmentService;
 import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.system.PropertyNames;
+import io.reactivex.Flowable;
+import io.reactivex.schedulers.Schedulers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @RestController
@@ -35,7 +36,7 @@ public class ShopifyController {
      * Triggered when something has been sold on Shopify and needs fullfilling, fulfillment/create webhook
      */
     @PostMapping("/shopify/webhook/fulfill")
-    public ResponseEntity<?> fullFillmentHook(@RequestBody String body, @RequestHeader HttpHeaders headers)
+    public ResponseEntity<?> fullFillmentHook(@RequestBody byte[] body, @RequestHeader HttpHeaders headers)
             throws InvalidKeyException, NoSuchAlgorithmException, IOException {
         String hashFromRequest = headers.getFirst("X-Shopify-Hmac-SHA256");
         String calculatedHash = HmacUtil.encode(webhookSecret, body);
@@ -43,14 +44,17 @@ public class ShopifyController {
         if (calculatedHash != null && calculatedHash.equals(hashFromRequest)) {
             Order order = objectMapper.readValue(body, Order.class);
 
-            // TODO 2: need a stress test to check race conditions (eg. if one voucher can be claimed for 2 orders?)
-            CompletableFuture.runAsync(
-                    () -> fulfillmentService.fulfillOrder(order))
-                    .thenAccept(ignore -> log.info("Order {} fulfilled.", order.getId()));
+            //noinspection ResultOfMethodCallIgnored
+            Flowable.fromCallable(() -> fulfillmentService.fulfillOrder(order))
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.single())
+                    .subscribe(
+                            fulfillment -> log.info("Order {} fulfilled.", fulfillment.getOrderId()),
+                            throwable -> log.error("Order fulfillment failed: {}", throwable.getMessage()));
 
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();
         } else {
-            log.error("Received invalid message (not from Shopify?). Expected hash {} but found {}", calculatedHash, hashFromRequest);
+            log.error("Expected {} but received invalid message hash {}", calculatedHash, hashFromRequest);
             return ResponseEntity.badRequest().build();
         }
     }

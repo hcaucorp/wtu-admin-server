@@ -16,7 +16,6 @@ import org.bitcoinj.wallet.UnreadableWalletException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.Optional;
@@ -39,12 +38,6 @@ public class BtcWalletService implements WalletService, AutoCloseable {
     private static String walletWords(@Nonnull org.bitcoinj.wallet.Wallet bitcoinjWallet) {
         return String.join(" ", Optional.ofNullable(bitcoinjWallet.getKeyChainSeed().getMnemonicCode())
                 .orElse(emptyList()));
-    }
-
-    @PostConstruct
-    public void init() {
-        if (!walletRepository.findAll().isEmpty())
-            start();
     }
 
     @PreDestroy

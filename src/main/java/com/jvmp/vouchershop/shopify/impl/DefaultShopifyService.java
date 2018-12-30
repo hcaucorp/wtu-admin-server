@@ -34,7 +34,6 @@ class DefaultShopifyService implements ShopifyService {
 
     @Override
     public void markOrderFulfilled(long orderId) {
-
         apiClient.fulfillAllItems(orderId, createFulfillmentResource(orderId));
     }
 }

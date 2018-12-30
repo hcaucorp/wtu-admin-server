@@ -7,13 +7,7 @@ import lombok.experimental.Wither;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
@@ -73,7 +67,7 @@ public class Voucher implements Serializable {
     /**
      * by convention expires after a year
      */
-    @Column(name = "expiration_days")
-    @Positive
-    private long expirationDays = 365;
+    @Column(name = "expires_at")
+    @Min(1322697600) // 12/01/2011 @ 12:00am (UTC)
+    private long expiresAt;
 }

@@ -25,9 +25,8 @@ import java.util.stream.Stream;
 import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.completed;
 import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.initiated;
 import static com.jvmp.vouchershop.shopify.domain.FinancialStatus.paid;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 @Service
@@ -40,10 +39,7 @@ public class DefaultFulFillmentService implements FulfillmentService {
     private final EmailService emailService;
 
     @Override
-    public void fulfillOrder(Order order) {
-
-        log.info("Accepted order for fulfilment: {}", order);
-
+    public Fulfillment fulfillOrder(Order order) {
         // order verification
         checkIfOrderIsValid(order);
         checkIfOrderHasBeenFullyPaid(order);
@@ -59,14 +55,15 @@ public class DefaultFulFillmentService implements FulfillmentService {
         emailService.sendVouchers(supplyForDemand, order.getCustomer().getEmail());
         shopifyService.markOrderFulfilled(fulfillment.getOrderId());
 
-        completeFulFillment(fulfillment);
+        return completeFulFillment(fulfillment);
     }
 
     @VisibleForTesting
-    void completeFulFillment(@Nonnull Fulfillment fulfillment) {
+    Fulfillment completeFulFillment(@Nonnull Fulfillment fulfillment) {
         fulfillment.setStatus(completed);
-        fulfillmentRepository.save(fulfillment);
+        Fulfillment result = fulfillmentRepository.save(fulfillment);
         fulfillment.getVouchers().forEach(voucher -> voucherRepository.save(voucher.withSold(true)));
+        return result;
     }
 
     @VisibleForTesting
@@ -84,15 +81,16 @@ public class DefaultFulFillmentService implements FulfillmentService {
         int totalCount = lineItemsQuantities.stream().mapToInt(value -> value.right).sum();
         int availableCount = supplyForDemand.size();
 
-        if (totalCount != availableCount) {
+        if (totalCount > availableCount) {
             String skuList = lineItemsQuantities.stream().map(pair -> pair.left + "(" + pair.right + ")").collect(joining(", "));
             String vouchersList = supplyForDemand.stream().map(Voucher::getSku)
                     .collect(toMap(sku -> sku, sku -> 1L, (Long s, Long a) -> s + a))
                     .entrySet().stream()
                     .map(pair -> pair.getKey() + "(" + pair.getValue() + ")").collect(joining(", "));
+            vouchersList = isBlank(vouchersList) ? "0" : vouchersList;
 
-            log.error("Order contains {} products: {} but we only have avaliable {} vouchers: {}", totalCount, availableCount, supplyForDemand);
-            log.error("You asked for vouchers with sku: \n{} \nbut found: \n{}", skuList, vouchersList);
+            log.error("Order contains {} products but we only have {} available vouchers to cover this: {}", totalCount, availableCount, supplyForDemand);
+            log.error("You asked for vouchers with sku: {} but found: {}", skuList, vouchersList);
 
             throw new InvalidOrderException("Order can't be fulfilled. See error log for more details.");
         }

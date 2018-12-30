@@ -24,23 +24,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.jvmp.vouchershop.Collections.asSet;
-import static com.jvmp.vouchershop.RandomUtils.randomOrder;
-import static com.jvmp.vouchershop.RandomUtils.randomSku;
-import static com.jvmp.vouchershop.RandomUtils.randomString;
-import static com.jvmp.vouchershop.RandomUtils.randomVoucher;
+import static com.jvmp.vouchershop.RandomUtils.*;
 import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.completed;
 import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.initiated;
 import static com.jvmp.vouchershop.voucher.impl.DefaultVoucherService.DEFAULT_VOUCHER_CODE_GENERATOR;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.*;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultFulfillmentServiceTest {
@@ -104,7 +97,12 @@ public class DefaultFulfillmentServiceTest {
         verify(emailService, times(1)).sendVouchers(eq(singleton(voucher)), eq(email));
         verify(fulfillmentRepository, times(1)).save(eq(fulfillment.withStatus(FulfillmentStatus.initiated)));
         verify(fulfillmentRepository, times(1)).save(eq(savedFulfillment.withStatus(FulfillmentStatus.completed)));
-        verify(voucherRepository, times(1)).save(eq(voucher.withSold(true)));
+        verify(voucherRepository, times(1)).save(eq(
+                voucher
+                        .withSold(true)
+
+                // TODO add expires at calculation
+        ));
     }
 
     @Test
@@ -168,6 +166,21 @@ public class DefaultFulfillmentServiceTest {
                 singleton(ImmutablePair.of("sku", 2)), emptySet()
         );
     }
+
+
+    @Test
+    public void checkIfSupplyIsEnough_oneItem_shouldSucceed() {
+        String sku = randomSku();
+        service.checkIfSupplyIsEnough(
+                singleton(ImmutablePair.of(sku, 2)),
+                asSet(
+                        randomVoucher().withSku(sku),
+                        randomVoucher().withSku(sku),
+                        randomVoucher().withSku(sku)
+                )
+        );
+    }
+
 
     @Test
     public void findSupplyForDemand() {
