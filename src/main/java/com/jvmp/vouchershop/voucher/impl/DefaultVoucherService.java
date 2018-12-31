@@ -111,14 +111,13 @@ public class DefaultVoucherService implements VoucherService {
         Objects.requireNonNull(voucher, "voucher");
 
         LocalDateTime today = LocalDateTime.now();
-        LocalDateTime createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(voucher.getCreatedAt()), ZoneOffset.UTC);
-        LocalDateTime expiresAt = createdAt.plusDays(voucher.getExpirationDays());
+        LocalDateTime expiresAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(voucher.getExpiresAt()), ZoneOffset.UTC);
 
         return today.isAfter(expiresAt);
     }
 
     @Override
-    public Observable<String> redeemVoucher(@Nonnull VoucherRedemptionDetails detail) {
+    public Observable<RedemptionResponse> redeemVoucher(@Nonnull RedemptionRequest detail) {
         Objects.requireNonNull(detail, "voucher redemption details");
 
         Voucher voucher = voucherRepository.findByCode(detail.getVoucherCode())
@@ -133,11 +132,11 @@ public class DefaultVoucherService implements VoucherService {
         Observable<String> transactionHash = walletService.sendMoney(wallet, detail.getDestinationAddress(), voucher.getAmount());
 
         //noinspection ResultOfMethodCallIgnored
-        transactionHash
-                .subscribe(
-                        s -> voucherRepository.save(voucher.withRedeemed(true)),
-                        throwable -> log.error(throwable.getMessage()));
-
-        return transactionHash;
+        return transactionHash
+                .map(s -> {
+                    voucherRepository.save(voucher.withRedeemed(true));
+                    return s;
+                })
+                .map(RedemptionUtils::fromTxHash);
     }
 }

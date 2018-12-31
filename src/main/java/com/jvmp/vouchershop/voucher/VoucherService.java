@@ -1,7 +1,8 @@
 package com.jvmp.vouchershop.voucher;
 
+import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
+import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
 import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
-import com.jvmp.vouchershop.voucher.impl.VoucherRedemptionDetails;
 import io.reactivex.Observable;
 
 import java.util.List;
@@ -24,5 +25,5 @@ public interface VoucherService {
      * has been performed. For BTC/~BCH it would be a transaction hash which allows to see the transaciton in the blockchain (blockchain explorer link for
      * tracking information)
      */
-    Observable<String> redeemVoucher(VoucherRedemptionDetails detail);
+    Observable<RedemptionResponse> redeemVoucher(RedemptionRequest detail);
 }

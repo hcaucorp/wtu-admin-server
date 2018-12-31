@@ -104,12 +104,11 @@ public class DefaultVoucherServiceTest {
 
         when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.empty());
 
-        subject.redeemVoucher(new VoucherRedemptionDetails(randomString(), code));
+        subject.redeemVoucher(new RedemptionRequest(randomString(), code));
     }
 
     @Test(expected = ResourceNotFoundException.class)
     public void redeemVoucher_noWallet() {
-        Wallet wallet = randomWallet();
         Voucher voucher = randomVoucher()
                 .withSold(true)
                 .withPublished(true)
@@ -119,7 +118,7 @@ public class DefaultVoucherServiceTest {
 
         when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.of(voucher));
 
-        subject.redeemVoucher(new VoucherRedemptionDetails(destinationAddress, code));
+        subject.redeemVoucher(new RedemptionRequest(destinationAddress, code));
     }
 
     @Test
@@ -137,7 +136,7 @@ public class DefaultVoucherServiceTest {
         when(walletService.findById(eq(wallet.getId()))).thenReturn(Optional.of(wallet));
         when(walletService.sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()))).thenReturn(Observable.just(randomString()));
 
-        subject.redeemVoucher(new VoucherRedemptionDetails(destinationAddress, code));
+        subject.redeemVoucher(new RedemptionRequest(destinationAddress, code));
 
         verify(walletService, times(1)).sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()));
         verify(voucherRepository, times(1)).save(eq(voucher.withRedeemed(true)));
@@ -147,7 +146,7 @@ public class DefaultVoucherServiceTest {
     public void checkVoucher_expired() {
         DefaultVoucherService.checkVoucher(randomVoucher()
                 .withCreatedAt(LocalDateTime.of(2015, 1, 1, 1, 1).toInstant(ZoneOffset.UTC).toEpochMilli())
-                .withExpirationDays(2));
+                .withExpiresAt(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli()));
     }
 
     @Test(expected = IllegalOperationException.class)
@@ -175,10 +174,10 @@ public class DefaultVoucherServiceTest {
     public void isExpired() {
         assertFalse(DefaultVoucherService.isExpired(randomVoucher()
                 .withCreatedAt(Instant.now().toEpochMilli())
-                .withExpirationDays(365)));
+                .withExpiresAt(LocalDateTime.now().plusDays(1).toInstant(ZoneOffset.UTC).toEpochMilli())));
 
         assertTrue(DefaultVoucherService.isExpired(randomVoucher()
                 .withCreatedAt(LocalDateTime.of(2015, 1, 1, 1, 1).toInstant(ZoneOffset.UTC).toEpochMilli())
-                .withExpirationDays(2)));
+                .withExpiresAt(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli())));
     }
 }

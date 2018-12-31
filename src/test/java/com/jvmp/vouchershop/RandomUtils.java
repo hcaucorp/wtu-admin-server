@@ -58,8 +58,7 @@ public class RandomUtils {
                 .withSold(false)
                 .withRedeemed(false)
                 .withSku(randomSku())
-                .withCreatedAt(Instant.now().toEpochMilli())
-                .withExpirationDays(365);
+                .withCreatedAt(Instant.now().toEpochMilli());
     }
 
     public static VoucherGenerationDetails randomVoucherGenerationSpec() {

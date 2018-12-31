@@ -6,17 +6,19 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Wither;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Wither
-public class VoucherRedemptionDetails implements Serializable {
+public class RedemptionResponse implements Serializable {
+
+    @NotEmpty
+    List<String> trackingUrls;
 
     @NotBlank
-    private String destinationAddress;
-
-    @NotBlank
-    private String voucherCode;
+    String transactionId;
 }
