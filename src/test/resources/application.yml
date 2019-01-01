@@ -1,0 +1,38 @@
+# Shopify API access
+shopify:
+  shop-name: wallet-top-up
+  api-key: bee9d4b0e98978fd3ec5e7625ef2838e
+  api-password: 50387a70e75f66fc2330062edc38b7f2
+  secret: 4aa1c538138e6dcb09f6d4d92ba4087c14415079c26fb6fb8a51bc6e6dca5ca3
+  location-id: 18618777700
+
+# testnet/regtest/mainnet
+bitcoinj:
+  network:
+    type: testnet
+
+security:
+  user:
+    name: Peter Quill
+    password: r71XzJ5eAQ4P
+
+spring:
+  # Gmail
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: hubert.czerpak@gmail.com
+    password: iqsootamnlofucas
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  datasource:
+    url: jdbc:h2:mem:myDb;DB_CLOSE_DELAY=-1
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        ddl-auto: create

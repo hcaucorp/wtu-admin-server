@@ -111,8 +111,7 @@ public class DefaultVoucherService implements VoucherService {
         Objects.requireNonNull(voucher, "voucher");
 
         LocalDateTime today = LocalDateTime.now();
-        LocalDateTime createdAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(voucher.getCreatedAt()), ZoneOffset.UTC);
-        LocalDateTime expiresAt = createdAt.plusDays(voucher.getExpirationDays());
+        LocalDateTime expiresAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(voucher.getExpiresAt()), ZoneOffset.UTC);
 
         return today.isAfter(expiresAt);
     }

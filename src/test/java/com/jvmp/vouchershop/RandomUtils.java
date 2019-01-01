@@ -9,6 +9,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -59,7 +61,7 @@ public class RandomUtils {
                 .withRedeemed(false)
                 .withSku(randomSku())
                 .withCreatedAt(Instant.now().toEpochMilli())
-                .withExpirationDays(365);
+                .withExpiresAt(LocalDateTime.now().plusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli());
     }
 
     public static VoucherGenerationDetails randomVoucherGenerationSpec() {

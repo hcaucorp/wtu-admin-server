@@ -19,18 +19,11 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
-import static com.jvmp.vouchershop.RandomUtils.randomString;
-import static com.jvmp.vouchershop.RandomUtils.randomVoucher;
-import static com.jvmp.vouchershop.RandomUtils.randomVoucherGenerationSpec;
-import static com.jvmp.vouchershop.RandomUtils.randomWallet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.jvmp.vouchershop.RandomUtils.*;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultVoucherServiceTest {
@@ -147,7 +140,7 @@ public class DefaultVoucherServiceTest {
     public void checkVoucher_expired() {
         DefaultVoucherService.checkVoucher(randomVoucher()
                 .withCreatedAt(LocalDateTime.of(2015, 1, 1, 1, 1).toInstant(ZoneOffset.UTC).toEpochMilli())
-                .withExpirationDays(2));
+                .withExpiresAt(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli()));
     }
 
     @Test(expected = IllegalOperationException.class)
@@ -175,10 +168,10 @@ public class DefaultVoucherServiceTest {
     public void isExpired() {
         assertFalse(DefaultVoucherService.isExpired(randomVoucher()
                 .withCreatedAt(Instant.now().toEpochMilli())
-                .withExpirationDays(365)));
+                .withExpiresAt(LocalDateTime.now().plusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli())));
 
         assertTrue(DefaultVoucherService.isExpired(randomVoucher()
                 .withCreatedAt(LocalDateTime.of(2015, 1, 1, 1, 1).toInstant(ZoneOffset.UTC).toEpochMilli())
-                .withExpirationDays(2)));
+                .withExpiresAt(LocalDateTime.now().minusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli())));
     }
 }

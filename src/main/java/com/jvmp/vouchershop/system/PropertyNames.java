@@ -9,6 +9,9 @@ public class PropertyNames {
     public final String SHOPIFY_SHOP_NAME = "${shopify.shop-name}";
     public final String SHOPIFY_API_KEY = "${shopify.api-key}";
     public final String SHOPIFY_API_PASSWORD = "${shopify.api-password}";
-    public final String SHOPIFY_WEBHOOK_SHARED_SECRET = "${shopify.webhook.shared-secret}";
-    public final String SHIPIFY_LOCATION_ID = "${shopify.location.default.id}";
+    public final String SHOPIFY_WEBHOOK_SHARED_SECRET = "${shopify.secret}";
+    public final String SHIPIFY_LOCATION_ID = "${shopify.location-id}";
+
+    public final String SECURITY_USER_NAME = "${security.user.name}";
+    public final String SECURITY_USER_PASS = "${security.user.password}";
 }
