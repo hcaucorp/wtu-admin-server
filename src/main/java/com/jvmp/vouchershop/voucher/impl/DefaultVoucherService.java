@@ -117,7 +117,7 @@ public class DefaultVoucherService implements VoucherService {
     }
 
     @Override
-    public Observable<String> redeemVoucher(@Nonnull VoucherRedemptionDetails detail) {
+    public RedemptionResponse redeemVoucher(@Nonnull RedemptionRequest detail) {
         Objects.requireNonNull(detail, "voucher redemption details");
 
         Voucher voucher = voucherRepository.findByCode(detail.getVoucherCode())
@@ -131,12 +131,12 @@ public class DefaultVoucherService implements VoucherService {
         // send money
         Observable<String> transactionHash = walletService.sendMoney(wallet, detail.getDestinationAddress(), voucher.getAmount());
 
-        //noinspection ResultOfMethodCallIgnored
-        transactionHash
-                .subscribe(
-                        s -> voucherRepository.save(voucher.withRedeemed(true)),
-                        throwable -> log.error(throwable.getMessage()));
-
-        return transactionHash;
+        return transactionHash
+                .map(s -> {
+                    voucherRepository.save(voucher.withRedeemed(true));
+                    return s;
+                })
+                .map(RedemptionUtils::fromTxHash)
+                .blockingSingle();
     }
 }

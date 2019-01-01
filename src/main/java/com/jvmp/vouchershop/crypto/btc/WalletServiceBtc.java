@@ -27,7 +27,7 @@ import static org.bitcoinj.wallet.Wallet.fromSeed;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class BtcWalletService implements WalletService, AutoCloseable {
+public class WalletServiceBtc implements WalletService, AutoCloseable {
 
     private final WalletRepository walletRepository;
 
@@ -125,7 +125,6 @@ public class BtcWalletService implements WalletService, AutoCloseable {
             throw new IllegalOperationException("Wallet " + from.toString() + " can provide only for vouchers in BTC");
 
         Address targetAddress = Address.fromBase58(networkParameters, toAddress);
-
         org.bitcoinj.wallet.Wallet.SendResult result;
         try {
 

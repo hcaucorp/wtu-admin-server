@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
-public class BtcWalletServiceIT {
+public class WalletServiceBtcIT {
 
     @Autowired
     private WalletRepository walletRepository;
@@ -30,12 +30,12 @@ public class BtcWalletServiceIT {
     @MockBean
     private WalletAppKit walletAppKit;
 
-    private BtcWalletService walletService;
+    private WalletServiceBtc walletService;
 
     @Before
     public void setUp() {
         Context btcContext = new Context(UnitTestParams.get());
-        walletService = new BtcWalletService(walletRepository, btcContext.getParams(), walletAppKit);
+        walletService = new WalletServiceBtc(walletRepository, btcContext.getParams(), walletAppKit);
     }
 
     @Test

@@ -1,13 +1,14 @@
 package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.Application;
-import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.Wallet;
+import com.jvmp.vouchershop.wallet.WalletService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
@@ -21,6 +22,7 @@ import java.util.List;
 import static com.jvmp.vouchershop.RandomUtils.randomWallet;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -37,22 +39,23 @@ public class WalletControllerIT {
     @Autowired
     private TestRestTemplate template;
 
-    @Autowired
-    private WalletRepository walletRepository;
-
-    private Wallet testWallet;
+    @MockBean
+    private WalletService walletService;
 
     @Before
     public void setUp() throws Exception {
         this.base = new URL("http://localhost:" + port);
-
-        testWallet = walletRepository.save(randomWallet());
     }
 
     @Test
     public void getAllWallets() {
-        ResponseEntity<List<Wallet>> response =
-                template.exchange(base.toString() + "/wallets", HttpMethod.GET, null, new WalletList());
+        Wallet testWallet = randomWallet();
+        when(walletService.findAll()).thenReturn(singletonList(testWallet));
+
+        ResponseEntity<List<Wallet>> response = template
+                .withBasicAuth(ControllerUtils.USER_NAME, ControllerUtils.USER_PASS)
+                .exchange(base.toString() + "/wallets", HttpMethod.GET, null, new WalletList());
+
         assertEquals(singletonList(testWallet), response.getBody());
     }
 

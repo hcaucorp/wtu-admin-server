@@ -2,6 +2,7 @@ package com.jvmp.vouchershop;
 
 import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;
+import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
 import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
 import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.experimental.UtilityClass;
@@ -75,5 +76,12 @@ public class RandomUtils {
                 .withPrice(1)
                 .withPriceCurrency("GBP")
                 .withSku(randomSku());
+    }
+
+    public static RedemptionRequest randomRedemptionRequest() {
+        return new RedemptionRequest(
+                randomString(),
+                randomString()
+        );
     }
 }

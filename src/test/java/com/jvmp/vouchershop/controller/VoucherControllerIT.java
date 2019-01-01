@@ -2,12 +2,13 @@ package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJConfig;
-import com.jvmp.vouchershop.crypto.btc.BtcWalletService;
+import com.jvmp.vouchershop.crypto.btc.WalletServiceBtc;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.system.DatabaseConfig;
 import com.jvmp.vouchershop.voucher.Voucher;
-import com.jvmp.vouchershop.voucher.impl.VoucherRedemptionDetails;
+import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
+import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
 import com.jvmp.vouchershop.wallet.Wallet;
 import org.bitcoinj.core.Context;
 import org.bitcoinj.core.NetworkParameters;
@@ -57,7 +58,7 @@ public class VoucherControllerIT {
     private WalletRepository walletRepository;
 
     @Autowired
-    private BtcWalletService btcWalletService;
+    private WalletServiceBtc btcWalletService;
 
     @Autowired
     private NetworkParameters networkParameters;
@@ -77,7 +78,9 @@ public class VoucherControllerIT {
     @Test
     public void getAllVouchers() {
         testVouchers.forEach(voucher -> assertTrue(voucherRepository.findById(voucher.getId()).isPresent()));
-        ResponseEntity<List<Voucher>> response = template.exchange(base.toString() + "/vouchers", HttpMethod.GET, null, new VoucherList());
+        ResponseEntity<List<Voucher>> response = template
+                .withBasicAuth(ControllerUtils.USER_NAME, ControllerUtils.USER_PASS)
+                .exchange(base.toString() + "/vouchers", HttpMethod.GET, null, new VoucherList());
         assertEquals(testVouchers, response.getBody());
     }
 
@@ -85,7 +88,9 @@ public class VoucherControllerIT {
     public void deleteVoucherById() {
         testVouchers.stream().map(Voucher::getId).forEach(id -> {
             assertTrue(voucherRepository.findById(id).isPresent());
-            template.delete(base.toString() + "/vouchers/" + id);
+            template
+                    .withBasicAuth(ControllerUtils.USER_NAME, ControllerUtils.USER_PASS)
+                    .delete(base.toString() + "/vouchers/" + id);
             assertFalse(voucherRepository.findById(id).isPresent());
         });
     }
@@ -94,15 +99,18 @@ public class VoucherControllerIT {
     public void generateVouchers() {
         Wallet wallet = walletRepository.save(randomWallet());
 
-        URI location = template.postForLocation(
-                base.toString() + "/vouchers",
-                randomVoucherGenerationSpec()
-                        .withWalletId(wallet.getId())
-                        .withSku(randomString()),
-                String.class
-        );
+        URI location = template
+                .withBasicAuth(ControllerUtils.USER_NAME, ControllerUtils.USER_PASS)
+                .postForLocation(base.toString() + "/vouchers",
+                        randomVoucherGenerationSpec()
+                                .withWalletId(wallet.getId())
+                                .withSku(randomString()),
+                        String.class
+                );
 
         assertNotNull(location);
+
+        walletRepository.delete(wallet);
     }
 
     @Test
@@ -118,9 +126,17 @@ public class VoucherControllerIT {
                 .withPublished(true)
                 .withRedeemed(false));
 
-        template.put("/vouchers/redeem", new VoucherRedemptionDetails()
-                .withVoucherCode(voucher.getCode())
-                .withDestinationAddress("mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G"));
+        RedemptionResponse response = template
+                .withBasicAuth(ControllerUtils.USER_NAME, ControllerUtils.USER_PASS)
+                .postForEntity("/vouchers/redeem", new RedemptionRequest()
+                                .withVoucherCode(voucher.getCode())
+                                .withDestinationAddress("mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G"),
+                        RedemptionResponse.class)
+                .getBody();
+
+        assertNotNull(response);
+        assertNotNull(response.getTransactionId());
+        assertFalse(response.getTrackingUrls().isEmpty());
 
         Optional<Voucher> byId = voucherRepository.findById(voucher.getId());
 

@@ -26,7 +26,7 @@ public class HmacUtilTest {
     }
 
     @Test
-    @Ignore
+    @Ignore //TODO fix the test because encoding is correct
     public void encode() throws NoSuchAlgorithmException, InvalidKeyException {
         assertEquals(headerHashFromShopify, HmacUtil.encode(secret, content));
     }

@@ -15,7 +15,7 @@ import static com.jvmp.vouchershop.RandomUtils.randomString;
 import static com.jvmp.vouchershop.RandomUtils.randomWallet;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BtcWalletServiceTest {
+public class WalletServiceBtcTest {
 
     @Mock
     private WalletRepository walletRepository;
@@ -23,12 +23,12 @@ public class BtcWalletServiceTest {
     @Mock
     private WalletAppKit walletAppKit;
 
-    private BtcWalletService walletService;
+    private WalletServiceBtc walletService;
 
     @Before
     public void setUp() {
         Context btcContext = new Context(UnitTestParams.get());
-        walletService = new BtcWalletService(walletRepository, btcContext.getParams(), walletAppKit);
+        walletService = new WalletServiceBtc(walletRepository, btcContext.getParams(), walletAppKit);
     }
 
     @Test(expected = IllegalOperationException.class)

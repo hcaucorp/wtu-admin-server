@@ -68,6 +68,5 @@ public class Voucher implements Serializable {
      * by convention expires after a year
      */
     @Column(name = "expires_at")
-    @Min(1322697600) // 12/01/2011 @ 12:00am (UTC)
     private long expiresAt;
 }
