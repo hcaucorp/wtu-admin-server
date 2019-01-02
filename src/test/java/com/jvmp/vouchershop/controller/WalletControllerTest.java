@@ -16,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -43,5 +44,11 @@ public class WalletControllerTest {
     public void getAllWallets() throws Exception {
         mvc.perform(MockMvcRequestBuilders.get("/wallets"))
                 .andExpect(status().isOk());
+    }
+
+    @WithMockUser(ControllerUtils.USER_NAME)
+    @Test
+    public void generateWallet() {
+        fail("not implemented");
     }
 }

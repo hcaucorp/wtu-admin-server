@@ -8,6 +8,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import static org.junit.Assert.fail;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
@@ -19,5 +21,8 @@ public class ShopifyControllerTest {
 
     @Test
     public void fullFillmentHook() {
+        fail("not implemented");
+
+        // TODO should be accessible without authentication
     }
 }

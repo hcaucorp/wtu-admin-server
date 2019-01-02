@@ -13,6 +13,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import static com.jvmp.vouchershop.RandomUtils.randomString;
 import static com.jvmp.vouchershop.RandomUtils.randomWallet;
+import static org.junit.Assert.fail;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WalletServiceBtcTest {
@@ -39,5 +40,26 @@ public class WalletServiceBtcTest {
 
     @Test
     public void sendMoney() {
+        fail("not implemented");
+    }
+
+    @Test
+    public void start() {
+        fail("not implemented");
+    }
+
+    @Test
+    public void importWallet() {
+        fail("not implemented");
+    }
+
+    @Test
+    public void generateWallet() {
+        fail("not implemented");
+    }
+
+    @Test
+    public void sendMoney1() {
+        fail("not implemented");
     }
 }

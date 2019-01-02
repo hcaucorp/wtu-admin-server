@@ -3,6 +3,8 @@ package com.jvmp.vouchershop.shopify.domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+// TODO clean up model, remove not used
+
 @Data
 public class Address
 {

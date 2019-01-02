@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.time.Duration;
-
 @Configuration
 public class ShopifyConfig {
 
@@ -28,6 +26,6 @@ public class ShopifyConfig {
 
     @Bean
     public ShopifyService shopifyService() {
-        return new ThrottlingShopifyService(new DefaultShopifyService(shopName, apiKey, apiPassword, locationId), Duration.ofSeconds(12));
+        return new DefaultShopifyService(shopName, apiKey, apiPassword, locationId);
     }
 }
