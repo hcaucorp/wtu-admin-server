@@ -1,6 +1,7 @@
 package com.jvmp.vouchershop.crypto.btc;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.util.concurrent.Service;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.Wallet;
@@ -8,7 +9,11 @@ import com.jvmp.vouchershop.wallet.WalletService;
 import io.reactivex.Observable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bitcoinj.core.*;
+import org.bitcoinj.core.Address;
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.InsufficientMoneyException;
+import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.core.Transaction;
 import org.bitcoinj.kits.WalletAppKit;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
@@ -48,11 +53,15 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
 
     @VisibleForTesting
     void start() {
-        if (walletRepository.findAll().isEmpty())
-            throw new IllegalOperationException("There is no wallet found in the system. Generate a wallet first before attempting to use Bitcoin (BTC) wallet library.");
-
-        if (bitcoinj.isRunning())
+        if (walletRepository.findAll().isEmpty()) {
+            log.error("There is no wallet found in the system. Generate a wallet first before attempting to use BitcoinJ.");
             return;
+        }
+
+        if (bitcoinj.state() != Service.State.NEW) {
+            log.error("BitcoinJ is in state: {}. It cannot be started.", bitcoinj.state());
+            return;
+        }
 
         try {
             bitcoinj.startAsync();
@@ -63,11 +72,15 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
     }
 
     @VisibleForTesting
-    public Wallet importWallet(String mnemonics, long creationTime) throws UnreadableWalletException {
-        if (!walletRepository.findAll().isEmpty())
-            throw new IllegalOperationException("BTC wallet already exists. Currently we support only single wallet per currency");
+    public Optional<Wallet> importWallet(String mnemonics, long creationTime) throws UnreadableWalletException {
+        if (!walletRepository.findAll().isEmpty()) {
+            log.error("BTC wallet already exists. Currently we support only single wallet per currency");
+            return Optional.empty();
+        }
 
-        return restoreWalletAndStart(fromSeed(networkParameters, new DeterministicSeed(mnemonics, null, "", creationTime)));
+        return Optional.of(
+                restoreWalletAndStart(
+                        fromSeed(networkParameters, new DeterministicSeed(mnemonics, null, "", creationTime))));
     }
 
     private Wallet restoreWalletAndStart(org.bitcoinj.wallet.Wallet bitcoinjWallet) {

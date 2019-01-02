@@ -3,6 +3,7 @@ package com.jvmp.vouchershop.controller;
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJConfig;
 import com.jvmp.vouchershop.crypto.btc.WalletServiceBtc;
+import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.system.DatabaseConfig;
@@ -32,9 +33,15 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
-import static com.jvmp.vouchershop.RandomUtils.*;
+import static com.jvmp.vouchershop.RandomUtils.randomString;
+import static com.jvmp.vouchershop.RandomUtils.randomVoucher;
+import static com.jvmp.vouchershop.RandomUtils.randomVoucherGenerationSpec;
+import static com.jvmp.vouchershop.RandomUtils.randomWallet;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -118,7 +125,8 @@ public class VoucherControllerIT {
     public void redeemVoucher() throws UnreadableWalletException {
         // receive address: myAUke4cumJb6fYvHAGvXVMzHbKTusrixG
         Wallet wallet = btcWalletService.importWallet(
-                "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary", 1546105372517L);
+                "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary", 1546105372517L)
+                .orElseThrow(IllegalOperationException::new);
 
         Voucher voucher = voucherRepository.save(randomVoucher()
                 .withWalletId(wallet.getId())

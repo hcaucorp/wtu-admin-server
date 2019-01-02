@@ -10,7 +10,7 @@ public class IllegalOperationException extends RuntimeException {
         super(message);
     }
 
-    public IllegalOperationException(String message, Throwable cause) {
-        super(message, cause);
+    public IllegalOperationException() {
+        super("See logs for details");
     }
 }

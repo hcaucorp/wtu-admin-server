@@ -11,9 +11,23 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import static com.google.common.util.concurrent.Service.State.FAILED;
+import static com.google.common.util.concurrent.Service.State.NEW;
+import static com.google.common.util.concurrent.Service.State.RUNNING;
+import static com.google.common.util.concurrent.Service.State.STARTING;
+import static com.google.common.util.concurrent.Service.State.STOPPING;
+import static com.google.common.util.concurrent.Service.State.TERMINATED;
+import static com.jvmp.vouchershop.Collections.asSet;
 import static com.jvmp.vouchershop.RandomUtils.randomString;
 import static com.jvmp.vouchershop.RandomUtils.randomWallet;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WalletServiceBtcTest {
@@ -24,18 +38,17 @@ public class WalletServiceBtcTest {
     @Mock
     private WalletAppKit walletAppKit;
 
-    private WalletServiceBtc walletService;
+    private WalletServiceBtc serviceBtc;
 
     @Before
     public void setUp() {
         Context btcContext = new Context(UnitTestParams.get());
-        walletService = new WalletServiceBtc(walletRepository, btcContext.getParams(), walletAppKit);
+        serviceBtc = new WalletServiceBtc(walletRepository, btcContext.getParams(), walletAppKit);
     }
 
     @Test(expected = IllegalOperationException.class)
     public void sendMoneyWrongWalletCurrency() {
-
-        walletService.sendMoney(randomWallet().withCurrency("BSV"), randomString(), 10);
+        serviceBtc.sendMoney(randomWallet().withCurrency("BSV"), randomString(), 10);
     }
 
     @Test
@@ -44,8 +57,32 @@ public class WalletServiceBtcTest {
     }
 
     @Test
-    public void start() {
-        fail("not implemented");
+    public void start_doNothingIfThereIsNoWallets() {
+        when(walletRepository.findAll()).thenReturn(emptyList());
+
+        serviceBtc.start();
+        verifyZeroInteractions(walletAppKit);
+    }
+
+    @Test
+    public void start_doNothingIfStatusIsNotNEW() {
+        when(walletRepository.findAll()).thenReturn(singletonList(randomWallet()));
+
+        asSet(FAILED, RUNNING, STARTING, STOPPING, TERMINATED).forEach(state -> {
+            when(walletAppKit.state()).thenReturn(state);
+            serviceBtc.start();
+        });
+
+        verify(walletAppKit, never()).startAsync();
+    }
+
+    @Test
+    public void startShouldSucceed() {
+        when(walletRepository.findAll()).thenReturn(singletonList(randomWallet()));
+        when(walletAppKit.state()).thenReturn(NEW);
+
+        verify(walletAppKit, times(1)).startAsync();
+        verify(walletAppKit, times(1)).awaitRunning();
     }
 
     @Test
@@ -55,11 +92,6 @@ public class WalletServiceBtcTest {
 
     @Test
     public void generateWallet() {
-        fail("not implemented");
-    }
-
-    @Test
-    public void sendMoney1() {
         fail("not implemented");
     }
 }
