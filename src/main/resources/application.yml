@@ -11,14 +11,6 @@ bitcoinj:
   network:
     type: testnet
 
-# Security
-security:
-  user:
-    name: user
-    password: password
-  basic:
-    enabled: true
-
 # Spring Reference https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 spring:
   # Gmail
@@ -46,6 +38,13 @@ spring:
           lob:
             non_contextual_creation: true
         ddl-auto: update
+  # Security
+  security:
+    user:
+      name: user
+      password: password
+    basic:
+      enabled: true
 
 # Amazon SES Service
 #spring.mail.host=email-smtp.us-west-2.amazonaws.com

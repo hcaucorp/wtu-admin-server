@@ -2,6 +2,7 @@ package com.jvmp.vouchershop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jvmp.vouchershop.fulfillment.FulfillmentService;
+import com.jvmp.vouchershop.shopify.ShopifyService;
 import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.system.PropertyNames;
 import io.reactivex.Flowable;
@@ -28,6 +29,7 @@ public class ShopifyController {
 
     private final ObjectMapper objectMapper;
     private final FulfillmentService fulfillmentService;
+    private final ShopifyService shopifyService;
 
     @Value(PropertyNames.SHOPIFY_WEBHOOK_SHARED_SECRET)
     private String webhookSecret;
@@ -58,4 +60,10 @@ public class ShopifyController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    // TODO
+//    @PostMapping("/shopify/orders")
+//    public ResponseEntity<Order> findOrders(String status) {
+//        return shopifyService.markOrderFulfilled();
+//    }
 }
