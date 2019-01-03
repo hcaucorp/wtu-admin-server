@@ -121,7 +121,7 @@ public class VoucherControllerIT {
     }
 
     @Test
-    @Ignore("can't make this retarded library work")
+    @Ignore("can't make this retarded library work") // TODO really need this to work properly!
     public void redeemVoucher() throws UnreadableWalletException {
         // receive address: myAUke4cumJb6fYvHAGvXVMzHbKTusrixG
         Wallet wallet = btcWalletService.importWallet(
@@ -154,5 +154,13 @@ public class VoucherControllerIT {
 
     private static class VoucherList extends ParameterizedTypeReference<List<Voucher>> {
         //
+    }
+
+
+    @Test
+    @Ignore("can't make this retarded library work")
+    // TODO redemption page will hash request body using a "secret" known only for 'redemption' and this 'server'
+    public void redeemVoucher_HmacHashing() {
+
     }
 }
