@@ -11,11 +11,6 @@ bitcoinj:
   network:
     type: testnet
 
-security:
-  user:
-    name: Peter Quill
-    password: r71XzJ5eAQ4P
-
 spring:
   # Gmail
   mail:
@@ -36,3 +31,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         ddl-auto: create
+  # Security basic auth credentials for test env
+  security:
+    user:
+      name: Peter Quill
+      password: r71XzJ5eAQ4P

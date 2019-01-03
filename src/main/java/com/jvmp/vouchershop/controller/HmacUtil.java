@@ -8,6 +8,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.Optional;
 
 @UtilityClass
 class HmacUtil {
@@ -19,5 +20,13 @@ class HmacUtil {
         mac.init(keySpec);
 
         return Base64.getEncoder().encodeToString(mac.doFinal(body));
+    }
+
+    static Optional<String> encode1(@Nonnull String secret, @Nonnull byte[] body) {
+        try {
+            return Optional.of(encode(secret, body));
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            return Optional.empty();
+        }
     }
 }

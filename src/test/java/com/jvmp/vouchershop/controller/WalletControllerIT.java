@@ -13,12 +13,14 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URL;
 import java.util.List;
 
+import static com.jvmp.vouchershop.RandomUtils.randomString;
 import static com.jvmp.vouchershop.RandomUtils.randomWallet;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
@@ -42,6 +44,7 @@ public class WalletControllerIT {
     @MockBean
     private WalletService walletService;
 
+
     @Before
     public void setUp() throws Exception {
         this.base = new URL("http://localhost:" + port);
@@ -56,7 +59,19 @@ public class WalletControllerIT {
                 .withBasicAuth(ControllerUtils.USER_NAME, ControllerUtils.USER_PASS)
                 .exchange(base.toString() + "/wallets", HttpMethod.GET, null, new WalletList());
 
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(singletonList(testWallet), response.getBody());
+    }
+
+    @Test
+    public void getAllWalletsNoAuth() {
+        Wallet testWallet = randomWallet();
+        when(walletService.findAll()).thenReturn(singletonList(testWallet));
+        ResponseEntity<List<Wallet>> noAuth = template
+                .withBasicAuth(randomString(), randomString())
+                .exchange(base.toString() + "/wallets", HttpMethod.GET, null, new WalletList());
+
+        assertEquals(HttpStatus.UNAUTHORIZED, noAuth.getStatusCode());
     }
 
     private static class WalletList extends ParameterizedTypeReference<List<Wallet>> {

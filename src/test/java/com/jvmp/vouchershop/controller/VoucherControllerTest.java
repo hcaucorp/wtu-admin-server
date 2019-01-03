@@ -71,7 +71,6 @@ public class VoucherControllerTest {
         RedemptionResponse response = new RedemptionResponse(singletonList("http://trackingurl.com/" + randomString()), randomString());
         when(voucherService.redeemVoucher(eq(request))).thenReturn(response);
 
-        // TODO should be accessible without auth but with hmac hash :)
         mvc.perform(post("/vouchers/redeem")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(om.writeValueAsString(request)))

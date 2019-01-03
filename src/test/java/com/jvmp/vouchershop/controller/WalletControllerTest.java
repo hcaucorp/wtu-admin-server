@@ -4,7 +4,6 @@ import com.jvmp.vouchershop.Application;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.kits.WalletAppKit;
 import org.bitcoinj.wallet.Wallet;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +15,11 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -51,19 +55,23 @@ public class WalletControllerTest {
     @WithMockUser(ControllerUtils.USER_NAME)
     @Test
     public void generateWallet() throws Exception {
-        mvc.perform(post("/wallets/new", "BTC"))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.address").isNotEmpty())
-                .andExpect(jsonPath("$.balance").isNumber())
-                .andExpect(jsonPath("$.currency").value("BTC"))
-                .andExpect(jsonPath("$.createdAt").value(Matchers.greaterThan(1322697600)))
-                .andExpect(jsonPath("$.mnemonic").isNotEmpty());
 
-        mvc.perform(post("/wallets/new", "ETH"))
+        mvc.perform(post("/wallets")
+                .content("BTC"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", not(empty())))
+                .andExpect(jsonPath("$.address", not(empty())))
+                .andExpect(jsonPath("$.balance", notNullValue()))
+                .andExpect(jsonPath("$.currency", is("BTC")))
+                .andExpect(jsonPath("$.createdAt", greaterThan(1322697600L)))
+                .andExpect(jsonPath("$.mnemonic", not(empty())));
+
+        mvc.perform(post("/wallets")
+                .content("ETH"))
                 .andExpect(status().isBadRequest());
 
-        mvc.perform(post("/wallets/new", "XYZ"))
+        mvc.perform(post("/wallets")
+                .content("XYZ"))
                 .andExpect(status().isBadRequest());
     }
 }

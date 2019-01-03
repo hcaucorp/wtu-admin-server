@@ -2,7 +2,6 @@ package com.jvmp.vouchershop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jvmp.vouchershop.fulfillment.FulfillmentService;
-import com.jvmp.vouchershop.shopify.ShopifyService;
 import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.system.PropertyNames;
 import io.reactivex.Flowable;
@@ -27,9 +26,9 @@ import java.security.NoSuchAlgorithmException;
 @RequiredArgsConstructor
 public class ShopifyController {
 
+    static final String HTTP_HEADER_X_SHOPIFY_HMAC_SHA256 = "X-Shopify-Hmac-SHA256";
     private final ObjectMapper objectMapper;
     private final FulfillmentService fulfillmentService;
-    private final ShopifyService shopifyService;
 
     @Value(PropertyNames.SHOPIFY_WEBHOOK_SHARED_SECRET)
     private String webhookSecret;
@@ -40,7 +39,7 @@ public class ShopifyController {
     @PostMapping("/shopify/webhook/fulfill")
     public ResponseEntity<?> fullFillmentHook(@RequestBody byte[] body, @RequestHeader HttpHeaders headers)
             throws InvalidKeyException, NoSuchAlgorithmException, IOException {
-        String hashFromRequest = headers.getFirst("X-Shopify-Hmac-SHA256");
+        String hashFromRequest = headers.getFirst(HTTP_HEADER_X_SHOPIFY_HMAC_SHA256);
         String calculatedHash = HmacUtil.encode(webhookSecret, body);
 
         if (calculatedHash != null && calculatedHash.equals(hashFromRequest)) {

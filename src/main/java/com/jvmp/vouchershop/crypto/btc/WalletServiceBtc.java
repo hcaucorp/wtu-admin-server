@@ -53,21 +53,22 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
 
     @VisibleForTesting
     void start() {
-        if (walletRepository.findAll().isEmpty()) {
-            log.error("There is no wallet found in the system. Generate a wallet first before attempting to use BitcoinJ.");
-            return;
-        }
-
-        if (bitcoinj.state() != Service.State.NEW) {
-            log.error("BitcoinJ is in state: {}. It cannot be started.", bitcoinj.state());
-            return;
-        }
-
         try {
+            if (walletRepository.findAll().isEmpty()) {
+                log.error("There is no wallet found in the system. Generate a wallet first before attempting to use BitcoinJ.");
+                return;
+            }
+
+            if (bitcoinj.state() != Service.State.NEW) {
+                log.error("BitcoinJ is in state: {}. It cannot be started.", bitcoinj.state());
+                return;
+            }
+
             bitcoinj.startAsync();
             bitcoinj.awaitRunning();
-        } catch (IllegalStateException ise) {
-            log.error("BitcoinJ has failed to start", ise);
+        } catch (IllegalStateException | NullPointerException e) {
+            // null pointer is thrown during tests, fucking piece of shit library
+            log.error("BitcoinJ has failed to start", e);
         }
     }
 

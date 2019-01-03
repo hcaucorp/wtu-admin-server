@@ -9,10 +9,12 @@ import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -39,7 +41,11 @@ public class RandomUtils {
 
     public static Order randomOrder() {
         return new Order()
-                .withId(nextLong(0, Long.MAX_VALUE));
+                .withId(nextLong(0, Long.MAX_VALUE))
+                .withId(org.apache.commons.lang3.RandomUtils.nextLong(1, Long.MAX_VALUE))
+                .withName(randomString())
+                .withTotalPrice(BigDecimal.valueOf(org.apache.commons.lang3.RandomUtils.nextLong(1, Long.MAX_VALUE)))
+                .withCreatedAt(new Date());
     }
 
     public static String randomString() {
