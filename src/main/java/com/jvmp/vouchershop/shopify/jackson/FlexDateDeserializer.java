@@ -1,6 +1,5 @@
 package com.jvmp.vouchershop.shopify.jackson;
 
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -8,7 +7,6 @@ import com.fasterxml.jackson.databind.deser.std.DateDeserializers.DateDeserializ
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -17,16 +15,13 @@ import java.util.Date;
  */
 public final class FlexDateDeserializer extends JsonDeserializer<Date>
 {
-
     @Override
     public Date deserialize(final JsonParser parser, final DeserializationContext context) throws IOException
     {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
-
         final String date = parser.getText();
         try
         {
-            return formatter.parse(date);
+            return FlexDateFormat.formatter.parse(date);
         }
         catch (final ParseException ex)
         {

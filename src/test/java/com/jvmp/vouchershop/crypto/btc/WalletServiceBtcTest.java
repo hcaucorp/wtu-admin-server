@@ -2,32 +2,30 @@ package com.jvmp.vouchershop.crypto.btc;
 
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.repository.WalletRepository;
+import com.jvmp.vouchershop.wallet.Wallet;
+import lombok.val;
 import org.bitcoinj.core.Context;
 import org.bitcoinj.kits.WalletAppKit;
 import org.bitcoinj.params.UnitTestParams;
+import org.bitcoinj.wallet.UnreadableWalletException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static com.google.common.util.concurrent.Service.State.FAILED;
-import static com.google.common.util.concurrent.Service.State.NEW;
-import static com.google.common.util.concurrent.Service.State.RUNNING;
-import static com.google.common.util.concurrent.Service.State.STARTING;
-import static com.google.common.util.concurrent.Service.State.STOPPING;
-import static com.google.common.util.concurrent.Service.State.TERMINATED;
+import java.time.Instant;
+import java.util.Optional;
+
+import static com.google.common.util.concurrent.Service.State.*;
 import static com.jvmp.vouchershop.Collections.asSet;
 import static com.jvmp.vouchershop.RandomUtils.randomString;
 import static com.jvmp.vouchershop.RandomUtils.randomWallet;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WalletServiceBtcTest {
@@ -81,17 +79,25 @@ public class WalletServiceBtcTest {
         when(walletRepository.findAll()).thenReturn(singletonList(randomWallet()));
         when(walletAppKit.state()).thenReturn(NEW);
 
+        serviceBtc.start();
+
         verify(walletAppKit, times(1)).startAsync();
         verify(walletAppKit, times(1)).awaitRunning();
     }
 
     @Test
-    public void importWallet() {
-        fail("not implemented");
+    public void importWallet() throws UnreadableWalletException {
+        val testWallet = randomWallet();
+
+        Optional<Wallet> wallet = serviceBtc.importWallet(testWallet.getMnemonic(), Instant.now().toEpochMilli());
+
+        assertNotNull(wallet);
     }
 
     @Test
     public void generateWallet() {
-        fail("not implemented");
+        Wallet wallet = serviceBtc.generateWallet("BTC");
+
+        assertNotNull(wallet);
     }
 }

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -14,11 +13,9 @@ import java.util.Date;
  */
 public final class FlexDateSerializer extends JsonSerializer<Date>
 {
-
     @Override
     public void serialize(final Date value, final JsonGenerator gen, final SerializerProvider arg2) throws IOException
     {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
-        gen.writeString(formatter.format(value));
+        gen.writeString(FlexDateFormat.formatter.format(value));
     }
 }

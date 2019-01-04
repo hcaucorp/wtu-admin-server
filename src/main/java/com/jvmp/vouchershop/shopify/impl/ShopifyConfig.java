@@ -1,5 +1,7 @@
 package com.jvmp.vouchershop.shopify.impl;
 
+import com.jvmp.vouchershop.shopify.ShopifyApiClient;
+import com.jvmp.vouchershop.shopify.ShopifyApiFactory;
 import com.jvmp.vouchershop.shopify.ShopifyService;
 import com.jvmp.vouchershop.system.PropertyNames;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +27,13 @@ public class ShopifyConfig {
     private String apiPassword;
 
     @Bean
-    public ShopifyService shopifyService() {
-        return new DefaultShopifyService(shopName, apiKey, apiPassword, locationId);
+    public ShopifyApiClient shopifyApiClient() {
+        String shopUrl = "https://" + shopName + ".myshopify.com/";
+        return ShopifyApiFactory.create(apiKey, apiPassword, shopUrl);
+    }
+
+    @Bean
+    public ShopifyService shopifyService(ShopifyApiClient apiClient) {
+        return new DefaultShopifyService(apiClient, shopName, locationId);
     }
 }

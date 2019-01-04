@@ -90,4 +90,8 @@ public class RandomUtils {
                 randomString()
         );
     }
+
+    public static String randomEmail() {
+        return randomString() + "@" + randomString() + ".io";
+    }
 }
