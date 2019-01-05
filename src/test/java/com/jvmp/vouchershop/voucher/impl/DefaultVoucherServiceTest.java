@@ -23,10 +23,10 @@ import static com.jvmp.vouchershop.RandomUtils.randomString;
 import static com.jvmp.vouchershop.RandomUtils.randomVoucher;
 import static com.jvmp.vouchershop.RandomUtils.randomVoucherGenerationSpec;
 import static com.jvmp.vouchershop.RandomUtils.randomWallet;
+import static com.jvmp.vouchershop.TryUtils.tryy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -143,14 +143,20 @@ public class DefaultVoucherServiceTest {
         verify(voucherRepository, times(1)).save(eq(voucher.withRedeemed(true)));
     }
 
-    @Test(expected = IllegalOperationException.class)
+    @Test
     public void checkVoucher_expired() {
-
-        fail("check message");
-
-        DefaultVoucherService.checkVoucher(randomVoucher()
+        Voucher voucher = randomVoucher()
+                .withPublished(true)
+                .withSold(true)
                 .withCreatedAt(LocalDateTime.of(2015, 1, 1, 1, 1).toInstant(ZoneOffset.UTC).toEpochMilli())
-                .withExpiresAt(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli()));
+                .withExpiresAt(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli());
+
+        String expectedMessage = "Voucher " + voucher.getCode() + " has expired.";
+
+        Throwable throwable = tryy(() -> DefaultVoucherService.checkVoucher(voucher))
+                .orElseThrow(AssertionError::new);
+
+        assertEquals(expectedMessage, throwable.getMessage());
     }
 
     @Test(expected = IllegalOperationException.class)

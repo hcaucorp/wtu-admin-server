@@ -156,7 +156,6 @@ public class VoucherControllerIT {
         //
     }
 
-
     @Test
     @Ignore("can't make this retarded library work")
     // TODO redemption page will hash request body using a "secret" known only for 'redemption' and this 'server'
