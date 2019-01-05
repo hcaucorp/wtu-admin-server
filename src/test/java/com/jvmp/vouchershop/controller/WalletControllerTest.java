@@ -1,9 +1,7 @@
 package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.Application;
-import org.bitcoinj.core.Coin;
-import org.bitcoinj.kits.WalletAppKit;
-import org.bitcoinj.wallet.Wallet;
+import com.jvmp.vouchershop.crypto.btc.BitcoinJAdapter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,12 +13,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -36,13 +30,11 @@ public class WalletControllerTest {
     private MockMvc mvc;
 
     @MockBean
-    private WalletAppKit walletAppKit;
+    private BitcoinJAdapter bitcoinJAdapter;
 
     @Before
     public void setUp() {
-        Wallet walletMock = mock(Wallet.class);
-        when(walletMock.getBalance()).thenReturn(Coin.COIN);
-        when(walletAppKit.wallet()).thenReturn(walletMock);
+        when(bitcoinJAdapter.getBalance()).thenReturn(1L);
     }
 
     @WithMockUser(ControllerUtils.USER_NAME)

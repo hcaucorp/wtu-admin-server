@@ -19,19 +19,12 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
-import static com.jvmp.vouchershop.RandomUtils.randomString;
-import static com.jvmp.vouchershop.RandomUtils.randomVoucher;
-import static com.jvmp.vouchershop.RandomUtils.randomVoucherGenerationSpec;
-import static com.jvmp.vouchershop.RandomUtils.randomWallet;
-import static com.jvmp.vouchershop.TryUtils.tryy;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static com.jvmp.vouchershop.RandomUtils.*;
+import static com.jvmp.vouchershop.TryUtils.expectingException;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultVoucherServiceTest {
@@ -153,8 +146,7 @@ public class DefaultVoucherServiceTest {
 
         String expectedMessage = "Voucher " + voucher.getCode() + " has expired.";
 
-        Throwable throwable = tryy(() -> DefaultVoucherService.checkVoucher(voucher))
-                .orElseThrow(AssertionError::new);
+        Throwable throwable = expectingException(() -> DefaultVoucherService.checkVoucher(voucher));
 
         assertEquals(expectedMessage, throwable.getMessage());
     }

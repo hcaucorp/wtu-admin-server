@@ -4,7 +4,6 @@ import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.Wallet;
 import org.bitcoinj.core.Context;
-import org.bitcoinj.kits.WalletAppKit;
 import org.bitcoinj.params.UnitTestParams;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,14 +27,14 @@ public class WalletServiceBtcIT {
     private WalletRepository walletRepository;
 
     @MockBean
-    private WalletAppKit walletAppKit;
+    private BitcoinJAdapter bitcoinJAdapter;
 
     private WalletServiceBtc walletService;
 
     @Before
     public void setUp() {
         Context btcContext = new Context(UnitTestParams.get());
-        walletService = new WalletServiceBtc(walletRepository, btcContext.getParams(), walletAppKit);
+        walletService = new WalletServiceBtc(walletRepository, btcContext.getParams(), bitcoinJAdapter);
     }
 
     @Test
