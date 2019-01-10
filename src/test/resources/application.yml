@@ -6,6 +6,10 @@ shopify:
   secret: 4aa1c538138e6dcb09f6d4d92ba4087c14415079c26fb6fb8a51bc6e6dca5ca3
   location-id: 18618777700
 
+auth0:
+  issuer: https://wallettopup.auth0.com/
+  apiAudience: wallettopup
+
 # testnet/regtest/mainnet
 bitcoinj:
   network:
@@ -31,8 +35,3 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         ddl-auto: create
-  # Security basic auth credentials for test env
-  security:
-    user:
-      name: Peter Quill
-      password: r71XzJ5eAQ4P

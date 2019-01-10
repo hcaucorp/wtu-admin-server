@@ -86,7 +86,6 @@ public class VoucherControllerIT {
     public void getAllVouchers() {
         testVouchers.forEach(voucher -> assertTrue(voucherRepository.findById(voucher.getId()).isPresent()));
         ResponseEntity<List<Voucher>> response = template
-                .withBasicAuth(ControllerUtils.USER_NAME, ControllerUtils.USER_PASS)
                 .exchange(base.toString() + "/vouchers", HttpMethod.GET, null, new VoucherList());
         assertEquals(testVouchers, response.getBody());
     }
@@ -96,7 +95,6 @@ public class VoucherControllerIT {
         testVouchers.stream().map(Voucher::getId).forEach(id -> {
             assertTrue(voucherRepository.findById(id).isPresent());
             template
-                    .withBasicAuth(ControllerUtils.USER_NAME, ControllerUtils.USER_PASS)
                     .delete(base.toString() + "/vouchers/" + id);
             assertFalse(voucherRepository.findById(id).isPresent());
         });
@@ -107,7 +105,6 @@ public class VoucherControllerIT {
         Wallet wallet = walletRepository.save(randomWallet());
 
         URI location = template
-                .withBasicAuth(ControllerUtils.USER_NAME, ControllerUtils.USER_PASS)
                 .postForLocation(base.toString() + "/vouchers",
                         randomVoucherGenerationSpec()
                                 .withWalletId(wallet.getId())
@@ -135,7 +132,6 @@ public class VoucherControllerIT {
                 .withRedeemed(false));
 
         RedemptionResponse response = template
-                .withBasicAuth(ControllerUtils.USER_NAME, ControllerUtils.USER_PASS)
                 .postForEntity("/vouchers/redeem", new RedemptionRequest()
                                 .withVoucherCode(voucher.getCode())
                                 .withDestinationAddress("mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G"),

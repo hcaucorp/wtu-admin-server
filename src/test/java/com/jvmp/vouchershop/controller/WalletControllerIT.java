@@ -56,7 +56,6 @@ public class WalletControllerIT {
         when(walletService.findAll()).thenReturn(singletonList(testWallet));
 
         ResponseEntity<List<Wallet>> response = template
-                .withBasicAuth(ControllerUtils.USER_NAME, ControllerUtils.USER_PASS)
                 .exchange(base.toString() + "/wallets", HttpMethod.GET, null, new WalletList());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());

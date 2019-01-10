@@ -9,11 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,14 +39,12 @@ public class WalletControllerTest {
         when(bitcoinJAdapter.getBalance()).thenReturn(1L);
     }
 
-    @WithMockUser(ControllerUtils.USER_NAME)
     @Test
     public void getAllWallets() throws Exception {
         mvc.perform(get("/wallets"))
                 .andExpect(status().isOk());
     }
 
-    @WithMockUser(ControllerUtils.USER_NAME)
     @Test
     public void generateWallet() throws Exception {
 
