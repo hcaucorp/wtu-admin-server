@@ -9,6 +9,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
@@ -30,8 +32,7 @@ public class FlexDateSerializerTest {
 
     @Test
     public void serialize() throws IOException {
-        //noinspection deprecation
-        Date toSerialize = new Date(118, 11, 30, 12, 6, 56);
+        Date toSerialize = Date.from(LocalDateTime.of(118, 11, 30, 12, 6, 56).toInstant(ZoneOffset.UTC));
         String expected = "2018-12-30T12:06:56Z";
 
         flexDateSerializer.serialize(toSerialize, generator, null);

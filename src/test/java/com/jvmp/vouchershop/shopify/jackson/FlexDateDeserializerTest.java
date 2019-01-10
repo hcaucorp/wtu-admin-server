@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
@@ -32,8 +34,8 @@ public class FlexDateDeserializerTest {
         when(parser.getText()).thenReturn(toParse);
 
         Date deserialized = flexDateDeserializer.deserialize(parser, null);
+        Date result = Date.from(LocalDateTime.of(118, 11, 30, 12, 6, 56).toInstant(ZoneOffset.UTC));
 
-        //noinspection deprecation
-        assertEquals(new Date(118, 11, 30, 12, 6, 56), deserialized);
+        assertEquals(result, deserialized);
     }
 }

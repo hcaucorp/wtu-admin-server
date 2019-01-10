@@ -8,7 +8,7 @@ shopify:
 
 auth0:
   issuer: https://wallettopup.auth0.com/
-  apiAudience: ?
+  apiAudience: wallettopup
 
                  # testnet/regtest/mainnet
 bitcoinj:
