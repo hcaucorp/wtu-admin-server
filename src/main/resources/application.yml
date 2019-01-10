@@ -6,7 +6,11 @@ shopify:
   secret: 4aa1c538138e6dcb09f6d4d92ba4087c14415079c26fb6fb8a51bc6e6dca5ca3
   location-id: 18618777700
 
-# testnet/regtest/mainnet
+auth0:
+  issuer: https://wallettopup.auth0.com/
+  apiAudience: ?
+
+                 # testnet/regtest/mainnet
 bitcoinj:
   network:
     type: testnet
@@ -45,6 +49,8 @@ spring:
       password: password
     basic:
       enabled: true
+
+
 
 # Amazon SES Service
 #spring.mail.host=email-smtp.us-west-2.amazonaws.com
