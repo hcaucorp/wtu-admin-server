@@ -101,23 +101,6 @@ public class WalletServiceBtcTest {
     }
 
     @Test
-    public void start_doNothingIfThereIsNoWallets() {
-        when(walletRepository.findAll()).thenReturn(emptyList());
-
-        walletServiceBtc.start();
-        verifyZeroInteractions(bitcoinJAdapter);
-    }
-
-    @Test
-    public void startShouldSucceed() {
-        when(walletRepository.findAll()).thenReturn(singletonList(randomWallet()));
-
-        walletServiceBtc.start();
-
-        verify(bitcoinJAdapter, times(1)).start();
-    }
-
-    @Test
     public void importWallet() throws UnreadableWalletException {
         val testWallet = randomWallet();
         when(walletRepository.save(any(Wallet.class))).thenReturn(testWallet.withId(nextLong(1, Long.MAX_VALUE)));

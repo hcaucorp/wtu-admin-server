@@ -46,16 +46,6 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
     }
 
     @VisibleForTesting
-    void start() {
-        if (walletRepository.findAll().isEmpty()) {
-            log.error("There is no wallet found in the system. Generate a wallet first before attempting to use BitcoinJ.");
-            return;
-        }
-
-        bitcoinj.start();
-    }
-
-    @VisibleForTesting
     public Optional<Wallet> importWallet(String mnemonics, long creationTime) throws UnreadableWalletException {
         if (!walletRepository.findAll().isEmpty()) {
             log.error("BTC wallet already exists. Currently we support only single wallet per currency");
@@ -70,15 +60,12 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
     private Wallet restoreWalletAndStart(org.bitcoinj.wallet.Wallet bitcoinjWallet) {
         bitcoinj.restoreWalletFromSeed(bitcoinjWallet.getKeyChainSeed());
 
-        Wallet wallet = save(new Wallet()
+        return save(new Wallet()
                 .withAddress(bitcoinjWallet.currentReceiveAddress().toString())
                 .withCreatedAt(bitcoinjWallet.getEarliestKeyCreationTime())
                 .withCurrency("BTC")
-                .withMnemonic(walletWords(bitcoinjWallet)));
-
-        start();
-
-        return wallet;
+                .withMnemonic(walletWords(bitcoinjWallet)))
+                .withBalance(bitcoinj.getBalance());
     }
 
     public Wallet generateWallet(String currency) {
@@ -101,7 +88,6 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
     @Override
     public List<Wallet> findAll() {
         return walletRepository.findAll().stream()
-                .peek(wallet -> start())
                 .map(wallet -> wallet.withBalance(bitcoinj.getBalance()))
                 .collect(toList());
     }

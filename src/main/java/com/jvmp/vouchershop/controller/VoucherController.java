@@ -26,9 +26,9 @@ public class VoucherController {
         return voucherService.findAll();
     }
 
-    @DeleteMapping("/vouchers/{id}")
-    public ResponseEntity<?> deleteVoucherById(@PathVariable long id) {
-        voucherService.delete(id);
+    @DeleteMapping("/vouchers/{sku}")
+    public ResponseEntity<?> deleteVoucherBySku(@PathVariable String sku) {
+        voucherService.deleteBySku(sku);
         return ResponseEntity.ok().build();
     }
 

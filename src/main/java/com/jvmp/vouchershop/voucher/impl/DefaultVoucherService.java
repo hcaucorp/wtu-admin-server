@@ -66,14 +66,8 @@ public class DefaultVoucherService implements VoucherService {
     }
 
     @Override
-    public void delete(long id) {
-        Voucher voucher = voucherRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Voucher with id " + id + "not found."));
-
-        if (voucher.isPublished())
-            throw new IllegalOperationException("Voucher has been published for sale and cannot be deleted");
-
-        voucherRepository.delete(voucher);
+    public void deleteBySku(String sku) {
+        voucherRepository.deleteAll(voucherRepository.findBySoldFalseAndSku(sku));
     }
 
     @Override

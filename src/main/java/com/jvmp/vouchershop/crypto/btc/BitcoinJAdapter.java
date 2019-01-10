@@ -10,6 +10,7 @@ import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.Wallet;
 import org.springframework.stereotype.Component;
 
+@SuppressWarnings("UnstableApiUsage")
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -17,31 +18,30 @@ public class BitcoinJAdapter {
 
     private final WalletAppKit bitcoinj;
 
-    public void start() {
-        //noinspection UnstableApiUsage
-        if (bitcoinj.state() != Service.State.NEW) {
-            log.error("BitcoinJ is in state: {}. It cannot be started.", bitcoinj.state());
-            return;
-        }
+    void close() {
+        bitcoinj.stopAsync();
+        bitcoinj.awaitRunning();
+    }
+
+    void restoreWalletFromSeed(DeterministicSeed seed) {
+        bitcoinj.restoreWalletFromSeed(seed);
+    }
+
+    private void startSilently() {
+        if (bitcoinj.state() != Service.State.NEW) return;
 
         bitcoinj.startAsync();
         bitcoinj.awaitRunning();
     }
 
-    public void close() {
-        bitcoinj.stopAsync();
-        bitcoinj.awaitRunning();
-    }
-
-    public void restoreWalletFromSeed(DeterministicSeed seed) {
-        bitcoinj.restoreWalletFromSeed(seed);
-    }
-
     public long getBalance() {
-        return bitcoinj.wallet().getBalance().value;
+        startSilently();
+        return bitcoinj.wallet().getBalance(Wallet.BalanceType.ESTIMATED_SPENDABLE).value;
     }
 
-    public Wallet.SendResult sendCoins(SendRequest sendRequest) throws InsufficientMoneyException {
+    Wallet.SendResult sendCoins(SendRequest sendRequest) throws InsufficientMoneyException {
+        startSilently();
+
         return bitcoinj.wallet().sendCoins(bitcoinj.peerGroup(), sendRequest);
     }
 }

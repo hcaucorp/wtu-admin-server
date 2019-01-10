@@ -6,6 +6,11 @@ shopify:
   secret: 4aa1c538138e6dcb09f6d4d92ba4087c14415079c26fb6fb8a51bc6e6dca5ca3
   location-id: 18618777700
 
+com.auth0:
+  domain: wallettopup.auth0.com
+  clientId: oG9khmjGjziUJRu0miHvtqF5tNeWK833
+  clientSecret: B8FK1C1ylTQi9l9AP5uFQvDZvIthT0Rh_GZvUQEmAFGua6yPcFjet68Na1f4Q41j
+
 # testnet/regtest/mainnet
 bitcoinj:
   network:
@@ -19,25 +24,20 @@ spring:
     port: 587
     username: hubert.czerpak@gmail.com
     password: iqsootamnlofucas
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+    properties.mail.smtp:
+      auth: true
+      starttls.enable: true
   # PostgreSQL
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: postgres
   jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        jdbc:
-          lob:
-            non_contextual_creation: true
-        ddl-auto: update
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      jdbc.lob.non_contextual_creation: true
+      ddl-auto: update
+    properties.hibernate.temp.use_jdbc_metadata_defaults: false
   # Security
   security:
     user:

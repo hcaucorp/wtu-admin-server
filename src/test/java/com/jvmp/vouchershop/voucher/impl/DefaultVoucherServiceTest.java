@@ -22,7 +22,6 @@ import java.util.Optional;
 import static com.jvmp.vouchershop.RandomUtils.*;
 import static com.jvmp.vouchershop.TryUtils.expectingException;
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -67,29 +66,6 @@ public class DefaultVoucherServiceTest {
         List<Voucher> vouchers = subject.generateVouchers(spec);
 
         assertEquals(spec.getCount(), vouchers.size());
-    }
-
-    @Test(expected = ResourceNotFoundException.class)
-    public void deleteVoucherByIdNotFound() {
-        subject.delete(1);
-    }
-
-    @Test(expected = IllegalOperationException.class)
-    public void deletePublishedVoucher() {
-        Voucher publishedVoucher = randomVoucher().withPublished(true);
-        when(voucherRepository.findById(any())).thenReturn(Optional.of(publishedVoucher));
-
-        subject.delete(1);
-    }
-
-    @Test
-    public void deleteVoucherById() {
-        Voucher voucher = randomVoucher();
-        when(voucherRepository.findById(any())).thenReturn(Optional.of(voucher));
-
-        subject.delete(voucher.getId());
-
-        verify(voucherRepository, times(1)).delete(eq(voucher));
     }
 
     @Test(expected = ResourceNotFoundException.class)
