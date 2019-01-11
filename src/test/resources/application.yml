@@ -7,6 +7,9 @@ shopify:
   location-id: 18618777700
 
 auth0:
+  #  domain: wallettopup.auth0.com
+  clientId: oG9khmjGjziUJRu0miHvtqF5tNeWK833
+  clientSecret: B8FK1C1ylTQi9l9AP5uFQvDZvIthT0Rh_GZvUQEmAFGua6yPcFjet68Na1f4Q41j
   issuer: https://wallettopup.auth0.com/
   apiAudience: wallettopup
 
@@ -35,3 +38,22 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         ddl-auto: create
+
+feign:
+  okhttp:
+    enabled: true
+  client:
+    config:
+      auth0:
+        url: https://wallettopup.auth0.com/oauth/token
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full
+        #        errorDecoder: com.example.SimpleErrorDecoder
+        #        retryer: com.example.SimpleRetryer
+        #        requestInterceptors:
+        #          - com.example.FooRequestInterceptor
+        #          - com.example.BarRequestInterceptor
+        #        decode404: false
+        encoder: feign.jackson.JacksonEncoder
+        decoder: feign.jackson.JacksonDecoder

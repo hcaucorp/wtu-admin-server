@@ -1,11 +1,11 @@
 package com.jvmp.vouchershop.shopify;
 
-//import com.jvmp.vouchershop.shopify.domain.*;
-
 import com.jvmp.vouchershop.shopify.domain.FulfillmentResource;
 import feign.Param;
 import feign.RequestLine;
+import org.springframework.cloud.openfeign.FeignClient;
 
+@FeignClient(name = "${feign.name}", url = "${feign.url}")
 public interface ShopifyApiClient {
 //    @RequestLine("GET /admin/customers.json?limit={limit}&since_id={since-id}&page={page}&fields={fields}")
 //    CustomerList getCustomers(@Param("limit") Integer limit, @Param("since-id") String sinceId, @Param("page") Integer page, @Param("fields") String fields);

@@ -94,8 +94,7 @@ public class VoucherControllerIT {
     public void deleteVoucherById() {
         testVouchers.stream().map(Voucher::getId).forEach(id -> {
             assertTrue(voucherRepository.findById(id).isPresent());
-            template
-                    .delete(base.toString() + "/vouchers/" + id);
+            template.delete(base.toString() + "/vouchers/" + id);
             assertFalse(voucherRepository.findById(id).isPresent());
         });
     }
