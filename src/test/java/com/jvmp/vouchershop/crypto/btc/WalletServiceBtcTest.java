@@ -5,10 +5,7 @@ import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.val;
-import org.bitcoinj.core.Context;
-import org.bitcoinj.core.InsufficientMoneyException;
-import org.bitcoinj.core.Sha256Hash;
-import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.*;
 import org.bitcoinj.params.UnitTestParams;
 import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet.SendResult;
@@ -22,8 +19,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.time.Instant;
 import java.util.Optional;
 
-import static com.jvmp.vouchershop.RandomUtils.randomString;
-import static com.jvmp.vouchershop.RandomUtils.randomWallet;
+import static com.jvmp.vouchershop.RandomUtils.*;
 import static com.jvmp.vouchershop.TryUtils.expectingException;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -69,10 +65,11 @@ public class WalletServiceBtcTest {
     }
 
     @Test
-    public void sendMoneyShouldFailWhenInsufficientMoney() {
+    public void sendMoneyShouldFailWhenInsufficientMoney() throws Exception {
         Wallet wallet = randomWallet().withCurrency("BTC");
-        String to = randomString();
-        long amount = nextLong(1, Long.MAX_VALUE);
+        String to = randomBtcAddress();
+        long amount = nextLong(1, 1_000);
+        when(bitcoinJAdapter.sendCoins(any())).thenThrow(new InsufficientMoneyException(Coin.valueOf(amount)));
 
         walletServiceBtc.sendMoney(wallet, to, amount)
                 .subscribe(s -> fail("was expecting an exception"),
@@ -82,22 +79,20 @@ public class WalletServiceBtcTest {
     @Test
     public void sendMoneyShouldSucceed() throws Exception {
         Wallet wallet = randomWallet().withCurrency("BTC");
-        String to = randomString();
-        long amount = nextLong(1, Long.MAX_VALUE);
+        String to = randomBtcAddress();
+        long amount = nextLong(1, 1_000);
         Transaction tx = new Transaction(btcContext.getParams());
         Sha256Hash hash = Sha256Hash.of(randomString().getBytes());
         ReflectionTestUtils.setField(tx, "hash", hash);
         SendResult sendResult = new SendResult();
         sendResult.broadcastComplete = listenableFuture;
         when(listenableFuture.get()).thenReturn(tx);
-        when(bitcoinJAdapter.sendCoins(any())).thenReturn(new SendResult());
+        when(bitcoinJAdapter.sendCoins(any())).thenReturn(sendResult);
         //wtf pretty long setup
 
         walletServiceBtc.sendMoney(wallet, to, amount)
                 .subscribe(s -> assertEquals(hash.toString(), s),
-                        throwable -> {
-                            throw new RuntimeException(throwable);
-                        });
+                        throwable -> fail(throwable.getMessage()));
     }
 
     @Test

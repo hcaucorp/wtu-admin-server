@@ -35,7 +35,7 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
 
     private final BitcoinJAdapter bitcoinj;
 
-    private static String walletWords(@Nonnull org.bitcoinj.wallet.Wallet bitcoinjWallet) {
+    public static String walletWords(@Nonnull org.bitcoinj.wallet.Wallet bitcoinjWallet) {
         return String.join(" ", Optional.ofNullable(bitcoinjWallet.getKeyChainSeed().getMnemonicCode())
                 .orElse(emptyList()));
     }
