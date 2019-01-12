@@ -34,7 +34,7 @@ public class FlexDateDeserializerTest {
         when(parser.getText()).thenReturn(toParse);
 
         Date deserialized = flexDateDeserializer.deserialize(parser, null);
-        Date result = Date.from(LocalDateTime.of(118, 11, 30, 12, 6, 56).toInstant(ZoneOffset.UTC));
+        Date result = Date.from(LocalDateTime.of(2018, 12, 30, 12, 6, 56).toInstant(ZoneOffset.UTC));
 
         assertEquals(result, deserialized);
     }

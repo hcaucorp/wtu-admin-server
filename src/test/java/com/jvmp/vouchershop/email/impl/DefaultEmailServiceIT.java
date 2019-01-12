@@ -21,7 +21,7 @@ public class DefaultEmailServiceIT {
     private DefaultEmailService defaultEmailService;
 
     @Test
-    @Ignore
+    @Ignore //TODO find a way to test it (mail server wiremock?)
     public void sendVouchers() {
         defaultEmailService.sendVouchers(asSet(
                 randomVoucher(), randomVoucher(), randomVoucher()

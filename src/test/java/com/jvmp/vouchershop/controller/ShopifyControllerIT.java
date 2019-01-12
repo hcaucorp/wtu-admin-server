@@ -2,8 +2,7 @@ package com.jvmp.vouchershop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jvmp.vouchershop.Application;
-import com.jvmp.vouchershop.crypto.btc.BitcoinJConfig;
-import com.jvmp.vouchershop.system.DatabaseConfig;
+import com.jvmp.vouchershop.security.HmacUtil;
 import com.jvmp.vouchershop.system.PropertyNames;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +16,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URL;
@@ -31,8 +29,8 @@ import static org.junit.Assert.assertEquals;
 @SpringBootTest(
         classes = Application.class,
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes = {DatabaseConfig.class, BitcoinJConfig.class})
-public class ShipifyControllerIT {
+public class ShopifyControllerIT {
+
     @LocalServerPort
     private int port;
 

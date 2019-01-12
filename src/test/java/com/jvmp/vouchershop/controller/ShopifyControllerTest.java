@@ -2,6 +2,8 @@ package com.jvmp.vouchershop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jvmp.vouchershop.Application;
+import com.jvmp.vouchershop.security.HmacUtil;
+import com.jvmp.vouchershop.security.NoSecurityConfig;
 import com.jvmp.vouchershop.system.PropertyNames;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -20,8 +23,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class)
+@SpringBootTest(classes = {
+        Application.class, NoSecurityConfig.class
+})
 @AutoConfigureMockMvc
+@ActiveProfiles("unit-test")
 public class ShopifyControllerTest {
 
     private ObjectMapper objectMapper = new ObjectMapper();

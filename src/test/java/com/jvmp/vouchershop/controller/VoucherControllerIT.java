@@ -6,6 +6,8 @@ import com.jvmp.vouchershop.crypto.btc.WalletServiceBtc;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.repository.WalletRepository;
+import com.jvmp.vouchershop.security.Auth0Service;
+import com.jvmp.vouchershop.security.TokenResponse;
 import com.jvmp.vouchershop.system.DatabaseConfig;
 import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
@@ -33,19 +35,16 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
-import static com.jvmp.vouchershop.RandomUtils.randomString;
-import static com.jvmp.vouchershop.RandomUtils.randomVoucher;
-import static com.jvmp.vouchershop.RandomUtils.randomVoucherGenerationSpec;
-import static com.jvmp.vouchershop.RandomUtils.randomWallet;
+import static com.jvmp.vouchershop.RandomUtils.*;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
-        classes = Application.class,
+        classes = {
+                Application.class,
+                Auth0Service.class
+        },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = {DatabaseConfig.class, BitcoinJConfig.class})
 public class VoucherControllerIT {
@@ -72,8 +71,17 @@ public class VoucherControllerIT {
 
     private List<Voucher> testVouchers;
 
+    @Autowired
+    private Auth0Service authService;
+
+    private String authHeader;
+
     @Before
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception {
+        if (authHeader == null) {
+            TokenResponse token = authService.getToken();
+            authHeader = "Authorization: Bearer " + token.accessToken;
+        }
         base = new URL("http://localhost:" + port + "/");
         testVouchers = asList(
                 voucherRepository.save(randomVoucher()),
@@ -117,7 +125,7 @@ public class VoucherControllerIT {
     }
 
     @Test
-    @Ignore("can't make this retarded library work") // TODO really need this to work properly!
+//    @Ignore("can't make this retarded library work") // TODO really need this to work properly!
     public void redeemVoucher() throws UnreadableWalletException {
         // receive address: myAUke4cumJb6fYvHAGvXVMzHbKTusrixG
         Wallet wallet = btcWalletService.importWallet(

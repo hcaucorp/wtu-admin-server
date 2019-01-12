@@ -1,4 +1,4 @@
-package com.jvmp.vouchershop.controller;
+package com.jvmp.vouchershop.security;
 
 import lombok.experimental.UtilityClass;
 
@@ -11,9 +11,9 @@ import java.util.Base64;
 import java.util.Optional;
 
 @UtilityClass
-class HmacUtil {
+public class HmacUtil {
 
-    static String encode(@Nonnull String secret, @Nonnull byte[] body) throws NoSuchAlgorithmException, InvalidKeyException {
+    public static String encode(@Nonnull String secret, @Nonnull byte[] body) throws NoSuchAlgorithmException, InvalidKeyException {
 
         Mac mac = Mac.getInstance("HmacSHA256");
         SecretKeySpec keySpec = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
@@ -22,7 +22,7 @@ class HmacUtil {
         return Base64.getEncoder().encodeToString(mac.doFinal(body));
     }
 
-    static Optional<String> encode1(@Nonnull String secret, @Nonnull byte[] body) {
+    public static Optional<String> encode1(@Nonnull String secret, @Nonnull byte[] body) {
         try {
             return Optional.of(encode(secret, body));
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {

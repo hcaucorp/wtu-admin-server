@@ -62,7 +62,7 @@ feign:
     enabled: true
   client:
     config:
-      feignName:
+      shopify:
         connectTimeout: 5000
         readTimeout: 5000
         loggerLevel: full

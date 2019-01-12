@@ -32,7 +32,7 @@ public class FlexDateSerializerTest {
 
     @Test
     public void serialize() throws IOException {
-        Date toSerialize = Date.from(LocalDateTime.of(118, 11, 30, 12, 6, 56).toInstant(ZoneOffset.UTC));
+        Date toSerialize = Date.from(LocalDateTime.of(2018, 12, 30, 12, 6, 56).toInstant(ZoneOffset.UTC));
         String expected = "2018-12-30T12:06:56Z";
 
         flexDateSerializer.serialize(toSerialize, generator, null);

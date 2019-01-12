@@ -69,8 +69,8 @@ public class WalletServiceBtcTest {
     }
 
     @Test
-    public void sendMoneyShouldFailWhenIssuficientMoney() {
-        Wallet wallet = randomWallet();
+    public void sendMoneyShouldFailWhenInsufficientMoney() {
+        Wallet wallet = randomWallet().withCurrency("BTC");
         String to = randomString();
         long amount = nextLong(1, Long.MAX_VALUE);
 
@@ -81,7 +81,7 @@ public class WalletServiceBtcTest {
 
     @Test
     public void sendMoneyShouldSucceed() throws Exception {
-        Wallet wallet = randomWallet();
+        Wallet wallet = randomWallet().withCurrency("BTC");
         String to = randomString();
         long amount = nextLong(1, Long.MAX_VALUE);
         Transaction tx = new Transaction(btcContext.getParams());
@@ -113,7 +113,6 @@ public class WalletServiceBtcTest {
     @Test
     public void generateWalletShouldFailForNotBTC() {
         String expectedMessage = "Currency BSV is not supported.";
-        when(walletRepository.findAll()).thenReturn(singletonList(randomWallet()));
 
         Throwable t = expectingException(() -> walletServiceBtc.generateWallet("BSV"));
 

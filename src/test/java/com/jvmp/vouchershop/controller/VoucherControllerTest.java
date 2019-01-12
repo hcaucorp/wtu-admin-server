@@ -2,6 +2,7 @@ package com.jvmp.vouchershop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jvmp.vouchershop.Application;
+import com.jvmp.vouchershop.security.NoSecurityConfig;
 import com.jvmp.vouchershop.voucher.VoucherService;
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
 import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
@@ -12,25 +13,23 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.jvmp.vouchershop.RandomUtils.randomRedemptionRequest;
-import static com.jvmp.vouchershop.RandomUtils.randomString;
-import static com.jvmp.vouchershop.RandomUtils.randomVoucherGenerationSpec;
+import static com.jvmp.vouchershop.RandomUtils.*;
 import static java.util.Collections.singletonList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class)
+@SpringBootTest(classes = {
+        Application.class, NoSecurityConfig.class
+})
 @AutoConfigureMockMvc
+@ActiveProfiles("unit-test")
 public class VoucherControllerTest {
 
     private ObjectMapper om = new ObjectMapper();
@@ -43,7 +42,8 @@ public class VoucherControllerTest {
 
     @Test
     public void getAllVouchers() throws Exception {
-        mvc.perform(get("/vouchers"))
+        mvc.perform(get("/vouchers")
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
     }
 
@@ -57,7 +57,8 @@ public class VoucherControllerTest {
 
     @Test
     public void deleteById() throws Exception {
-        mvc.perform(delete("/vouchers/1"))
+        mvc.perform(delete("/vouchers/1")
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
     }
 

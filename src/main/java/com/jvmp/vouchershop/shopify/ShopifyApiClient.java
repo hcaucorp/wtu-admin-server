@@ -1,11 +1,13 @@
 package com.jvmp.vouchershop.shopify;
 
 import com.jvmp.vouchershop.shopify.domain.FulfillmentResource;
-import feign.Param;
-import feign.RequestLine;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
-@FeignClient(name = "${feign.name}", url = "${feign.url}")
+@FeignClient(name = "shopify")
 public interface ShopifyApiClient {
 //    @RequestLine("GET /admin/customers.json?limit={limit}&since_id={since-id}&page={page}&fields={fields}")
 //    CustomerList getCustomers(@Param("limit") Integer limit, @Param("since-id") String sinceId, @Param("page") Integer page, @Param("fields") String fields);
@@ -70,6 +72,8 @@ public interface ShopifyApiClient {
 //    @RequestLine("GET /admin/recurring_application_charges/{chargeId}.json")
 //    RecurringApplicationChargeResponse getRecurringApplicationCharge(@Param("chargeId") String chargeId);
 
-    @RequestLine("POST /admin/orders/#{order_id}/fulfillments.json")
-    FulfillmentResource fulfillAllItems(@Param("order_id") long orderId, FulfillmentResource request);
+    @RequestMapping(method = RequestMethod.GET,
+            value = "/admin/orders/#{order_id}/fulfillments.json",
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    FulfillmentResource fulfillAllItems(@PathVariable("order_id") long order_id, FulfillmentResource request);
 }

@@ -3,6 +3,7 @@ package com.jvmp.vouchershop.controller;
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +27,7 @@ import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
+@Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -55,8 +57,14 @@ public class WalletControllerIT {
         Wallet testWallet = randomWallet();
         when(walletService.findAll()).thenReturn(singletonList(testWallet));
 
+        String responseString = template
+                .getForObject(base.toString() + "/wallets", String.class);
+
+        log.info("Response content: \n{}\n", responseString);
+
         ResponseEntity<List<Wallet>> response = template
                 .exchange(base.toString() + "/wallets", HttpMethod.GET, null, new WalletList());
+
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(singletonList(testWallet), response.getBody());

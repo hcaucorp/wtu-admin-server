@@ -1,4 +1,4 @@
-package com.jvmp.vouchershop.controller;
+package com.jvmp.vouchershop.security;
 
 import org.junit.Test;
 
