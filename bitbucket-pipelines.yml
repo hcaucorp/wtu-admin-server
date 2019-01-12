@@ -19,4 +19,4 @@ pipelines:
         # trigger: manual  # uncomment to have a manual step
         image: atlassian/pipelines-awscli
         script:
-          - aws s3 sync --delete . s3://<s3-bucket>
+          - aws s3 sync --delete . s3://cloud.admin.wallettopup.com
