@@ -7,7 +7,7 @@ import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
 import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.bitcoinj.params.UnitTestParams;
+import org.bitcoinj.params.TestNet3Params;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -24,7 +24,7 @@ import static org.apache.commons.lang3.RandomUtils.nextLong;
 public class RandomUtils {
 
     public static Wallet randomWallet() {
-        org.bitcoinj.wallet.Wallet wallet = new org.bitcoinj.wallet.Wallet(UnitTestParams.get());
+        org.bitcoinj.wallet.Wallet wallet = new org.bitcoinj.wallet.Wallet(TestNet3Params.get());
 
         return new Wallet()
                 .withId(nextLong(0, Long.MAX_VALUE))
@@ -35,7 +35,7 @@ public class RandomUtils {
     }
 
     public static String randomBtcAddress() {
-        org.bitcoinj.wallet.Wallet wallet = new org.bitcoinj.wallet.Wallet(UnitTestParams.get());
+        org.bitcoinj.wallet.Wallet wallet = new org.bitcoinj.wallet.Wallet(TestNet3Params.get());
         return wallet.currentReceiveAddress().toBase58();
     }
 
