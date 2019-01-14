@@ -3,7 +3,7 @@ package com.jvmp.vouchershop.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.security.HmacUtil;
-import com.jvmp.vouchershop.security.NoSecurityConfig;
+import com.jvmp.vouchershop.security.TestSecurityConfig;
 import com.jvmp.vouchershop.system.PropertyNames;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
-        Application.class, NoSecurityConfig.class
+        Application.class, TestSecurityConfig.class
 })
 @AutoConfigureMockMvc
 @ActiveProfiles("unit-test")

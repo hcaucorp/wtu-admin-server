@@ -5,7 +5,11 @@ import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.val;
-import org.bitcoinj.core.*;
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.Context;
+import org.bitcoinj.core.InsufficientMoneyException;
+import org.bitcoinj.core.Sha256Hash;
+import org.bitcoinj.core.Transaction;
 import org.bitcoinj.params.UnitTestParams;
 import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet.SendResult;
@@ -19,13 +23,20 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.time.Instant;
 import java.util.Optional;
 
-import static com.jvmp.vouchershop.RandomUtils.*;
+import static com.jvmp.vouchershop.RandomUtils.randomBtcAddress;
+import static com.jvmp.vouchershop.RandomUtils.randomString;
+import static com.jvmp.vouchershop.RandomUtils.randomWallet;
 import static com.jvmp.vouchershop.TryUtils.expectingException;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings({"ResultOfMethodCallIgnored"})
 @RunWith(MockitoJUnitRunner.class)
@@ -40,6 +51,7 @@ public class WalletServiceBtcTest {
     private WalletServiceBtc walletServiceBtc;
 
     private Context btcContext;
+
     @Mock
     private ListenableFuture<Transaction> listenableFuture;
 

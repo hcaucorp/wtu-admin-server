@@ -19,11 +19,18 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
-import static com.jvmp.vouchershop.RandomUtils.*;
+import static com.jvmp.vouchershop.RandomUtils.randomString;
+import static com.jvmp.vouchershop.RandomUtils.randomVoucher;
+import static com.jvmp.vouchershop.RandomUtils.randomVoucherGenerationSpec;
+import static com.jvmp.vouchershop.RandomUtils.randomWallet;
 import static com.jvmp.vouchershop.TryUtils.expectingException;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultVoucherServiceTest {
@@ -118,7 +125,7 @@ public class DefaultVoucherServiceTest {
                 .withPublished(true)
                 .withSold(true)
                 .withCreatedAt(LocalDateTime.of(2015, 1, 1, 1, 1).toInstant(ZoneOffset.UTC).toEpochMilli())
-                .withExpiresAt(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli());
+                .withExpiresAt(LocalDateTime.now().minusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli());
 
         String expectedMessage = "Voucher " + voucher.getCode() + " has expired.";
 

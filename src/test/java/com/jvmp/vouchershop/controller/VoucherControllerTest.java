@@ -2,7 +2,7 @@ package com.jvmp.vouchershop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jvmp.vouchershop.Application;
-import com.jvmp.vouchershop.security.NoSecurityConfig;
+import com.jvmp.vouchershop.security.TestSecurityConfig;
 import com.jvmp.vouchershop.voucher.VoucherService;
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
 import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
@@ -17,16 +17,22 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.jvmp.vouchershop.RandomUtils.*;
+import static com.jvmp.vouchershop.RandomUtils.randomRedemptionRequest;
+import static com.jvmp.vouchershop.RandomUtils.randomString;
+import static com.jvmp.vouchershop.RandomUtils.randomVoucherGenerationSpec;
 import static java.util.Collections.singletonList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
-        Application.class, NoSecurityConfig.class
+        Application.class, TestSecurityConfig.class
 })
 @AutoConfigureMockMvc
 @ActiveProfiles("unit-test")

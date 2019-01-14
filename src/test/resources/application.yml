@@ -8,10 +8,12 @@ shopify:
 
 auth0:
   domain: wallettopup.auth0.com
-  clientId: oG9khmjGjziUJRu0miHvtqF5tNeWK833
-  clientSecret: B8FK1C1ylTQi9l9AP5uFQvDZvIthT0Rh_GZvUQEmAFGua6yPcFjet68Na1f4Q41j
+  # test client_id
+  clientId: gnmeGAuP1hw5ClroyL6R3MMOUFBMkneG
+  # test client_secret
+  clientSecret: EXDbjXdgTFfRaI9b7AIiEXa7QkgCi5LhaGzYGfG_e3FiESEwIkY71N716b1PT5yY
   issuer: https://wallettopup.auth0.com/
-  apiAudience: wallettopup
+  apiAudience: https://wallettopup.auth0.com/api/v2/
 
 # testnet/regtest/mainnet
 bitcoinj:

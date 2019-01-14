@@ -2,7 +2,7 @@ package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJAdapter;
-import com.jvmp.vouchershop.security.NoSecurityConfig;
+import com.jvmp.vouchershop.security.TestSecurityConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,7 +14,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
-        Application.class, NoSecurityConfig.class
+        Application.class, TestSecurityConfig.class
 })
 @AutoConfigureMockMvc
 @ActiveProfiles("unit-test")

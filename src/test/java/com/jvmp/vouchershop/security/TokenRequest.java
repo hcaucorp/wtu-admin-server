@@ -12,6 +12,5 @@ public class TokenRequest {
     public String grantType;
     public String clientId;
     public String clientSecret;
-    public String code;
-    public String redirectUri;
+    public String audience;
 }

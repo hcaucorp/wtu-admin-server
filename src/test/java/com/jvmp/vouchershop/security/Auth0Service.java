@@ -15,12 +15,9 @@ public class Auth0Service {
     private String clientId;
     @Value(PropertyNames.AUTH0_CLIENT_SECRET)
     private String clientIdSecret;
-    @Value(PropertyNames.AUTH0_ISSUER)
-    private String issuer;
 
     public TokenResponse getToken() {
-        String authorize = httpClient.authorize(audience, "read:orders", clientId, "test");
-        TokenRequest body = new TokenRequest("authorization_code", clientId, clientIdSecret, "AUTHORIZATION_CODE", issuer + "callback");
+        TokenRequest body = new TokenRequest("client_credentials", clientId, clientIdSecret, audience);
         return httpClient.getToken(body);
     }
 }

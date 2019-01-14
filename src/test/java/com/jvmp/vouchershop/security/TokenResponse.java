@@ -8,8 +8,5 @@ import lombok.Data;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class TokenResponse {
     public String accessToken;
-    public String refreshToken;
-    public String idToken;
     public String tokenType;
-    public long expires_in;
 }

@@ -7,7 +7,8 @@ import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
 import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.bitcoinj.params.TestNet3Params;
+import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.params.UnitTestParams;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -23,8 +24,9 @@ import static org.apache.commons.lang3.RandomUtils.nextLong;
 @UtilityClass
 public class RandomUtils {
 
-    public static Wallet randomWallet() {
-        org.bitcoinj.wallet.Wallet wallet = new org.bitcoinj.wallet.Wallet(TestNet3Params.get());
+
+    public static Wallet randomWallet(NetworkParameters params) {
+        org.bitcoinj.wallet.Wallet wallet = new org.bitcoinj.wallet.Wallet(params);
 
         return new Wallet()
                 .withId(nextLong(0, Long.MAX_VALUE))
@@ -34,9 +36,17 @@ public class RandomUtils {
                 .withMnemonic(walletWords(wallet));
     }
 
-    public static String randomBtcAddress() {
-        org.bitcoinj.wallet.Wallet wallet = new org.bitcoinj.wallet.Wallet(TestNet3Params.get());
+    public static Wallet randomWallet() {
+        return randomWallet(UnitTestParams.get());
+    }
+
+    public static String randomBtcAddress(NetworkParameters params) {
+        org.bitcoinj.wallet.Wallet wallet = new org.bitcoinj.wallet.Wallet(params);
         return wallet.currentReceiveAddress().toBase58();
+    }
+
+    public static String randomBtcAddress() {
+        return randomBtcAddress(UnitTestParams.get());
     }
 
     public static Order randomOrder() {

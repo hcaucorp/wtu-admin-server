@@ -67,7 +67,9 @@ public class DefaultVoucherService implements VoucherService {
 
     @Override
     public void deleteBySku(String sku) {
-        voucherRepository.deleteAll(voucherRepository.findBySoldFalseAndSku(sku));
+        List<Voucher> vouchers = voucherRepository.findBySoldFalseAndSku(sku);
+        if (!vouchers.isEmpty())
+            voucherRepository.deleteAll(vouchers);
     }
 
     @Override
