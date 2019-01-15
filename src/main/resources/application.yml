@@ -7,7 +7,7 @@ shopify:
   location-id: 18618777700
 
 # JWT configuration by Auth0
-com.auth0:
+auth0:
   issuer: https://wallettopup.auth0.com/
   apiAudience: wallettopup
 
