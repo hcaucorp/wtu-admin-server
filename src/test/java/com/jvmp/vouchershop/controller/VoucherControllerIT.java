@@ -13,12 +13,12 @@ import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
 import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
 import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
 import com.jvmp.vouchershop.wallet.Wallet;
+import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.Context;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.wallet.UnreadableWalletException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -39,17 +35,11 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
-import static com.jvmp.vouchershop.RandomUtils.randomSku;
-import static com.jvmp.vouchershop.RandomUtils.randomString;
-import static com.jvmp.vouchershop.RandomUtils.randomVoucher;
-import static com.jvmp.vouchershop.RandomUtils.randomVoucherGenerationSpec;
-import static com.jvmp.vouchershop.RandomUtils.randomWallet;
+import static com.jvmp.vouchershop.RandomUtils.*;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
+@Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest(
         classes = {
@@ -158,12 +148,15 @@ public class VoucherControllerIT {
     }
 
     @Test
-//    @Ignore("can't make this retarded library work") // TODO really need this to work properly!
     public void redeemVoucher() throws UnreadableWalletException {
         // receive address: myAUke4cumJb6fYvHAGvXVMzHbKTusrixG
         Wallet wallet = btcWalletService.importWallet(
                 "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary", 1546128000L)
                 .orElseThrow(IllegalOperationException::new);
+
+        btcWalletService.findAll(); // to start the service
+
+        log.info("Service should be running now.");
 
         Voucher voucher = voucherRepository.save(randomVoucher()
                 .withWalletId(wallet.getId())
@@ -171,7 +164,7 @@ public class VoucherControllerIT {
                 .withPublished(true)
                 .withRedeemed(false));
 
-        String url = "/vouchers/redeem";
+        String url = base.toString() + "/vouchers/redeem";
 
         RequestEntity<?> requestEntity = RequestEntity
                 .post(URI.create(url))
@@ -180,7 +173,8 @@ public class VoucherControllerIT {
                         .withVoucherCode(voucher.getCode())
                         .withDestinationAddress("mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G"));
 
-        RedemptionResponse response = template.postForEntity(url, requestEntity, RedemptionResponse.class).getBody();
+        RedemptionResponse response =
+                template.postForEntity(url, requestEntity, RedemptionResponse.class).getBody();
 
         assertNotNull(response);
         assertNotNull(response.getTransactionId());
@@ -194,12 +188,5 @@ public class VoucherControllerIT {
 
     private static class VoucherList extends ParameterizedTypeReference<List<Voucher>> {
         //
-    }
-
-    @Test
-    @Ignore("can't make this retarded library work")
-    // TODO redemption page will hash request body using a "secret" known only for 'redemption' and this 'server'
-    public void redeemVoucher_HmacHashing() {
-
     }
 }

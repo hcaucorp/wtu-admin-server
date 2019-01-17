@@ -1,7 +1,5 @@
 package com.jvmp.vouchershop.wallet;
 
-import io.reactivex.Observable;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -15,5 +13,5 @@ public interface WalletService {
 
     Wallet save(Wallet Wallet);
 
-    Observable<String> sendMoney(Wallet from, String toAddress, long amount);
+    String sendMoney(Wallet from, String toAddress, long amount);
 }

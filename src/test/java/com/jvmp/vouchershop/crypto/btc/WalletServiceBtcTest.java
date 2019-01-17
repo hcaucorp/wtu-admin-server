@@ -1,15 +1,10 @@
 package com.jvmp.vouchershop.crypto.btc;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.val;
-import org.bitcoinj.core.Coin;
-import org.bitcoinj.core.Context;
-import org.bitcoinj.core.InsufficientMoneyException;
-import org.bitcoinj.core.Sha256Hash;
-import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.*;
 import org.bitcoinj.params.UnitTestParams;
 import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet.SendResult;
@@ -23,22 +18,14 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.time.Instant;
 import java.util.Optional;
 
-import static com.jvmp.vouchershop.RandomUtils.randomBtcAddress;
-import static com.jvmp.vouchershop.RandomUtils.randomString;
-import static com.jvmp.vouchershop.RandomUtils.randomWallet;
+import static com.jvmp.vouchershop.RandomUtils.*;
 import static com.jvmp.vouchershop.TryUtils.expectingException;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-@SuppressWarnings({"ResultOfMethodCallIgnored"})
 @RunWith(MockitoJUnitRunner.class)
 public class WalletServiceBtcTest {
 
@@ -51,9 +38,6 @@ public class WalletServiceBtcTest {
     private WalletServiceBtc walletServiceBtc;
 
     private Context btcContext;
-
-    @Mock
-    private ListenableFuture<Transaction> listenableFuture;
 
     @Before
     public void setUp() {
@@ -68,12 +52,9 @@ public class WalletServiceBtcTest {
         long amount = nextLong(1, Long.MAX_VALUE);
         String expectedMessage = "Wallet " + wallet.toString() + " can provide only for vouchers in BTC";
 
-        walletServiceBtc.sendMoney(wallet, to, amount)
-                .subscribe(s -> fail("was expecting an exception"),
-                        throwable -> {
-                            assertEquals(IllegalOperationException.class, throwable.getClass());
-                            assertEquals(expectedMessage, throwable.getMessage());
-                        });
+        Throwable throwable = expectingException(() -> walletServiceBtc.sendMoney(wallet, to, amount));
+        assertEquals(IllegalOperationException.class, throwable.getClass());
+        assertEquals(expectedMessage, throwable.getMessage());
     }
 
     @Test
@@ -83,9 +64,8 @@ public class WalletServiceBtcTest {
         long amount = nextLong(1, 1_000);
         when(bitcoinJAdapter.sendCoins(any())).thenThrow(new InsufficientMoneyException(Coin.valueOf(amount)));
 
-        walletServiceBtc.sendMoney(wallet, to, amount)
-                .subscribe(s -> fail("was expecting an exception"),
-                        throwable -> assertEquals(InsufficientMoneyException.class, throwable.getClass()));
+        String transactionHash = walletServiceBtc.sendMoney(wallet, to, amount);
+        assertNull(transactionHash);
     }
 
     @Test
@@ -97,14 +77,12 @@ public class WalletServiceBtcTest {
         Sha256Hash hash = Sha256Hash.of(randomString().getBytes());
         ReflectionTestUtils.setField(tx, "hash", hash);
         SendResult sendResult = new SendResult();
-        sendResult.broadcastComplete = listenableFuture;
-        when(listenableFuture.get()).thenReturn(tx);
+        sendResult.tx = tx;
         when(bitcoinJAdapter.sendCoins(any())).thenReturn(sendResult);
         //wtf pretty long setup
 
-        walletServiceBtc.sendMoney(wallet, to, amount)
-                .subscribe(s -> assertEquals(hash.toString(), s),
-                        throwable -> fail(throwable.getMessage()));
+        String result = walletServiceBtc.sendMoney(wallet, to, amount);
+        assertEquals(tx.getHashAsString(), result);
     }
 
     @Test

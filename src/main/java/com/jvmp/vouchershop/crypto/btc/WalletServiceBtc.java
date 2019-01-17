@@ -5,7 +5,6 @@ import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
-import io.reactivex.Observable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.*;
@@ -103,28 +102,24 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
     }
 
     @Override
-    public Observable<String> sendMoney(Wallet from, String toAddress, long amount) {
+    public String sendMoney(Wallet from, String toAddress, long amount) {
         if (!"BTC".equals(from.getCurrency())) {
             log.error("Wallet {} can provide only for vouchers in BTC", from.toString());
-            return Observable.error(new IllegalOperationException("Wallet " + from.toString() + " can provide only for vouchers in BTC"));
+            throw new IllegalOperationException("Wallet " + from.toString() + " can provide only for vouchers in BTC");
         }
 
         Address targetAddress = Address.fromBase58(networkParameters, toAddress);
-        SendResult result;
         try {
             //using eco fees
             SendRequest sendRequest = SendRequest.to(targetAddress, Coin.valueOf(amount));
             sendRequest.feePerKb = Transaction.REFERENCE_DEFAULT_MIN_TX_FEE;
 
-            result = bitcoinj.sendCoins(sendRequest);
+            SendResult sendResult = bitcoinj.sendCoins(sendRequest);
 
-            return Observable
-                    .fromFuture(result.broadcastComplete)
-                    .map(Transaction::getHashAsString);
-
+            return sendResult.tx.getHashAsString();
         } catch (InsufficientMoneyException e) {
             log.error("Not enough funds {} on the wallet {}", bitcoinj.getBalance(), from);
-            return Observable.error(e);
         }
+        return null;
     }
 }

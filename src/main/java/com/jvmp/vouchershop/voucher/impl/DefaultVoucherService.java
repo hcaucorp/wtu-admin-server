@@ -8,7 +8,6 @@ import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.voucher.VoucherService;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
-import io.reactivex.Observable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -125,14 +124,12 @@ public class DefaultVoucherService implements VoucherService {
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet " + voucher.getWalletId() + " not found."));
 
         // send money
-        Observable<String> transactionHash = walletService.sendMoney(wallet, detail.getDestinationAddress(), voucher.getAmount());
+        String transactionHash = walletService.sendMoney(wallet, detail.getDestinationAddress(), voucher.getAmount());
 
-        return transactionHash
-                .map(s -> {
-                    voucherRepository.save(voucher.withRedeemed(true));
-                    return s;
-                })
-                .map(RedemptionUtils::fromTxHash)
-                .blockingSingle();
+        if (transactionHash != null) {
+            voucherRepository.save(voucher.withRedeemed(true));
+            return RedemptionUtils.fromTxHash(transactionHash);
+        }
+        return null;
     }
 }
