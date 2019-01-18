@@ -9,7 +9,7 @@ shopify:
 # JWT configuration by Auth0
 auth0:
   issuer: https://wallettopup.auth0.com/
-  apiAudience: wallettopup
+  apiAudience: https://wallettopup.auth0.com/api/v2/
 
 # testnet/regtest/mainnet
 bitcoinj:
