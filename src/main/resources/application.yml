@@ -39,6 +39,13 @@ spring:
       ddl-auto: update
     properties.hibernate.temp.use_jdbc_metadata_defaults: false
 
+management:
+  endpoints:
+    enabled-by-default: false
+  endpoint:
+    health:
+      enabled: true
+
 # Amazon SES Service
 #spring.mail.host=email-smtp.us-west-2.amazonaws.com
 #spring.mail.username=username

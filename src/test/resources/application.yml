@@ -7,13 +7,14 @@ shopify:
   location-id: 18618777700
 
 auth0:
-  domain: wallettopup.auth0.com
-  # test client_id
-  clientId: gnmeGAuP1hw5ClroyL6R3MMOUFBMkneG
-  # test client_secret
-  clientSecret: EXDbjXdgTFfRaI9b7AIiEXa7QkgCi5LhaGzYGfG_e3FiESEwIkY71N716b1PT5yY
   issuer: https://wallettopup.auth0.com/
   apiAudience: https://wallettopup.auth0.com/api/v2/
+  # test only - domain
+  domain: wallettopup.auth0.com
+  # test only - client_id
+  clientId: gnmeGAuP1hw5ClroyL6R3MMOUFBMkneG
+  # test only - client_secret
+  clientSecret: EXDbjXdgTFfRaI9b7AIiEXa7QkgCi5LhaGzYGfG_e3FiESEwIkY71N716b1PT5yY
 
 # testnet/regtest/mainnet
 bitcoinj:

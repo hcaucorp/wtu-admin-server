@@ -6,6 +6,8 @@ import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
+import org.bitcoinj.core.Context;
+import org.bitcoinj.params.UnitTestParams;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +39,8 @@ public class DefaultVoucherServiceTest {
 
     @Before
     public void setUp() {
+        Context btcContext = new Context(UnitTestParams.get());
+        Context.propagate(btcContext);
         subject = new DefaultVoucherService(walletService, voucherRepository);
     }
 
@@ -92,7 +96,7 @@ public class DefaultVoucherServiceTest {
 
     @Test
     public void redeemVoucher_happyEnding() {
-        Wallet wallet = randomWallet();
+        Wallet wallet = randomWallet(UnitTestParams.get());
         Voucher voucher = randomVoucher()
                 .withWalletId(wallet.getId())
                 .withSold(true)
