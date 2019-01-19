@@ -29,9 +29,9 @@ spring:
       starttls.enable: true
   # PostgreSQL
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://aa9bbsh8k7xriq.cmt4otxvbkhv.eu-west-2.rds.amazonaws.com:5432/postgres
+    username: mieszko
+    password: koleszko
   jpa:
     hibernate:
       dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -45,6 +45,8 @@ management:
   endpoint:
     health:
       enabled: true
+
+server.port: 5000
 
 # Amazon SES Service
 #spring.mail.host=email-smtp.us-west-2.amazonaws.com
