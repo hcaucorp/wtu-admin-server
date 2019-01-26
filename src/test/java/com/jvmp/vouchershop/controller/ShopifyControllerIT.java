@@ -2,6 +2,7 @@ package com.jvmp.vouchershop.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jvmp.vouchershop.Application;
+import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.security.HmacUtil;
 import com.jvmp.vouchershop.system.PropertyNames;
 import org.junit.Before;
@@ -10,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
@@ -29,6 +31,7 @@ import static org.junit.Assert.assertEquals;
 @SpringBootTest(
         classes = Application.class,
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@MockBean(NotificationService.class)
 public class ShopifyControllerIT {
 
     @LocalServerPort

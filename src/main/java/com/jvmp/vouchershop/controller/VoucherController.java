@@ -7,7 +7,7 @@ import com.jvmp.vouchershop.voucher.VoucherService;
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
 import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
 import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +17,13 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
-@AllArgsConstructor
 @CrossOrigin
 public class VoucherController {
 
-    private NotificationService notificationService;
-    private VoucherService voucherService;
+    private final NotificationService notificationService;
+    private final VoucherService voucherService;
 
     @Value(PropertyNames.AWS_SNS_TOPIC_REDEMPTIONS)
     private String redemptionsTopic;

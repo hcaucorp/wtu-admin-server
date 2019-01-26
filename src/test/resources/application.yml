@@ -21,6 +21,12 @@ bitcoinj:
   network:
     type: testnet
 
+es.coffeebyt.notification:
+  orders-topic-arn: "orders"
+  redemptions-topic-arn: "redemptions"
+  access-key-id: "foo"
+  secret-key-id: "bar"
+
 spring:
   # Gmail
   mail:

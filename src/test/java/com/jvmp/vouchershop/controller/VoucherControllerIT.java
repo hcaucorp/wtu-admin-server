@@ -4,6 +4,7 @@ import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJConfig;
 import com.jvmp.vouchershop.crypto.btc.WalletServiceBtc;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
+import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.security.Auth0Service;
@@ -23,6 +24,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
@@ -48,6 +51,9 @@ import static org.junit.Assert.*;
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = {DatabaseConfig.class, BitcoinJConfig.class})
+@MockBeans({
+        @MockBean(NotificationService.class)
+})
 public class VoucherControllerIT {
 
     @LocalServerPort
