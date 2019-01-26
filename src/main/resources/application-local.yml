@@ -1,0 +1,43 @@
+# Shopify API access
+shopify:
+  shop-name: wallet-top-up
+  api-key: bee9d4b0e98978fd3ec5e7625ef2838e
+  api-password: 50387a70e75f66fc2330062edc38b7f2
+  secret: 4aa1c538138e6dcb09f6d4d92ba4087c14415079c26fb6fb8a51bc6e6dca5ca3
+  location-id: 18618777700
+
+# JWT configuration by Auth0
+auth0:
+  issuer: https://wallettopup.auth0.com/
+  apiAudience: https://wallettopup.auth0.com/api/v2/
+
+# testnet/regtest/mainnet
+bitcoinj:
+  network:
+    type: testnet
+
+# Spring Reference https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+spring:
+  # PostgreSQL
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
+
+server.port: 8080
+
+# Amazon SES Service
+#spring.mail.host=email-smtp.us-west-2.amazonaws.com
+#spring.mail.username=username
+#spring.mail.password=password
+#spring.mail.properties.mail.transport.protocol=smtp
+#spring.mail.properties.mail.smtp.port=25
+#spring.mail.properties.mail.smtp.auth=true
+#spring.mail.properties.mail.smtp.starttls.enable=true
+#spring.mail.properties.mail.smtp.starttls.required=true
+# Please, be aware that Amazon requires you to verify your credentials before using them. Follow the link
+# http://docs.aws.amazon.com/ses/latest/DeveloperGuide/verify-email-addresses.html to verify your username and password.
+
+logging:
+  level:
+    root: INFO

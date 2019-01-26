@@ -26,7 +26,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(asList("http://localhost:3000", "http://localhost:4200"));
+        configuration.setAllowedOrigins(asList(
+                "http://localhost:3000",
+                "http://localhost:4200",
+                "https://admin.wallettopup.co.uk"
+        ));
         configuration.setAllowedMethods(asList("GET", "POST"));
         configuration.setAllowCredentials(true);
         configuration.addAllowedHeader("Authorization");
@@ -43,7 +47,5 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/vouchers/redeem", "/shopify/webhook/fulfill").permitAll()
                 .anyRequest().authenticated();
-//                .antMatchers(HttpMethod.GET, "/api/private").authenticated()
-//                .antMatchers(HttpMethod.GET, "/api/private-scoped").hasAuthority("read:messages");
     }
 }

@@ -15,6 +15,10 @@ public class PropertyNames {
     public final String AUTH0_DOMAIN = "${auth0.domain}";
     public final String AUTH0_CLIENT_ID = "${auth0.clientId}";
     public final String AUTH0_CLIENT_SECRET = "${auth0.clientSecret}";
-    public final String AUTH0_ISSUER = "${auth0.issuer}";
     public final String AUTH0_API_AUDIENCE = "${auth0.apiAudience}";
+
+    public final String AWS_SNS_TOPIC_ORDERS = "${es.coffeebyt.notification.orders-topic-arn}";
+    public final String AWS_SNS_TOPIC_REDEMPTIONS = "${es.coffeebyt.notification.redemptions-topic-arn}";
+    public final String AWS_SNS_ACCESS_KEY_ID = "${es.coffeebyt.notification.access-key-id}";
+    public final String AWS_SNS_SECRET_KEY_ID = "${es.coffeebyt.notification.secret-key-id}";
 }

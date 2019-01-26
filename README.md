@@ -13,3 +13,7 @@ Run `mvn package` to build the project.
 ## Running unit tests
 
 Run `mvn test` 
+
+## Deployment
+
+Run `eb deploy`
