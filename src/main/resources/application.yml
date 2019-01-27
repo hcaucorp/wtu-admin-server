@@ -18,8 +18,8 @@ bitcoinj:
 
 es.coffeebyt.notification:
   # topic with results of user actions
-  orders-topic-arn: "arn:aws:sns:eu-west-1:367570967874:orders"
-  redemptions-topic-arn: "arn:aws:sns:eu-west-1:367570967874:redemptions"
+  orders-topic-arn: "arn:aws:sns:eu-west-2:367570967874:orders"
+  redemptions-topic-arn: "arn:aws:sns:eu-west-2:367570967874:redemptions"
   # IAM sns-access-user
   access-key-id: "AKIAITMQC6R6A773KPNQ"
   secret-key-id: "na4eftnibgdw4GXj9+cnDyGTYYY60MG8adIpYttM"
