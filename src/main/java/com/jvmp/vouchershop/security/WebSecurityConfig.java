@@ -1,4 +1,4 @@
-package com.jvmp.vouchershop.system;
+package com.jvmp.vouchershop.security;
 
 import com.auth0.spring.security.api.JwtWebSecurityConfigurer;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +45,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .forRS256(apiAudience, issuer)
                 .configure(http)
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/vouchers/redeem", "/shopify/webhook/fulfill").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/vouchers/redeem", "/api/shopify/webhook/fulfill").permitAll()
                 .anyRequest().authenticated();
     }
 }

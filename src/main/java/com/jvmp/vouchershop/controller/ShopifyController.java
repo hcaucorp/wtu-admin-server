@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jvmp.vouchershop.fulfillment.FulfillmentService;
 import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.security.HmacUtil;
+import com.jvmp.vouchershop.shopify.ShopifyService;
 import com.jvmp.vouchershop.shopify.domain.Order;
+import com.jvmp.vouchershop.shopify.domain.OrderList;
 import com.jvmp.vouchershop.system.PropertyNames;
 import io.reactivex.Flowable;
 import io.reactivex.schedulers.Schedulers;
@@ -13,15 +15,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
+@RequestMapping("/api")
 @RestController
 @RequiredArgsConstructor
 public class ShopifyController {
@@ -30,6 +35,7 @@ public class ShopifyController {
     private final ObjectMapper objectMapper;
     private final FulfillmentService fulfillmentService;
     private final NotificationService notificationService;
+    private final ShopifyService shopifyService;
 
     @Value(PropertyNames.AWS_SNS_TOPIC_ORDERS)
     private String ordersTopic;
@@ -64,9 +70,15 @@ public class ShopifyController {
         }
     }
 
-    // TODO
-//    @PostMapping("/shopify/orders")
-//    public ResponseEntity<Order> findOrders(String status) {
-//        return shopifyService.markOrderFulfilled();
-//    }
+    @GetMapping("/shopify/orders/unfulfilled/count")
+    public int unfulfilledOrdersCount(String status) {
+        return shopifyService.unfulfilledOrdersCount();
+    }
+
+    @PostMapping("/shopify/orders/fulfill")
+    public void fulfillUnfulfilledOrders() {
+        OrderList unfulfilledOrders = shopifyService.findUnfulfilledOrders();
+        unfulfilledOrders.getOrders().forEach(order -> shopifyService.markOrderFulfilled(order.getId()));
+    }
+
 }

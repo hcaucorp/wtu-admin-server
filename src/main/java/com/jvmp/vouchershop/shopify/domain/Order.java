@@ -1,5 +1,6 @@
 package com.jvmp.vouchershop.shopify.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -17,13 +18,15 @@ import java.util.List;
 
 @JsonNaming(SnakeCaseStrategy.class)
 
-//@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @Wither
 @AllArgsConstructor
 @NoArgsConstructor
 public class Order
 {
+    private FulfillmentStatus fulfillmentStatus;
+
     private long id;
 
     private String name;
@@ -31,6 +34,8 @@ public class Order
     private BigDecimal totalPrice;
 
     private BigDecimal discount;
+
+    private OrderStatus status;
 
     private FinancialStatus financialStatus;
 

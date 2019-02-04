@@ -5,6 +5,7 @@ import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.voucher.Voucher;
+import com.jvmp.vouchershop.voucher.VoucherNotFound;
 import com.jvmp.vouchershop.voucher.VoucherService;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
@@ -112,11 +113,11 @@ public class DefaultVoucherService implements VoucherService {
     }
 
     @Override
-    public RedemptionResponse redeemVoucher(@Nonnull RedemptionRequest detail) {
+    public RedemptionResponse redeemVoucher(@Nonnull RedemptionRequest detail) throws VoucherNotFound {
         Objects.requireNonNull(detail, "voucher redemption details");
 
         Voucher voucher = voucherRepository.findByCode(detail.getVoucherCode())
-                .orElseThrow(() -> new ResourceNotFoundException("Voucher " + detail.getVoucherCode() + " not found."));
+                .orElseThrow(() -> new VoucherNotFound("Voucher " + detail.getVoucherCode() + " not found."));
 
         checkVoucher(voucher);
 

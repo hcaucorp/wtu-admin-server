@@ -33,6 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("unit-test")
 public class WalletControllerTest {
 
+    private final static String baseUrl = "/api";
+
     @Autowired
     private MockMvc mvc;
 
@@ -46,14 +48,14 @@ public class WalletControllerTest {
 
     @Test
     public void getAllWallets() throws Exception {
-        mvc.perform(get("/wallets"))
+        mvc.perform(get(baseUrl + "/wallets"))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void generateWallet() throws Exception {
 
-        mvc.perform(post("/wallets")
+        mvc.perform(post(baseUrl + "/wallets")
                 .content("BTC"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", not(empty())))
@@ -63,11 +65,11 @@ public class WalletControllerTest {
                 .andExpect(jsonPath("$.createdAt", greaterThan(1322697600L)))
                 .andExpect(jsonPath("$.mnemonic", not(empty())));
 
-        mvc.perform(post("/wallets")
+        mvc.perform(post(baseUrl + "/wallets")
                 .content("ETH"))
                 .andExpect(status().isBadRequest());
 
-        mvc.perform(post("/wallets")
+        mvc.perform(post(baseUrl + "/wallets")
                 .content("XYZ"))
                 .andExpect(status().isBadRequest());
     }

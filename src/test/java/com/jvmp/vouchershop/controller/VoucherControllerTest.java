@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.security.TestSecurityConfig;
+import com.jvmp.vouchershop.utils.IAmATeapotException;
+import com.jvmp.vouchershop.voucher.VoucherNotFound;
 import com.jvmp.vouchershop.voucher.VoucherService;
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
 import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
@@ -18,23 +20,36 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.jvmp.vouchershop.RandomUtils.*;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomRedemptionRequest;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomString;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucherGenerationSpec;
 import static java.util.Collections.singletonList;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
         Application.class, TestSecurityConfig.class
 })
-@MockBean(NotificationService.class)
 @AutoConfigureMockMvc
 @ActiveProfiles("unit-test")
 public class VoucherControllerTest {
 
+    private final static String baseUrl = "/api";
+
     private ObjectMapper om = new ObjectMapper();
+
+    @MockBean
+    private NotificationService notificationService;
 
     @Autowired
     private MockMvc mvc;
@@ -44,14 +59,14 @@ public class VoucherControllerTest {
 
     @Test
     public void getAllVouchers() throws Exception {
-        mvc.perform(get("/vouchers")
+        mvc.perform(get(baseUrl + "/vouchers")
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
     }
 
     @Test
     public void generateVouchers() throws Exception {
-        mvc.perform(post("/vouchers")
+        mvc.perform(post(baseUrl + "/vouchers")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(om.writeValueAsString(randomVoucherGenerationSpec())))
                 .andExpect(status().isCreated());
@@ -59,7 +74,7 @@ public class VoucherControllerTest {
 
     @Test
     public void deleteById() throws Exception {
-        mvc.perform(delete("/vouchers/1")
+        mvc.perform(delete(baseUrl + "/vouchers/1")
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
     }
@@ -70,7 +85,7 @@ public class VoucherControllerTest {
         RedemptionResponse response = new RedemptionResponse(singletonList("http://trackingurl.com/" + randomString()), randomString());
         when(voucherService.redeemVoucher(eq(request))).thenReturn(response);
 
-        mvc.perform(post("/vouchers/redeem")
+        mvc.perform(post(baseUrl + "/vouchers/redeem")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(om.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -78,5 +93,32 @@ public class VoucherControllerTest {
                 .andExpect(jsonPath("$.trackingUrls[0]").value(response.getTrackingUrls().get(0)))
                 .andExpect(jsonPath("$.transactionId").value(response.getTransactionId()));
 
+        verify(notificationService, times(1)).push(any(), any());
+    }
+
+    @Test
+    public void redeemVoucher_notFound() throws Exception {
+        RedemptionRequest request = randomRedemptionRequest();
+        when(voucherService.redeemVoucher(any())).thenThrow(new VoucherNotFound(randomString()));
+
+        mvc.perform(post(baseUrl + "/vouchers/redeem")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(om.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+
+        verify(notificationService, times(1)).push(any(), any());
+    }
+
+    public void redeemVoucher_totalDisaster() throws Exception {
+
+        RedemptionRequest request = randomRedemptionRequest();
+        when(voucherService.redeemVoucher(any())).thenThrow(new IAmATeapotException());
+
+        mvc.perform(post(baseUrl + "/vouchers/redeem")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(om.writeValueAsString(request)))
+                .andExpect(status().isIAmATeapot());
+
+        verify(notificationService, times(1)).push(any(), any());
     }
 }

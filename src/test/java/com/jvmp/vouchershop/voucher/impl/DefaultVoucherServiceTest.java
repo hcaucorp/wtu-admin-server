@@ -4,6 +4,7 @@ import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.voucher.Voucher;
+import com.jvmp.vouchershop.voucher.VoucherNotFound;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import org.bitcoinj.core.Context;
@@ -20,11 +21,18 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
-import static com.jvmp.vouchershop.RandomUtils.*;
-import static com.jvmp.vouchershop.TryUtils.expectingException;
-import static org.junit.Assert.*;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomString;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucher;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucherGenerationSpec;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomWallet;
+import static com.jvmp.vouchershop.utils.TryUtils.expectingException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultVoucherServiceTest {
@@ -71,8 +79,8 @@ public class DefaultVoucherServiceTest {
         assertEquals(spec.getCount(), vouchers.size());
     }
 
-    @Test(expected = ResourceNotFoundException.class)
-    public void redeemVoucher_noVoucher() {
+    @Test(expected = VoucherNotFound.class)
+    public void redeemVoucher_noVoucher() throws VoucherNotFound {
         String code = randomString();
 
         when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.empty());
@@ -81,7 +89,7 @@ public class DefaultVoucherServiceTest {
     }
 
     @Test(expected = ResourceNotFoundException.class)
-    public void redeemVoucher_noWallet() {
+    public void redeemVoucher_noWallet() throws VoucherNotFound {
         Voucher voucher = randomVoucher()
                 .withSold(true)
                 .withPublished(true)
@@ -95,7 +103,7 @@ public class DefaultVoucherServiceTest {
     }
 
     @Test
-    public void redeemVoucher_happyEnding() {
+    public void redeemVoucher_happyEnding() throws VoucherNotFound {
         Wallet wallet = randomWallet(UnitTestParams.get());
         Voucher voucher = randomVoucher()
                 .withWalletId(wallet.getId())

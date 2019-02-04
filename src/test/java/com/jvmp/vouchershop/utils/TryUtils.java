@@ -1,4 +1,4 @@
-package com.jvmp.vouchershop;
+package com.jvmp.vouchershop.utils;
 
 import io.reactivex.Observable;
 import lombok.experimental.UtilityClass;

@@ -14,8 +14,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import java.util.Set;
 
 import static com.jvmp.vouchershop.Collections.asSet;
-import static com.jvmp.vouchershop.RandomUtils.randomEmail;
-import static com.jvmp.vouchershop.RandomUtils.randomVoucher;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomEmail;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucher;
 import static java.util.Collections.singleton;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

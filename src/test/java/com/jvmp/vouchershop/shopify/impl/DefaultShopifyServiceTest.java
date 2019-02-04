@@ -11,8 +11,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static com.jvmp.vouchershop.RandomUtils.randomString;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -28,10 +29,9 @@ public class DefaultShopifyServiceTest {
 
     @Before
     public void setUp() {
-        String shopName = randomString();
         locationId = RandomUtils.nextLong(1, Long.MAX_VALUE);
 
-        defaultShopifyService = new DefaultShopifyService(apiClient, shopName, locationId);
+        defaultShopifyService = new DefaultShopifyService(apiClient, locationId);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class DefaultShopifyServiceTest {
         defaultShopifyService.markOrderFulfilled(orderId);
 
         ArgumentCaptor<FulfillmentResource> captor = ArgumentCaptor.forClass(FulfillmentResource.class);
-        verify(apiClient, times(1)).fulfillAllItems(eq(orderId), captor.capture());
+        verify(apiClient, times(1)).fulfillOrder(eq(orderId), captor.capture());
 
         FulfillmentResource result = captor.getValue();
         assertNotNull(result);
@@ -50,8 +50,8 @@ public class DefaultShopifyServiceTest {
 
         assertNotNull(item);
         assertEquals(locationId, item.getLocationId());
-        assertEquals("" + orderId, item.getTrackingNumber());
-        assertFalse(item.getTrackingUrls().isEmpty());
+        assertEquals("Your order number is " + orderId + ", ad will be delivered via email", item.getTrackingNumber());
+        assertTrue(item.getTrackingUrls().isEmpty()); //TODO change to assertFalse after adding tracking url endpoint
         assertTrue(item.isNotifyCustomer());
     }
 }

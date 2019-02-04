@@ -17,18 +17,6 @@
         <java.version>8</java.version>
     </properties>
 
-    <!--<dependencyManagement>-->
-    <!--<dependencies>-->
-    <!--<dependency>-->
-    <!--<groupId>software.amazon.awssdk</groupId>-->
-    <!--<artifactId>bom</artifactId>-->
-    <!--<version>2.3.8</version>-->
-    <!--<type>pom</type>-->
-    <!--<scope>import</scope>-->
-    <!--</dependency>-->
-    <!--</dependencies>-->
-    <!--</dependencyManagement>-->
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -179,7 +167,6 @@
         <!-- end::tests[] -->
 
     </dependencies>
-
 
     <build>
         <plugins>

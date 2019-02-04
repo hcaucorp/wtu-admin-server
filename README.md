@@ -16,6 +16,6 @@ Run `mvn test`
 
 ## Deployment
 
-Run `eb deploy --profile eb-cli` on local. Assuming set up access tokens in `~/.aws/config` file.
+Run `eb deploy` on local. Assuming set up access tokens in `~/.aws/config` file.
 
 Autodeployment should use environment variables set. See https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-configuration.html

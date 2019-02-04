@@ -25,13 +25,15 @@ import java.util.stream.Stream;
 import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.completed;
 import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.initiated;
 import static com.jvmp.vouchershop.shopify.domain.FinancialStatus.paid;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DefaultFulFillmentService implements FulfillmentService {
+public class DefaultFulfillmentService implements FulfillmentService {
 
     private final FulfillmentRepository fulfillmentRepository;
     private final VoucherRepository voucherRepository;

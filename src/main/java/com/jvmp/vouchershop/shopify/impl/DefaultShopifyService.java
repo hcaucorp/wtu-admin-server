@@ -4,17 +4,19 @@ import com.jvmp.vouchershop.shopify.ShopifyApiClient;
 import com.jvmp.vouchershop.shopify.ShopifyService;
 import com.jvmp.vouchershop.shopify.domain.FulfillmentItem;
 import com.jvmp.vouchershop.shopify.domain.FulfillmentResource;
+import com.jvmp.vouchershop.shopify.domain.OrderList;
 
-import static java.util.Collections.singletonList;
+import static com.jvmp.vouchershop.shopify.domain.FinancialStatus.paid;
+import static com.jvmp.vouchershop.shopify.domain.FulfillmentStatus.unshipped;
+import static com.jvmp.vouchershop.shopify.domain.OrderStatus.open;
+import static java.util.Collections.emptyList;
 
 class DefaultShopifyService implements ShopifyService {
 
-    private final String shopUrl;
     private final ShopifyApiClient apiClient;
     private final long locationId;
 
-    DefaultShopifyService(ShopifyApiClient shopifyApiClient, String shopName, long locationId) {
-        this.shopUrl = "https://" + shopName + ".myshopify.com/";
+    DefaultShopifyService(ShopifyApiClient shopifyApiClient, long locationId) {
         this.apiClient = shopifyApiClient;
         this.locationId = locationId;
     }
@@ -22,15 +24,24 @@ class DefaultShopifyService implements ShopifyService {
     private FulfillmentResource createFulfillmentResource(long orderId) {
         return new FulfillmentResource(new FulfillmentItem(
                 locationId,
-                "" + orderId, // use orderId as tracking number
-                // TODO tracking urls: provide endpoint to check delivery status/info based on orderId from shopify
-                singletonList(shopUrl + "orders/" + orderId),
+                "Your order number is " + orderId + ", ad will be delivered via email", // use orderId as tracking number
+                emptyList(), // TODO create our custom endpoint for email delivery confirmation and re-delivery button
                 true
         ));
     }
 
     @Override
     public void markOrderFulfilled(long orderId) {
-        apiClient.fulfillAllItems(orderId, createFulfillmentResource(orderId));
+        apiClient.fulfillOrder(orderId, createFulfillmentResource(orderId));
+    }
+
+    @Override
+    public OrderList findUnfulfilledOrders() {
+        return apiClient.getOrders(open.toString(), unshipped.toString(), paid.toString());
+    }
+
+    @Override
+    public int unfulfilledOrdersCount() {
+        return apiClient.getOrdersCount(open.toString(), unshipped.toString(), paid.toString());
     }
 }

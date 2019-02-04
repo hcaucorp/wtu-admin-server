@@ -23,8 +23,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.net.URL;
 import java.util.function.Function;
 
-import static com.jvmp.vouchershop.RandomUtils.randomOrder;
 import static com.jvmp.vouchershop.controller.ShopifyController.HTTP_HEADER_X_SHOPIFY_HMAC_SHA256;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomOrder;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
@@ -51,7 +51,7 @@ public class ShopifyControllerIT {
 
     @Before
     public void setUp() throws Exception {
-        base = new URL("http://localhost:" + port + "/");
+        base = new URL("http://localhost:" + port + "/api");
     }
 
     @Test

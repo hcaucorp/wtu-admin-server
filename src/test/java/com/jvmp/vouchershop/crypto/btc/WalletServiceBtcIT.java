@@ -15,7 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Instant;
 
-import static com.jvmp.vouchershop.RandomUtils.randomWallet;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomWallet;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 

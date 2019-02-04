@@ -1,15 +1,18 @@
 package com.jvmp.vouchershop.shopify;
 
 import com.jvmp.vouchershop.shopify.domain.FulfillmentResource;
+import com.jvmp.vouchershop.shopify.domain.OrderList;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@FeignClient(name = "shopify")
+import static com.jvmp.vouchershop.system.PropertyNames.SHOPIFY_API_URL;
+
+@FeignClient(name = SHOPIFY_API_URL)
 public interface ShopifyApiClient {
-//    @RequestLine("GET /admin/customers.json?limit={limit}&since_id={since-id}&page={page}&fields={fields}")
+    //    @RequestLine("GET /admin/customers.json?limit={limit}&since_id={since-id}&page={page}&fields={fields}")
 //    CustomerList getCustomers(@Param("limit") Integer limit, @Param("since-id") String sinceId, @Param("page") Integer page, @Param("fields") String fields);
 //
 //    @RequestLine("GET /admin/customers/count.json")
@@ -39,11 +42,23 @@ public interface ShopifyApiClient {
 //    @RequestLine("GET /admin/collects/count.json")
 //    Count getCollectsCount();
 //
-//    @RequestLine("GET /admin/orders.json?limit={limit}&since_id={since-id}&page={page}&fields={fields}&status=any")
-//    OrderList getOrders(@Param("limit") Integer limit, @Param("since-id") String sinceId, @Param("page") Integer page, @Param("fields") String fields);
-//
-//    @RequestLine("GET /admin/orders/count.json?status=any")
-//    Count getOrdersCount();
+    @RequestMapping(
+            method = RequestMethod.GET,
+            value = "/admin/orders.json?status={order_status}&fulfillment_status={fulfillemnt_status}&financial_status={financial_status}",
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    OrderList getOrders(
+            @PathVariable("order_status") String orderStatus,
+            @PathVariable("fulfillment_status") String fulfillmentStatus,
+            @PathVariable("financial_status") String financialStatus);
+
+    @RequestMapping(
+            method = RequestMethod.GET,
+            value = "/admin/orders/count.json?status={order_status}&fulfillment_status={fulfillment_status}&financial_status={financial_status}",
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    int getOrdersCount(
+            @PathVariable("order_status") String orderStatus,
+            @PathVariable("fulfillment_status") String fulfillmentStatus,
+            @PathVariable("financial_status") String financialStatus);
 //
 //    @RequestLine("GET /admin/webhooks.json?limit={limit}&since_id={since-id}&page={page}&fields={fields}")
 //    WebhookList getWebhooks(@Param("limit") Integer limit, @Param("since-id") String sinceId, @Param("page") Integer page, @Param("fields") String fields);
@@ -72,8 +87,9 @@ public interface ShopifyApiClient {
 //    @RequestLine("GET /admin/recurring_application_charges/{chargeId}.json")
 //    RecurringApplicationChargeResponse getRecurringApplicationCharge(@Param("chargeId") String chargeId);
 
-    @RequestMapping(method = RequestMethod.GET,
-            value = "/admin/orders/#{order_id}/fulfillments.json",
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "/admin/orders/{order_id}/fulfillments.json",
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    FulfillmentResource fulfillAllItems(@PathVariable("order_id") long order_id, FulfillmentResource request);
+    FulfillmentResource fulfillOrder(@PathVariable("order_id") long order_id, FulfillmentResource request);
 }

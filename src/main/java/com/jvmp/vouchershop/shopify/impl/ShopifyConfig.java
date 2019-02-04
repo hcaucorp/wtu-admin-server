@@ -17,8 +17,8 @@ public class ShopifyConfig {
     @Value(PropertyNames.SHOPIFY_LOCATION_ID)
     private long locationId;
 
-    @Value(PropertyNames.SHOPIFY_SHOP_NAME)
-    private String shopName;
+    @Value(PropertyNames.SHOPIFY_API_URL)
+    private String apiUrl;
 
     @Value(PropertyNames.SHOPIFY_API_KEY)
     private String apiKey;
@@ -26,11 +26,6 @@ public class ShopifyConfig {
     @Value(PropertyNames.SHOPIFY_API_PASSWORD)
     private String apiPassword;
 
-    //    @Bean
-//    public ShopifyApiClient shopifyApiClient() {
-//        String shopUrl = "https://" + shopName + ".myshopify.com/";
-//        return ShopifyApiFactory.create(apiKey, apiPassword);
-//    }
     @Bean
     public BasicAuthRequestInterceptor basicAuthRequestInterceptor() {
         return new BasicAuthRequestInterceptor(apiKey, apiPassword);
@@ -38,6 +33,6 @@ public class ShopifyConfig {
 
     @Bean
     public ShopifyService shopifyService(ShopifyApiClient apiClient) {
-        return new DefaultShopifyService(apiClient, shopName, locationId);
+        return new DefaultShopifyService(apiClient, locationId);
     }
 }

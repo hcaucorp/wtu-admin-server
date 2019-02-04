@@ -1,4 +1,4 @@
-package com.jvmp.vouchershop;
+package com.jvmp.vouchershop.utils;
 
 import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;

@@ -8,5 +8,7 @@ public enum FinancialStatus
     paid,
     partially_refunded,
     refunded,
-    voided
+    unpaind,
+    voided,
+    any
 }

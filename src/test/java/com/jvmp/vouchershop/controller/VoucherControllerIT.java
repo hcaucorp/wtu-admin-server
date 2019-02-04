@@ -29,7 +29,11 @@ import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -38,9 +42,16 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
-import static com.jvmp.vouchershop.RandomUtils.*;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomSku;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomString;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucher;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucherGenerationSpec;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomWallet;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -85,7 +96,7 @@ public class VoucherControllerIT {
 
     @Before
     public void setUpTest() throws Exception {
-        base = new URL("http://localhost:" + port + "/");
+        base = new URL("http://localhost:" + port + "/api");
         testVouchers = asList(
                 voucherRepository.save(randomVoucher()),
                 voucherRepository.save(randomVoucher())

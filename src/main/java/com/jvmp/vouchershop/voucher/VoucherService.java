@@ -18,10 +18,10 @@ public interface VoucherService {
     /**
      * Sends money represented by the voucher to a prescribed recepient (wallet address)
      *
-     * @param detail
+     * @param detail Form data from redemption ui
      * @return A transaction identifier, currency agnostic, a way to uniquely identify transaction and provide a tracking info or kind of proof the transaction
      * has been performed. For BTC/~BCH it would be a transaction hash which allows to see the transaciton in the blockchain (blockchain explorer link for
      * tracking information)
      */
-    RedemptionResponse redeemVoucher(RedemptionRequest detail);
+    RedemptionResponse redeemVoucher(RedemptionRequest detail) throws VoucherNotFound;
 }

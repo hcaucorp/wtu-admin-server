@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static com.jvmp.vouchershop.Collections.asSet;
-import static com.jvmp.vouchershop.RandomUtils.randomVoucher;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucher;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(

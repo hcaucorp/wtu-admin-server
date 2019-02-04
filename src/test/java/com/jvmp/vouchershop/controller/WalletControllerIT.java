@@ -28,7 +28,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
-import static com.jvmp.vouchershop.RandomUtils.randomWallet;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomWallet;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
@@ -65,7 +65,7 @@ public class WalletControllerIT {
 
     @Before
     public void setUp() throws Exception {
-        this.base = new URL("http://localhost:" + port);
+        this.base = new URL("http://localhost:" + port + "/api");
         Context.propagate(new Context(networkParameters));
         authorizationValue = "Bearer " + auth0Service.getToken().accessToken;
     }

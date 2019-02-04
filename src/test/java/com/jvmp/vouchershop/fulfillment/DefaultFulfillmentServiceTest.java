@@ -24,16 +24,23 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.jvmp.vouchershop.Collections.asSet;
-import static com.jvmp.vouchershop.RandomUtils.*;
 import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.completed;
 import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.initiated;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomOrder;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomSku;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomString;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucher;
 import static com.jvmp.vouchershop.voucher.impl.DefaultVoucherService.DEFAULT_VOUCHER_CODE_GENERATOR;
 import static java.util.Arrays.asList;
-import static java.util.Collections.*;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultFulfillmentServiceTest {
@@ -50,13 +57,13 @@ public class DefaultFulfillmentServiceTest {
     @Mock
     private EmailService emailService;
 
-    private DefaultFulFillmentService service;
+    private DefaultFulfillmentService service;
 
     private Fulfillment fulfillment;
 
     @Before
     public void setUp() {
-        service = new DefaultFulFillmentService(fulfillmentRepository, voucherRepository, shopifyService, emailService);
+        service = new DefaultFulfillmentService(fulfillmentRepository, voucherRepository, shopifyService, emailService);
         fulfillment = new Fulfillment()
                 .withOrderId(nextLong(0, Long.MAX_VALUE));
     }
@@ -106,7 +113,7 @@ public class DefaultFulfillmentServiceTest {
     }
 
     @Test
-    public void completeFulFillment() {
+    public void completeFulfillment() {
         Set<Voucher> vouchers = asSet(
                 randomVoucher()
                         .withSku(randomSku())
@@ -128,7 +135,7 @@ public class DefaultFulfillmentServiceTest {
     }
 
     @Test
-    public void initiateFulFillment() {
+    public void initiateFulfillment() {
         Order order = randomOrder();
         order.setLineItems(asList(
                 new LineItem()
@@ -180,7 +187,6 @@ public class DefaultFulfillmentServiceTest {
                 )
         );
     }
-
 
     @Test
     public void findSupplyForDemand() {

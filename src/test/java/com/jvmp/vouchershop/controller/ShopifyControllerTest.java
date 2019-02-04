@@ -16,9 +16,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.jvmp.vouchershop.RandomUtils.randomOrder;
-import static com.jvmp.vouchershop.RandomUtils.randomString;
 import static com.jvmp.vouchershop.controller.ShopifyController.HTTP_HEADER_X_SHOPIFY_HMAC_SHA256;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomOrder;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,6 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("unit-test")
 public class ShopifyControllerTest {
 
+    private final static String baseUrl = "/api";
+
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Value(PropertyNames.SHOPIFY_WEBHOOK_SHARED_SECRET)
@@ -39,22 +41,22 @@ public class ShopifyControllerTest {
     private MockMvc mvc;
 
     @Test
-    public void fullFillmentHookSuccess() throws Exception {
+    public void fulfillmentHookSuccess() throws Exception {
         String order = objectMapper.writeValueAsString(randomOrder());
         String bodyHash = HmacUtil.encode(webhookSecret, order.getBytes());
 
-        mvc.perform(post("/shopify/webhook/fulfill")
+        mvc.perform(post(baseUrl + "/shopify/webhook/fulfill")
                 .content(order)
                 .header(HTTP_HEADER_X_SHOPIFY_HMAC_SHA256, bodyHash))
                 .andExpect(status().isAccepted());
     }
 
     @Test
-    public void fullFillmentHookWrongHeader() throws Exception {
+    public void fulfillmentHookWrongHeader() throws Exception {
         String order = objectMapper.writeValueAsString(randomOrder());
         String bodyHash = randomString(); //wrong
 
-        mvc.perform(post("/shopify/webhook/fulfill", order)
+        mvc.perform(post(baseUrl + "/shopify/webhook/fulfill", order)
                 .header(HTTP_HEADER_X_SHOPIFY_HMAC_SHA256, bodyHash)
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isBadRequest());

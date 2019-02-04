@@ -11,6 +11,8 @@ import lombok.experimental.Wither;
 import java.util.List;
 
 /**
+ * Source <a href="https://help.shopify.com/en/api/reference/shipping-and-fulfillment/fulfillment#create">https://help.shopify.com/en/api/reference/shipping-and-fulfillment/fulfillment#create</a>
+ *
  * Fulfill all line items for an order and send the shipping confirmation email. Not specifying line item IDs causes all unfulfilled and partially
  * fulfilled line items for the order to be fulfilled.
  * <pre>
