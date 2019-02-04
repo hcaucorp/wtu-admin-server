@@ -2,5 +2,7 @@ package com.jvmp.vouchershop.notifications;
 
 public interface NotificationService {
 
-    void push(String message, String topic);
+    void pushOrderNotification(String message);
+
+    void pushRedemptionNotification(String message);
 }

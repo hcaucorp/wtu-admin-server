@@ -11,7 +11,6 @@ import com.jvmp.vouchershop.shopify.domain.Customer;
 import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,6 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DefaultFulfillmentService implements FulfillmentService {
@@ -91,10 +89,11 @@ public class DefaultFulfillmentService implements FulfillmentService {
                     .map(pair -> pair.getKey() + "(" + pair.getValue() + ")").collect(joining(", "));
             vouchersList = isBlank(vouchersList) ? "0" : vouchersList;
 
-            log.error("Order contains {} products but we only have {} available vouchers to cover this: {}", totalCount, availableCount, supplyForDemand);
-            log.error("You asked for vouchers with sku: {} but found: {}", skuList, vouchersList);
+            String errorMessage =
+                    String.format("Order contains %s products but we only have %s available vouchers to cover this: %s \n", totalCount, availableCount, supplyForDemand) +
+                            String.format("You asked for vouchers with sku: %s but found: %s", skuList, vouchersList);
 
-            throw new InvalidOrderException("Order can't be fulfilled. See error log for more details.");
+            throw new InvalidOrderException(errorMessage);
         }
     }
 
@@ -132,10 +131,7 @@ public class DefaultFulfillmentService implements FulfillmentService {
         Optional.of(order)
                 .map(Order::getCustomer)
                 .map(Customer::getEmail)
-                .orElseThrow(() -> {
-                    log.error("Customer email not found. Can't fulfill the order. Aborting, full order data: {}", order);
-                    return new InvalidOrderException("Customer email not found");
-                });
+                .orElseThrow(() -> new InvalidOrderException("Customer email not found. Can't fulfill the order. Aborting, full order data: " + order));
 
         // TODO check if order contains id, non empty list of products
     }
@@ -145,9 +141,6 @@ public class DefaultFulfillmentService implements FulfillmentService {
         Optional.of(order)
                 .map(Order::getFinancialStatus)
                 .filter(status -> status == paid)
-                .orElseThrow(() -> {
-                    log.error("Financial status is {} but should be paid. Aborting, full order data: {}", order.getFinancialStatus(), order);
-                    return new InvalidOrderException("Financial status should be paid");
-                });
+                .orElseThrow(() -> new InvalidOrderException(String.format("Financial status is %s but should be paid. Aborting, full order data: %s", order.getFinancialStatus(), order)));
     }
 }

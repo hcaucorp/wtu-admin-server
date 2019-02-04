@@ -1,7 +1,6 @@
 package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.notifications.NotificationService;
-import com.jvmp.vouchershop.system.PropertyNames;
 import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.voucher.VoucherNotFound;
 import com.jvmp.vouchershop.voucher.VoucherService;
@@ -38,9 +37,6 @@ public class VoucherController {
     private final NotificationService notificationService;
     private final VoucherService voucherService;
 
-    @Value(PropertyNames.AWS_SNS_TOPIC_REDEMPTIONS)
-    private String redemptionsTopic;
-
     @GetMapping("/vouchers")
     public List<Voucher> getAllVouchers() {
         return voucherService.findAll();
@@ -66,7 +62,7 @@ public class VoucherController {
     public RedemptionResponse redeemVoucher(@RequestBody @Valid RedemptionRequest detail) throws VoucherNotFound, InterruptedException {
         try {
             RedemptionResponse response = voucherService.redeemVoucher(detail);
-            notificationService.push("Redeemed " + detail.getVoucherCode(), redemptionsTopic);
+            notificationService.pushRedemptionNotification("Redeemed " + detail.getVoucherCode());
             return response;
         } catch (VoucherNotFound e) {
             notificationService.push("Tried to redeem absent voucher: " + detail.getVoucherCode() +
@@ -77,7 +73,7 @@ public class VoucherController {
 
             throw e;
         } catch (Exception e) {
-            notificationService.push("Redemption attempted but failed with exception: " + e.getMessage(), redemptionsTopic);
+            notificationService.pushRedemptionNotification("Redemption attempted but failed with exception: " + e.getMessage());
             throw e;
         }
     }

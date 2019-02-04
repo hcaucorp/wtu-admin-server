@@ -34,7 +34,7 @@ public class ShopifyController {
     static final String HTTP_HEADER_X_SHOPIFY_HMAC_SHA256 = "X-Shopify-Hmac-SHA256";
     private final ObjectMapper objectMapper;
     private final FulfillmentService fulfillmentService;
-    private final NotificationService notificationService;
+    private final NotificationService notifications;
     private final ShopifyService shopifyService;
 
     @Value(PropertyNames.AWS_SNS_TOPIC_ORDERS)
@@ -60,12 +60,12 @@ public class ShopifyController {
                     .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.single())
                     .subscribe(
-                            fulfillment -> notificationService.push("Order " + fulfillment.getOrderId() + " fulfilled.", ordersTopic),
-                            throwable -> notificationService.push("Order fulfillment failed: " + throwable.getMessage(), ordersTopic));
+                            fulfillment -> notifications.pushOrderNotification("Order " + fulfillment.getOrderId() + " fulfilled."),
+                            throwable -> notifications.pushOrderNotification("Order fulfillment failed: " + throwable.getMessage()));
 
             return ResponseEntity.status(HttpStatus.ACCEPTED).build();
         } else {
-            notificationService.push("Fulfillment attempted but failed. Expected request hash is " + calculatedHash + " but received invalid message hash " + hashFromRequest, ordersTopic);
+            notifications.pushOrderNotification("Fulfillment attempted but failed. Expected request hash is " + calculatedHash + " but received invalid message hash " + hashFromRequest);
             return ResponseEntity.badRequest().build();
         }
     }
