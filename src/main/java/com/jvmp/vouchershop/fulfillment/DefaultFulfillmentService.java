@@ -24,9 +24,7 @@ import java.util.stream.Stream;
 import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.completed;
 import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.initiated;
 import static com.jvmp.vouchershop.shopify.domain.FinancialStatus.paid;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Service
@@ -43,14 +41,14 @@ public class DefaultFulfillmentService implements FulfillmentService {
         // order verification
         checkIfOrderIsValid(order);
         checkIfOrderHasBeenFullyPaid(order);
-        checkIfOrderIHasNotBeenFulFilledYet(order);
+        checkIfOrderIHasNotBeenFulfilledYet(order);
 
         val skuAndQuantity = findVouchersSkuAndQuantity(order);
         val supplyForDemand = findSupplyForDemand(skuAndQuantity);
 
         checkIfSupplyIsEnough(skuAndQuantity, supplyForDemand);
 
-        Fulfillment fulfillment = initiateFulFillment(order, supplyForDemand);
+        Fulfillment fulfillment = initiateFulfillment(order, supplyForDemand);
 
         emailService.sendVouchers(supplyForDemand, order.getCustomer().getEmail());
         shopifyService.markOrderFulfilled(fulfillment.getOrderId());
@@ -67,7 +65,7 @@ public class DefaultFulfillmentService implements FulfillmentService {
     }
 
     @VisibleForTesting
-    Fulfillment initiateFulFillment(@Nonnull Order order, @Nonnull Set<Voucher> supplyForDemand) {
+    Fulfillment initiateFulfillment(@Nonnull Order order, @Nonnull Set<Voucher> supplyForDemand) {
         Fulfillment fulfillment = new Fulfillment()
                 .withVouchers(supplyForDemand)
                 .withOrderId(order.getId())
@@ -116,7 +114,7 @@ public class DefaultFulfillmentService implements FulfillmentService {
     }
 
     @VisibleForTesting
-    void checkIfOrderIHasNotBeenFulFilledYet(@Nonnull Order order) {
+    void checkIfOrderIHasNotBeenFulfilledYet(@Nonnull Order order) {
         Optional.ofNullable(fulfillmentRepository.findByOrderId(order.getId()))
                 .ifPresent(fulfillment -> {
                     if (fulfillment.getStatus() == FulfillmentStatus.completed)
