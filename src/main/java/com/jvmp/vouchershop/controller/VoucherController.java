@@ -10,17 +10,9 @@ import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -65,8 +57,8 @@ public class VoucherController {
             notificationService.pushRedemptionNotification("Redeemed " + detail.getVoucherCode());
             return response;
         } catch (VoucherNotFound e) {
-            notificationService.push("Tried to redeem absent voucher: " + detail.getVoucherCode() +
-                    " to a wallet: " + detail.getDestinationAddress(), redemptionsTopic);
+            notificationService.pushRedemptionNotification("Tried to redeem absent voucher: " + detail.getVoucherCode() +
+                    " to a wallet: " + detail.getDestinationAddress());
 
             // against brute force?
             Thread.sleep(Duration.ofSeconds(RandomUtils.nextLong(10, 20)).toMillis());

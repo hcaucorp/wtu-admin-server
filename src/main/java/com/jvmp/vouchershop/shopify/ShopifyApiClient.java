@@ -1,5 +1,6 @@
 package com.jvmp.vouchershop.shopify;
 
+import com.jvmp.vouchershop.shopify.domain.Count;
 import com.jvmp.vouchershop.shopify.domain.FulfillmentResource;
 import com.jvmp.vouchershop.shopify.domain.OrderList;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -44,7 +45,7 @@ public interface ShopifyApiClient {
 //
     @RequestMapping(
             method = RequestMethod.GET,
-            value = "/admin/orders.json?status={order_status}&fulfillment_status={fulfillemnt_status}&financial_status={financial_status}",
+            value = "/admin/orders.json?status={order_status}&fulfillment_status={fulfillment_status}&financial_status={financial_status}",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     OrderList getOrders(
             @PathVariable("order_status") String orderStatus,
@@ -55,7 +56,7 @@ public interface ShopifyApiClient {
             method = RequestMethod.GET,
             value = "/admin/orders/count.json?status={order_status}&fulfillment_status={fulfillment_status}&financial_status={financial_status}",
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    int getOrdersCount(
+    Count getOrdersCount(
             @PathVariable("order_status") String orderStatus,
             @PathVariable("fulfillment_status") String fulfillmentStatus,
             @PathVariable("financial_status") String financialStatus);

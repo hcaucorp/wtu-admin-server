@@ -42,6 +42,7 @@ class DefaultShopifyService implements ShopifyService {
 
     @Override
     public int unfulfilledOrdersCount() {
-        return apiClient.getOrdersCount(open.toString(), unshipped.toString(), paid.toString());
+        return apiClient.getOrdersCount(open.toString(), unshipped.toString(), paid.toString())
+                .getCount();
     }
 }

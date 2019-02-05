@@ -20,21 +20,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.jvmp.vouchershop.utils.RandomUtils.randomRedemptionRequest;
-import static com.jvmp.vouchershop.utils.RandomUtils.randomString;
-import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucherGenerationSpec;
+import static com.jvmp.vouchershop.utils.RandomUtils.*;
 import static java.util.Collections.singletonList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
@@ -93,7 +85,7 @@ public class VoucherControllerTest {
                 .andExpect(jsonPath("$.trackingUrls[0]").value(response.getTrackingUrls().get(0)))
                 .andExpect(jsonPath("$.transactionId").value(response.getTransactionId()));
 
-        verify(notificationService, times(1)).push(any(), any());
+        verify(notificationService, times(1)).pushRedemptionNotification(any());
     }
 
     @Test
@@ -106,7 +98,7 @@ public class VoucherControllerTest {
                 .content(om.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
 
-        verify(notificationService, times(1)).push(any(), any());
+        verify(notificationService, times(1)).pushRedemptionNotification(any());
     }
 
     public void redeemVoucher_totalDisaster() throws Exception {
@@ -119,6 +111,6 @@ public class VoucherControllerTest {
                 .content(om.writeValueAsString(request)))
                 .andExpect(status().isIAmATeapot());
 
-        verify(notificationService, times(1)).push(any(), any());
+        verify(notificationService, times(1)).pushRedemptionNotification(any());
     }
 }
