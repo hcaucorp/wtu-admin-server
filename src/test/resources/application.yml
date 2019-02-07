@@ -1,6 +1,7 @@
 # Shopify API access
 shopify:
-  api-url: http://localhost:8081
+  # url and port for wiremock to bind to
+  api-url: http://localhost:8888
   api-key: bee9d4b0e98978fd3ec5e7625ef2838e
   api-password: 50387a70e75f66fc2330062edc38b7f2
   secret: 4aa1c538138e6dcb09f6d4d92ba4087c14415079c26fb6fb8a51bc6e6dca5ca3
