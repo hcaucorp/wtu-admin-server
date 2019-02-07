@@ -15,7 +15,17 @@
 
     <properties>
         <java.version>8</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>jvnet-nexus-staging</id>
+            <url>http://maven.java.net/content/repositories/staging/</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -131,6 +141,24 @@
             <scope>compile</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.23.1-GA</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>2.4.0-b180608.0325</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>6.2</version>
+        </dependency>
+
         <!-- tag::tests[] -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -159,9 +187,23 @@
         </dependency>
 
         <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <version>3.1.5</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>2.24.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.9.9</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock</artifactId>
+            <version>2.1.7</version>
             <scope>test</scope>
         </dependency>
         <!-- end::tests[] -->
@@ -173,10 +215,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>3.7.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <release>${java.version}</release>
                 </configuration>
             </plugin>
             <plugin>
