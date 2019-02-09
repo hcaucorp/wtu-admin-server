@@ -51,10 +51,14 @@ spring:
 
 management:
   endpoints:
+    web:
+      base-path: /api
     enabled-by-default: false
   endpoint:
     health:
       enabled: true
+
+
 
 server:
   port: 5000

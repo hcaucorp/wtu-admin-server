@@ -8,14 +8,7 @@ import lombok.experimental.Wither;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Min;
 import java.util.Set;
 
@@ -39,11 +32,8 @@ public class Fulfillment {
     @OneToMany
     private Set<Voucher> vouchers;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "order_id", nullable = false, updatable = false)
     private Long orderId;
-
-    @Column(nullable = false, updatable = false)
-    private FulfillmentStatus status;
 
     @Column(name = "completed_at", nullable = false, updatable = false)
     @CreatedDate

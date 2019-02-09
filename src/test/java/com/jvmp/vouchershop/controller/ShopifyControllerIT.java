@@ -18,12 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URI;
@@ -37,9 +32,7 @@ import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -81,7 +74,7 @@ public class ShopifyControllerIT {
     }
 
     @Test
-    public void fullFillmentHookSuccess() throws Exception {
+    public void fulfillmentHookSuccess() throws Exception {
         ResponseEntity<String> entity = template
                 .postForEntity(base.toString() + "/shopify/webhook/fulfill", getRequest(hmacHashingFunction), String.class);
 
@@ -89,7 +82,7 @@ public class ShopifyControllerIT {
     }
 
     @Test
-    public void fullFillmentHookInvalidHeader() throws Exception {
+    public void fulfillmentHookInvalidHeader() throws Exception {
         ResponseEntity<String> entity = template
                 .postForEntity(base.toString() + "/shopify/webhook/fulfill", getRequest(Function.identity()), String.class);
 

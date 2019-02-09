@@ -17,12 +17,11 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.completed;
-import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.initiated;
 import static com.jvmp.vouchershop.shopify.domain.FinancialStatus.paid;
 import static java.util.stream.Collectors.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -37,6 +36,11 @@ public class DefaultFulfillmentService implements FulfillmentService {
     private final EmailService emailService;
 
     @Override
+    public Set<Fulfillment> findAll() {
+        return new HashSet<>(fulfillmentRepository.findAll());
+    }
+
+    @Override
     public Fulfillment fulfillOrder(Order order) {
         // order verification
         checkIfOrderIsValid(order);
@@ -48,30 +52,26 @@ public class DefaultFulfillmentService implements FulfillmentService {
 
         checkIfSupplyIsEnough(skuAndQuantity, supplyForDemand);
 
-        Fulfillment fulfillment = initiateFulfillment(order, supplyForDemand);
+        Fulfillment fulfillment = new Fulfillment()
+                .withVouchers(supplyForDemand)
+                .withOrderId(order.getId());
 
         emailService.sendVouchers(supplyForDemand, order.getCustomer().getEmail());
-        shopifyService.markOrderFulfilled(fulfillment.getOrderId());
+        shopifyService.markOrderFulfilled(order.getId());
 
-        return completeFulFillment(fulfillment);
+        return completeFulfillment(fulfillment);
+    }
+
+    @Override
+    public Fulfillment findByOrderId(long orderId) {
+        return fulfillmentRepository.findByOrderId(orderId);
     }
 
     @VisibleForTesting
-    Fulfillment completeFulFillment(@Nonnull Fulfillment fulfillment) {
-        fulfillment.setStatus(completed);
+    Fulfillment completeFulfillment(@Nonnull Fulfillment fulfillment) {
         Fulfillment result = fulfillmentRepository.save(fulfillment);
         fulfillment.getVouchers().forEach(voucher -> voucherRepository.save(voucher.withSold(true)));
         return result;
-    }
-
-    @VisibleForTesting
-    Fulfillment initiateFulfillment(@Nonnull Order order, @Nonnull Set<Voucher> supplyForDemand) {
-        Fulfillment fulfillment = new Fulfillment()
-                .withVouchers(supplyForDemand)
-                .withOrderId(order.getId())
-                .withStatus(initiated);
-
-        return fulfillmentRepository.save(fulfillment);
     }
 
     @VisibleForTesting
@@ -117,7 +117,6 @@ public class DefaultFulfillmentService implements FulfillmentService {
     void checkIfOrderIHasNotBeenFulfilledYet(@Nonnull Order order) {
         Optional.ofNullable(fulfillmentRepository.findByOrderId(order.getId()))
                 .ifPresent(fulfillment -> {
-                    if (fulfillment.getStatus() == FulfillmentStatus.completed)
                         throw new IllegalOperationException(
                                 String.format("Order with id %d has already been fulfilled. Check fulfillment id %d here %s", order.getId(),
                                         fulfillment.getId(), "[[//TODO fulfillment link here]]"));

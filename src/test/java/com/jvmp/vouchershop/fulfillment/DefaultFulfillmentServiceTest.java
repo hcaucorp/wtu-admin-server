@@ -9,10 +9,8 @@ import com.jvmp.vouchershop.shopify.ShopifyService;
 import com.jvmp.vouchershop.shopify.domain.Customer;
 import com.jvmp.vouchershop.shopify.domain.FinancialStatus;
 import com.jvmp.vouchershop.shopify.domain.LineItem;
-import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,8 +22,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.jvmp.vouchershop.Collections.asSet;
-import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.completed;
-import static com.jvmp.vouchershop.fulfillment.FulfillmentStatus.initiated;
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
 import static com.jvmp.vouchershop.voucher.impl.DefaultVoucherService.DEFAULT_VOUCHER_CODE_GENERATOR;
 import static java.util.Arrays.asList;
@@ -75,8 +71,7 @@ public class DefaultFulfillmentServiceTest {
 
         Fulfillment fulfillment = new Fulfillment()
                 .withVouchers(singleton(voucher))
-                .withOrderId(orderId)
-                .withStatus(initiated);
+                .withOrderId(orderId);
 
         Fulfillment savedFulfillment = fulfillment.withId(nextLong(1, Long.MAX_VALUE));
 
@@ -95,8 +90,7 @@ public class DefaultFulfillmentServiceTest {
 
         verify(shopifyService, times(1)).markOrderFulfilled(eq(orderId));
         verify(emailService, times(1)).sendVouchers(eq(singleton(voucher)), eq(email));
-        verify(fulfillmentRepository, times(1)).save(eq(fulfillment.withStatus(FulfillmentStatus.initiated)));
-        verify(fulfillmentRepository, times(1)).save(eq(savedFulfillment.withStatus(FulfillmentStatus.completed)));
+        verify(fulfillmentRepository, times(1)).save(eq(fulfillment));
         verify(voucherRepository, times(1)).save(eq(
                 voucher
                         .withSold(true)
@@ -120,44 +114,11 @@ public class DefaultFulfillmentServiceTest {
 
         fulfillment.setVouchers(vouchers);
 
-        service.completeFulFillment(fulfillment);
+        service.completeFulfillment(fulfillment);
 
-        verify(fulfillmentRepository, times(1)).save(eq(fulfillment.withStatus(completed)));
+        verify(fulfillmentRepository, times(1)).save(eq(fulfillment));
         fulfillment.getVouchers().forEach(voucher ->
                 verify(voucherRepository, times(1)).save(eq(voucher.withSold(true))));
-    }
-
-    @Test
-    public void initiateFulfillment() {
-        Order order = randomOrder();
-        order.setLineItems(asList(
-                new LineItem()
-                        .withSku(randomSku())
-                        .withQuantity(RandomUtils.nextInt(1, 5)),
-                new LineItem()
-                        .withSku(randomSku())
-                        .withQuantity(RandomUtils.nextInt(1, 5))
-        ));
-        Set<Voucher> vouchers = new HashSet<>(asList(
-                randomVoucher()
-                        .withSku(order.getLineItems().get(0).getSku())
-                        .withAmount(100)
-                        .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get()),
-                randomVoucher()
-                        .withSku(order.getLineItems().get(1).getSku())
-                        .withAmount(100)
-                        .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get())
-        ));
-        fulfillment.setVouchers(vouchers);
-        fulfillment.setOrderId(order.getId());
-        fulfillment.setStatus(initiated);
-
-        when(fulfillmentRepository.save(eq(fulfillment))).thenReturn(fulfillment);
-
-        Fulfillment fulfillment = service.initiateFulfillment(order, vouchers);
-
-        assertEquals(initiated, fulfillment.getStatus());
-        verify(fulfillmentRepository, times(1)).save(eq(fulfillment));
     }
 
     @Test(expected = InvalidOrderException.class)
@@ -209,7 +170,7 @@ public class DefaultFulfillmentServiceTest {
     public void checkIfOrderIHasNotBeenFulFilledYet() {
         long orderId = nextLong(0, Long.MAX_VALUE);
 
-        when(fulfillmentRepository.findByOrderId(eq(orderId))).thenReturn(new Fulfillment().withStatus(FulfillmentStatus.completed));
+        when(fulfillmentRepository.findByOrderId(eq(orderId))).thenReturn(new Fulfillment());
 
         service.checkIfOrderIHasNotBeenFulfilledYet(randomOrder().withId(orderId));
     }
