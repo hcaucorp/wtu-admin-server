@@ -1,5 +1,6 @@
 package com.jvmp.vouchershop.utils;
 
+import com.jvmp.vouchershop.fulfillment.Fulfillment;
 import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
@@ -16,20 +17,29 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.jvmp.vouchershop.crypto.btc.WalletServiceBtc.walletWords;
 import static com.jvmp.vouchershop.voucher.impl.DefaultVoucherService.DEFAULT_VOUCHER_CODE_GENERATOR;
+import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
 
 @UtilityClass
 public class RandomUtils {
 
+    public static Fulfillment randomFulfillment() {
+        return new Fulfillment()
+                .withOrderId(nextLong())
+                .withCompletedAt(Instant.now().toEpochMilli())
+                .withVouchers(IntStream.range(0, nextInt(3, 20)).mapToObj(i -> randomVoucher()).collect(Collectors.toSet()));
+    }
 
     public static Wallet randomWallet(NetworkParameters params) {
         org.bitcoinj.wallet.Wallet wallet = new org.bitcoinj.wallet.Wallet(params);
 
         return new Wallet()
-                .withId(nextLong(0, Long.MAX_VALUE))
+                .withId(nextLong())
                 .withAddress(wallet.currentReceiveAddress().toBase58())
                 .withCreatedAt(Instant.now().toEpochMilli())
                 .withCurrency(RandomStringUtils.randomAlphabetic(3).toUpperCase())
@@ -51,10 +61,10 @@ public class RandomUtils {
 
     public static Order randomOrder() {
         return new Order()
-                .withId(nextLong(0, Long.MAX_VALUE))
-                .withId(org.apache.commons.lang3.RandomUtils.nextLong(1, Long.MAX_VALUE))
+                .withId(nextLong())
+                .withId(nextLong(1, Long.MAX_VALUE))
                 .withName(randomString())
-                .withTotalPrice(BigDecimal.valueOf(org.apache.commons.lang3.RandomUtils.nextLong(1, Long.MAX_VALUE)))
+                .withTotalPrice(BigDecimal.valueOf(nextLong(1, Long.MAX_VALUE)))
                 .withCreatedAt(new Date());
     }
 
