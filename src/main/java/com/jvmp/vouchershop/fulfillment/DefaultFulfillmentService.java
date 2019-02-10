@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.jvmp.vouchershop.email.EmailService;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.InvalidOrderException;
+import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.FulfillmentRepository;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.shopify.ShopifyService;
@@ -64,7 +65,11 @@ public class DefaultFulfillmentService implements FulfillmentService {
 
     @Override
     public Fulfillment findByOrderId(long orderId) {
-        return fulfillmentRepository.findByOrderId(orderId);
+        Fulfillment result = fulfillmentRepository.findByOrderId(orderId);
+        if (result == null) {
+            throw new ResourceNotFoundException("Fulfillment for order " + orderId + " not found.");
+        }
+        return result;
     }
 
     @VisibleForTesting

@@ -87,9 +87,22 @@ public class FulfillmentControllerIT {
     }
 
     @Test
-    public void getFulfillemntsRequiresAuthentication() {
+    public void getFulfillmentsRequiresAuthentication() {
         ResponseEntity<Fulfillment> responseEntity = template.getForEntity(base.toString() + "/1", Fulfillment.class);
 
         assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
+    }
+
+    @Test
+    public void getFulfillmentByUnknownOrderIdShouldReturnNotFound() {
+        String url = base.toString() + "/" + nextLong();
+
+        RequestEntity<Void> requestEntity = RequestEntity
+                .get(URI.create(url))
+                .header(HttpHeaders.AUTHORIZATION, authorizationValue)
+                .build();
+
+        ResponseEntity<Fulfillment> responseEntity = template.exchange(url, GET, requestEntity, Fulfillment.class);
+        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
     }
 }

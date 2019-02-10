@@ -3,6 +3,7 @@ package com.jvmp.vouchershop.fulfillment;
 import com.jvmp.vouchershop.email.EmailService;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.InvalidOrderException;
+import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.FulfillmentRepository;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.shopify.ShopifyService;
@@ -183,5 +184,12 @@ public class DefaultFulfillmentServiceTest {
     @Test(expected = InvalidOrderException.class)
     public void checkIfOrderHasBeenFullyPaid() {
         service.checkIfOrderHasBeenFullyPaid(randomOrder());
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void findFulfillmentByUnknownOrderId() {
+        when(fulfillmentRepository.findByOrderId(any())).thenReturn(null);
+
+        service.findByOrderId(1L);
     }
 }
