@@ -34,7 +34,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URI;
@@ -58,10 +57,11 @@ import static org.junit.Assert.assertTrue;
 @SpringBootTest(
         classes = {
                 Application.class,
-                Auth0Service.class
+                Auth0Service.class,
+                BitcoinJConfig.class,
+                DatabaseConfig.class
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(classes = {DatabaseConfig.class, BitcoinJConfig.class})
 @MockBeans({
         @MockBean(NotificationService.class)
 })
