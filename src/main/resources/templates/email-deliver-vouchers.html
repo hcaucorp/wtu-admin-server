@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+<h1>Payment Completed</h1>
+<p>A Payment has been confirmed to your account according to your preferences.
+    It has been applied to your account and settled to your address on file, in accordance to your settlement preferences. </p>
+
+<a th:href="${invoiceLink}">View Invoice</a>
+
+<p>Thanks for Using Invoicing Service!</p>
+<p>The Invoicing Team</p>
+<p>This is a notification about Invoice: <span th:text="${invoiceId}"></span></p>
+</body>
+</html>
