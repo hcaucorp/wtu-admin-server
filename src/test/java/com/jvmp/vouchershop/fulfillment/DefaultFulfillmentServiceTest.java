@@ -188,7 +188,7 @@ public class DefaultFulfillmentServiceTest {
 
     @Test(expected = ResourceNotFoundException.class)
     public void findFulfillmentByUnknownOrderId() {
-        when(fulfillmentRepository.findByOrderId(any())).thenReturn(null);
+        when(fulfillmentRepository.findByOrderId(anyLong())).thenReturn(null);
 
         service.findByOrderId(1L);
     }
