@@ -57,7 +57,7 @@ public class DefaultFulfillmentService implements FulfillmentService {
                 .withVouchers(supplyForDemand)
                 .withOrderId(order.getId());
 
-        emailService.sendVouchers(supplyForDemand, order.getCustomer().getEmail());
+        emailService.sendVouchers(supplyForDemand, order);
         shopifyService.markOrderFulfilled(order.getId());
 
         return completeFulfillment(fulfillment);

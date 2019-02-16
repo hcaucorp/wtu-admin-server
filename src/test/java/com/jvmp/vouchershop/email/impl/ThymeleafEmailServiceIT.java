@@ -1,0 +1,63 @@
+package com.jvmp.vouchershop.email.impl;
+
+import com.icegreen.greenmail.junit.GreenMailRule;
+import com.icegreen.greenmail.util.GreenMailUtil;
+import com.icegreen.greenmail.util.ServerSetupTest;
+import com.jvmp.vouchershop.Application;
+import com.jvmp.vouchershop.shopify.domain.Customer;
+import com.jvmp.vouchershop.shopify.domain.Order;
+import com.jvmp.vouchershop.voucher.Voucher;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.mail.Address;
+import javax.mail.Message;
+import javax.mail.internet.MimeMessage;
+import java.util.stream.Stream;
+
+import static com.jvmp.vouchershop.Collections.asSet;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomEmail;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucher;
+import static org.apache.commons.lang3.RandomUtils.nextLong;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(
+        classes = Application.class,
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class ThymeleafEmailServiceIT {
+
+    @Rule
+    public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP);
+    @Autowired
+    private ThymeleafEmailService thymeleafEmailService;
+
+    @Test
+    public void sendVouchers() throws Exception {
+        String email = randomEmail();
+        long orderId = nextLong();
+        Voucher[] vouchers = {randomVoucher(), randomVoucher()};
+        thymeleafEmailService.sendVouchers(asSet(vouchers), new Order()
+                .withId(orderId)
+                .withCustomer(new Customer().withEmail(email))
+        );
+        MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
+
+        assertEquals(1, receivedMessages.length);
+
+        MimeMessage message = receivedMessages[0];
+        String body = GreenMailUtil.getBody(message);
+
+        assertEquals("Your top up voucher code order #" + orderId + " from wallettopup.co.uk", message.getSubject());
+        Stream.of(vouchers).forEach(voucher ->
+                assertTrue("Body: " + body, body.contains(voucher.getCode())));
+        Address[] recipients = message.getRecipients(Message.RecipientType.TO);
+        assertEquals(1, recipients.length);
+        assertEquals(email, recipients[0].toString());
+    }
+}

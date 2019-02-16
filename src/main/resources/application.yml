@@ -58,8 +58,6 @@ management:
     health:
       enabled: true
 
-
-
 server:
   port: 5000
 

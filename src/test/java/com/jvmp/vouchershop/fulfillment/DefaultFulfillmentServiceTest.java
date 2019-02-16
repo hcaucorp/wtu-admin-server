@@ -10,6 +10,7 @@ import com.jvmp.vouchershop.shopify.ShopifyService;
 import com.jvmp.vouchershop.shopify.domain.Customer;
 import com.jvmp.vouchershop.shopify.domain.FinancialStatus;
 import com.jvmp.vouchershop.shopify.domain.LineItem;
+import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -67,6 +68,7 @@ public class DefaultFulfillmentServiceTest {
                 .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get())
                 .withSku(sku);
         String email = "test@email." + RandomStringUtils.randomAlphabetic(3);
+        Order order = new Order().withCustomer(new Customer().withEmail(email));
 
         when(voucherRepository.findBySoldFalseAndSku(eq(sku))).thenReturn(singletonList(voucher));
 
@@ -90,7 +92,7 @@ public class DefaultFulfillmentServiceTest {
         );
 
         verify(shopifyService, times(1)).markOrderFulfilled(eq(orderId));
-        verify(emailService, times(1)).sendVouchers(eq(singleton(voucher)), eq(email));
+        verify(emailService, times(1)).sendVouchers(eq(singleton(voucher)), eq(order));
         verify(fulfillmentRepository, times(1)).save(eq(fulfillment));
         verify(voucherRepository, times(1)).save(eq(
                 voucher

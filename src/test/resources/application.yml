@@ -29,18 +29,10 @@ es.coffeebyt.notification:
   secret-key-id: "bar"
 
 spring:
-  # Gmail
+  # Greenmail
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: hubert.czerpak@gmail.com
-    password: iqsootamnlofucas
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+    host: localhost
+    port: 3025
   datasource:
     url: jdbc:h2:mem:myDb;DB_CLOSE_DELAY=-1
   jpa:

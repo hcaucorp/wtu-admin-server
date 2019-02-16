@@ -1,27 +1,27 @@
 package com.jvmp.vouchershop.email.impl;
 
 import com.jvmp.vouchershop.email.EmailService;
+import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
 import static java.util.stream.Collectors.joining;
 
 @RequiredArgsConstructor
-@Component
-public class DefaultEmailService implements EmailService {
+//@Component
+public class SimpleEmailService implements EmailService {
 
     private final JavaMailSender emailSender;
 
     @Override
-    public void sendVouchers(Set<Voucher> vouchers, String email) {
+    public void sendVouchers(Set<Voucher> vouchers, Order order) {
         sendSimpleMessage(
-                email,
-                "Here is your order",
+                order.getCustomer().getEmail(),
+                "Order #" + order.getId(),
                 vouchers.stream()
                         .map(Voucher::getCode)
                         .collect(joining("\n")));

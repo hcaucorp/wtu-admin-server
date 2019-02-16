@@ -1,5 +1,7 @@
 package com.jvmp.vouchershop.email.impl;
 
+import com.jvmp.vouchershop.shopify.domain.Customer;
+import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;
 import org.junit.Assert;
 import org.junit.Before;
@@ -23,9 +25,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DefaultEmailServiceTest {
+public class SimpleEmailServiceTest {
 
-    private DefaultEmailService defaultEmailService;
+    private SimpleEmailService simpleEmailService;
 
     @Mock
     private JavaMailSender javaMailSender;
@@ -33,7 +35,7 @@ public class DefaultEmailServiceTest {
 
     @Before
     public void setUp() {
-        defaultEmailService = new DefaultEmailService(javaMailSender);
+        simpleEmailService = new SimpleEmailService(javaMailSender);
     }
 
     @Test
@@ -44,7 +46,9 @@ public class DefaultEmailServiceTest {
         );
         String email = randomEmail();
 
-        defaultEmailService.sendVouchers(vouchers, email);
+        simpleEmailService.sendVouchers(vouchers, new Order()
+                .withCustomer(new Customer()
+                        .withEmail(email)));
 
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         verify(javaMailSender, times(1)).send(messageCaptor.capture());

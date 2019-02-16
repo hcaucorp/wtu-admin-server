@@ -1,15 +1,46 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head></head>
 <body>
-<h1>Payment Completed</h1>
-<p>A Payment has been confirmed to your account according to your preferences.
-    It has been applied to your account and settled to your address on file, in accordance to your settlement preferences. </p>
 
-<a th:href="${invoiceLink}">View Invoice</a>
+<table border="0" cellpadding="40">
+    <tr>
+        <td>
 
-<p>Thanks for Using Invoicing Service!</p>
-<p>The Invoicing Team</p>
-<p>This is a notification about Invoice: <span th:text="${invoiceId}"></span></p>
+            <p>Dear ${firstName},</p>
+            <h3>Your top ups</h3>
+            <p>Please find your ordered top up below:</p>
+
+            <font face="verdana" size="4">
+                ${vouchers}<br>
+                <!-- something like this should result in ${vouchers} placeholder
+                <ul>
+                    <li>7411cbb5-3120-4905-a9ce-73bae2b93724</li>
+                    <li>7411cbb5-3120-4905-a9ce-73bae2b93724</li>
+                    <li>7411cbb5-3120-4905-a9ce-73bae2b93724</li>
+                </ul>
+                -->
+            </font>
+
+            <h3>How to use your code</h3>
+            <p>To use your code go to <a href="https://redemption.wallettopup.co.uk">redemption form here</a>.
+
+            <h3>When you have questions</h3>
+            <p>If you have any questions here are your options:
+            <ol>
+                <li>Check our <a href="https://wallettopup.co.uk/pages/questions-and-answers">Q&A page here</a>.
+                    There is a chance we have an answer for your question. We update that page regularly with new info.
+                </li>
+                <li>Reply to this e-mail.</li>
+                <li>Contact us via <a href="https://www.facebook.com/Wallet-Top-Up-513524082505068">Facebook
+                    Messenger.</a></li>
+            </ol>
+            <p>Thank you for using our services.</p>
+            <p>Yours sincerely,<br>
+                Wallet Top Up Team</p>
+
+        </td>
+    </tr>
+</table>
 </body>
 </html>
