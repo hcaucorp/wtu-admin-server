@@ -23,7 +23,6 @@ import static org.apache.commons.lang3.RandomUtils.nextLong;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -40,7 +39,7 @@ public class ThymeleafEmailServiceTest {
     @Before
     public void setUp() {
         thymeleafEmailService = new ThymeleafEmailService(templateEngine, javaMailSender);
-        when(templateEngine.process(anyString(), any(IContext.class))).thenReturn(randomString());
+        when(templateEngine.process(any(String.class), any(IContext.class))).thenReturn(randomString());
     }
 
     @Test

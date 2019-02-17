@@ -7,19 +7,14 @@
     <tr>
         <td>
 
-            <p>Dear ${firstName},</p>
+            <p>Dear [[${firstName}]],</p>
             <h3>Your top ups</h3>
             <p>Please find your ordered top up below:</p>
 
             <font face="verdana" size="4">
-                ${vouchers}<br>
-                <!-- something like this should result in ${vouchers} placeholder
                 <ul>
-                    <li>7411cbb5-3120-4905-a9ce-73bae2b93724</li>
-                    <li>7411cbb5-3120-4905-a9ce-73bae2b93724</li>
-                    <li>7411cbb5-3120-4905-a9ce-73bae2b93724</li>
+                    <li th:each="v : ${vouchers}">[[${v.code}]]</li>
                 </ul>
-                -->
             </font>
 
             <h3>How to use your code</h3>

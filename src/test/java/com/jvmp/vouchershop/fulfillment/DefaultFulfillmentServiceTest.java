@@ -50,13 +50,9 @@ public class DefaultFulfillmentServiceTest {
 
     private DefaultFulfillmentService service;
 
-    private Fulfillment fulfillment;
-
     @Before
     public void setUp() {
         service = new DefaultFulfillmentService(fulfillmentRepository, voucherRepository, shopifyService, emailService);
-        fulfillment = new Fulfillment()
-                .withOrderId(nextLong(0, Long.MAX_VALUE));
     }
 
     @Test
@@ -68,7 +64,15 @@ public class DefaultFulfillmentServiceTest {
                 .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get())
                 .withSku(sku);
         String email = "test@email." + RandomStringUtils.randomAlphabetic(3);
-        Order order = new Order().withCustomer(new Customer().withEmail(email));
+        Order order = randomOrder()
+                .withId(orderId)
+                .withFinancialStatus(FinancialStatus.paid)
+                .withCustomer(new Customer().withEmail(email))
+                .withLineItems(singletonList(
+                        new LineItem()
+                                .withSku(sku)
+                                .withQuantity(1)
+                ));
 
         when(voucherRepository.findBySoldFalseAndSku(eq(sku))).thenReturn(singletonList(voucher));
 
@@ -80,16 +84,7 @@ public class DefaultFulfillmentServiceTest {
 
         when(fulfillmentRepository.save(eq(fulfillment))).thenReturn(savedFulfillment);
 
-        service.fulfillOrder(randomOrder()
-                .withId(orderId)
-                .withFinancialStatus(FinancialStatus.paid)
-                .withCustomer(new Customer().withEmail(email))
-                .withLineItems(singletonList(
-                        new LineItem()
-                                .withSku(sku)
-                                .withQuantity(1)
-                ))
-        );
+        service.fulfillOrder(order);
 
         verify(shopifyService, times(1)).markOrderFulfilled(eq(orderId));
         verify(emailService, times(1)).sendVouchers(eq(singleton(voucher)), eq(order));
@@ -115,7 +110,9 @@ public class DefaultFulfillmentServiceTest {
                         .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get())
         );
 
-        fulfillment.setVouchers(vouchers);
+        Fulfillment fulfillment = new Fulfillment()
+                .withOrderId(nextLong(0, Long.MAX_VALUE))
+                .withVouchers(vouchers);
 
         service.completeFulfillment(fulfillment);
 

@@ -17,7 +17,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.internet.MimeMessage;
-import java.util.stream.Stream;
+import java.util.Set;
 
 import static com.jvmp.vouchershop.Collections.asSet;
 import static com.jvmp.vouchershop.utils.RandomUtils.randomEmail;
@@ -34,18 +34,21 @@ public class ThymeleafEmailServiceIT {
 
     @Rule
     public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP);
+
     @Autowired
     private ThymeleafEmailService thymeleafEmailService;
 
     @Test
     public void sendVouchers() throws Exception {
+        String name = "Tadzio";
         String email = randomEmail();
         long orderId = nextLong();
-        Voucher[] vouchers = {randomVoucher(), randomVoucher()};
-        thymeleafEmailService.sendVouchers(asSet(vouchers), new Order()
+        Set<Voucher> vouchers = asSet(randomVoucher(), randomVoucher());
+        thymeleafEmailService.sendVouchers(vouchers, new Order()
                 .withId(orderId)
-                .withCustomer(new Customer().withEmail(email))
-        );
+                .withCustomer(new Customer()
+                        .withFirstName(name)
+                        .withEmail(email)));
         MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
 
         assertEquals(1, receivedMessages.length);
@@ -54,8 +57,8 @@ public class ThymeleafEmailServiceIT {
         String body = GreenMailUtil.getBody(message);
 
         assertEquals("Your top up voucher code order #" + orderId + " from wallettopup.co.uk", message.getSubject());
-        Stream.of(vouchers).forEach(voucher ->
-                assertTrue("Body: " + body, body.contains(voucher.getCode())));
+        vouchers.forEach(voucher -> assertTrue("Body: " + body, body.contains(voucher.getCode())));
+        assertTrue(body.contains("Dear " + name));
         Address[] recipients = message.getRecipients(Message.RecipientType.TO);
         assertEquals(1, recipients.length);
         assertEquals(email, recipients[0].toString());
