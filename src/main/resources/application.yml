@@ -28,14 +28,30 @@ es.coffeebyt.notification:
 # Spring Reference https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 spring:
   # Gmail
+  #  mail:
+  #    host: smtp.gmail.com
+  #    port: 587
+  #    username: hubert.czerpak@gmail.com
+  #    password: iqsootamnlofucas
+  #    properties.mail.smtp:
+  #      auth: true
+  #      starttls.enable: true
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: hubert.czerpak@gmail.com
-    password: iqsootamnlofucas
-    properties.mail.smtp:
-      auth: true
-      starttls.enable: true
+    # Amazon SES Service
+    host: email-smtp.us-west-2.amazonaws.com
+    # IAM user: ses-smtp-user.20190218-204939
+    username: AKIAILCPXPMR2CP6YGFQ
+    password: BAbEcjdtogL/YUaIWlIKwEGq1NVz3NCyMsB+dtCuY2aV
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          port: 25
+          auth: true
+          starttls:
+            enable: true
+            required: true
   # PostgreSQL
   datasource:
     url: jdbc:postgresql://aa9bbsh8k7xriq.cmt4otxvbkhv.eu-west-2.rds.amazonaws.com:5432/postgres
@@ -59,18 +75,6 @@ management:
 
 server:
   port: 5000
-
-# Amazon SES Service
-#spring.mail.host=email-smtp.us-west-2.amazonaws.com
-#spring.mail.username=username
-#spring.mail.password=password
-#spring.mail.properties.mail.transport.protocol=smtp
-#spring.mail.properties.mail.smtp.port=25
-#spring.mail.properties.mail.smtp.auth=true
-#spring.mail.properties.mail.smtp.starttls.enable=true
-#spring.mail.properties.mail.smtp.starttls.required=true
-# Please, be aware that Amazon requires you to verify your credentials before using them. Follow the link
-# http://docs.aws.amazon.com/ses/latest/DeveloperGuide/verify-email-addresses.html to verify your username and password.
 
 logging:
   level:

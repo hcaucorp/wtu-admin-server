@@ -57,7 +57,7 @@ public class DefaultFulfillmentServiceTest {
 
     @Test
     public void fulfillOrder() {
-        long orderId = nextLong(0, Long.MAX_VALUE);
+        long orderNumber = nextLong(0, Long.MAX_VALUE);
         String sku = randomSku();
         Voucher voucher = randomVoucher()
                 .withAmount(100)
@@ -65,7 +65,7 @@ public class DefaultFulfillmentServiceTest {
                 .withSku(sku);
         String email = "test@email." + RandomStringUtils.randomAlphabetic(3);
         Order order = randomOrder()
-                .withId(orderId)
+                .withOrderNumber(orderNumber)
                 .withFinancialStatus(FinancialStatus.paid)
                 .withCustomer(new Customer().withEmail(email))
                 .withLineItems(singletonList(
@@ -78,7 +78,7 @@ public class DefaultFulfillmentServiceTest {
 
         Fulfillment fulfillment = new Fulfillment()
                 .withVouchers(singleton(voucher))
-                .withOrderId(orderId);
+                .withOrderId(orderNumber);
 
         Fulfillment savedFulfillment = fulfillment.withId(nextLong(1, Long.MAX_VALUE));
 
@@ -86,7 +86,7 @@ public class DefaultFulfillmentServiceTest {
 
         service.fulfillOrder(order);
 
-        verify(shopifyService, times(1)).markOrderFulfilled(eq(orderId));
+        verify(shopifyService, times(1)).markOrderFulfilled(eq(orderNumber));
         verify(emailService, times(1)).sendVouchers(eq(singleton(voucher)), eq(order));
         verify(fulfillmentRepository, times(1)).save(eq(fulfillment));
         verify(voucherRepository, times(1)).save(eq(
@@ -168,11 +168,11 @@ public class DefaultFulfillmentServiceTest {
 
     @Test(expected = IllegalOperationException.class)
     public void checkIfOrderIHasNotBeenFulFilledYet() {
-        long orderId = nextLong(0, Long.MAX_VALUE);
+        long orderNumber = nextLong(0, Long.MAX_VALUE);
 
-        when(fulfillmentRepository.findByOrderId(eq(orderId))).thenReturn(new Fulfillment());
+        when(fulfillmentRepository.findByOrderId(eq(orderNumber))).thenReturn(new Fulfillment());
 
-        service.checkIfOrderIHasNotBeenFulfilledYet(randomOrder().withId(orderId));
+        service.checkIfOrderIHasNotBeenFulfilledYet(randomOrder().withOrderNumber(orderNumber));
     }
 
     @Test(expected = InvalidOrderException.class)

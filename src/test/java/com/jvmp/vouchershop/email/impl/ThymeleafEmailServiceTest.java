@@ -1,5 +1,6 @@
 package com.jvmp.vouchershop.email.impl;
 
+import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.shopify.domain.Customer;
 import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;
@@ -9,16 +10,19 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.IContext;
 
+import javax.mail.Address;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
 import java.util.Set;
 
 import static com.jvmp.vouchershop.Collections.asSet;
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
-import static java.util.Collections.singleton;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -34,35 +38,57 @@ public class ThymeleafEmailServiceTest {
     @Mock
     private JavaMailSender javaMailSender;
 
+    @Mock
+    private NotificationService notificationService;
+
     private ThymeleafEmailService thymeleafEmailService;
 
     @Before
     public void setUp() {
-        thymeleafEmailService = new ThymeleafEmailService(templateEngine, javaMailSender);
+        thymeleafEmailService = new ThymeleafEmailService(templateEngine, javaMailSender, notificationService);
         when(templateEngine.process(any(String.class), any(IContext.class))).thenReturn(randomString());
+        when(javaMailSender.createMimeMessage()).thenReturn(new M3());
     }
 
     @Test
-    public void sendVouchers() {
+    public void sendVouchers() throws MessagingException {
 
         Set<Voucher> vouchers = asSet(
                 randomVoucher(),
                 randomVoucher()
         );
         String email = randomEmail();
-        long orderId = nextLong();
+        long orderNumber = nextLong();
 
         thymeleafEmailService.sendVouchers(vouchers, new Order()
-                .withId(orderId)
+                .withOrderNumber(orderNumber)
                 .withCustomer(new Customer()
                         .withEmail(email)));
 
-        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        ArgumentCaptor<MimeMessage> messageCaptor = ArgumentCaptor.forClass(MimeMessage.class);
         verify(javaMailSender, times(1)).send(messageCaptor.capture());
 
-        SimpleMailMessage message = messageCaptor.getValue();
+        MimeMessage message = messageCaptor.getValue();
 
         assertNotNull(message);
-        assertEquals(singleton(email), asSet(message.getTo()));
+        assertEquals(email, message.getRecipients(Message.RecipientType.TO)[0].toString());
+    }
+
+    static class M3 extends MimeMessage {
+        private Address[] recipients = null;
+
+        M3() {
+            super((Session) null);
+        }
+
+        @Override
+        public Address[] getRecipients(Message.RecipientType type) {
+            return recipients;
+        }
+
+        public void setRecipient(Message.RecipientType type, Address address) {
+            this.recipients = new Address[]{address};
+        }
+
     }
 }

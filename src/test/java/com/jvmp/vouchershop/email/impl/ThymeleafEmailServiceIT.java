@@ -42,10 +42,10 @@ public class ThymeleafEmailServiceIT {
     public void sendVouchers() throws Exception {
         String name = "Tadzio";
         String email = randomEmail();
-        long orderId = nextLong();
+        long orderNumber = nextLong();
         Set<Voucher> vouchers = asSet(randomVoucher(), randomVoucher());
         thymeleafEmailService.sendVouchers(vouchers, new Order()
-                .withId(orderId)
+                .withOrderNumber(orderNumber)
                 .withCustomer(new Customer()
                         .withFirstName(name)
                         .withEmail(email)));
@@ -56,7 +56,7 @@ public class ThymeleafEmailServiceIT {
         MimeMessage message = receivedMessages[0];
         String body = GreenMailUtil.getBody(message);
 
-        assertEquals("Your top up voucher code order #" + orderId + " from wallettopup.co.uk", message.getSubject());
+        assertEquals("Your top up voucher code order #" + orderNumber + " from wallettopup.co.uk", message.getSubject());
         vouchers.forEach(voucher -> assertTrue("Body: " + body, body.contains(voucher.getCode())));
         assertTrue(body.contains("Dear " + name));
         Address[] recipients = message.getRecipients(Message.RecipientType.TO);

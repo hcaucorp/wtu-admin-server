@@ -24,7 +24,7 @@ class DefaultShopifyService implements ShopifyService {
     private FulfillmentResource createFulfillmentResource(long orderId) {
         return new FulfillmentResource(new FulfillmentItem(
                 locationId,
-                "Your order number is " + orderId + ", ad will be delivered via email", // use orderId as tracking number
+                "" + orderId, // use orderId as tracking number
                 emptyList(), // TODO create our custom endpoint for email delivery confirmation and re-delivery button
                 true
         ));

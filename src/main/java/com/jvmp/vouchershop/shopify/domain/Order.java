@@ -27,7 +27,7 @@ public class Order
 {
     private FulfillmentStatus fulfillmentStatus;
 
-    private long id;
+    private long orderNumber;
 
     private String name;
 

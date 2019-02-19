@@ -55,12 +55,16 @@ public class DefaultFulfillmentService implements FulfillmentService {
 
         Fulfillment fulfillment = new Fulfillment()
                 .withVouchers(supplyForDemand)
-                .withOrderId(order.getId());
+                .withOrderId(order.getOrderNumber());
 
-        emailService.sendVouchers(supplyForDemand, order);
-        shopifyService.markOrderFulfilled(order.getId());
+        try {
+            emailService.sendVouchers(supplyForDemand, order);
+            shopifyService.markOrderFulfilled(order.getOrderNumber());
+        } finally {
+            fulfillment = completeFulfillment(fulfillment);
+        }
 
-        return completeFulfillment(fulfillment);
+        return fulfillment;
     }
 
     @Override
@@ -120,10 +124,10 @@ public class DefaultFulfillmentService implements FulfillmentService {
 
     @VisibleForTesting
     void checkIfOrderIHasNotBeenFulfilledYet(@Nonnull Order order) {
-        Optional.ofNullable(fulfillmentRepository.findByOrderId(order.getId()))
+        Optional.ofNullable(fulfillmentRepository.findByOrderId(order.getOrderNumber()))
                 .ifPresent(fulfillment -> {
                         throw new IllegalOperationException(
-                                String.format("Order with id %d has already been fulfilled. Check fulfillment id %d here %s", order.getId(),
+                                String.format("Order with id %d has already been fulfilled. Check fulfillment id %d here %s", order.getOrderNumber(),
                                         fulfillment.getId(), "[[//TODO fulfillment link here]]"));
                 });
     }

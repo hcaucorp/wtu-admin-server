@@ -61,8 +61,7 @@ public class RandomUtils {
 
     public static Order randomOrder() {
         return new Order()
-                .withId(nextLong())
-                .withId(nextLong(1, Long.MAX_VALUE))
+                .withOrderNumber(nextLong(1, Long.MAX_VALUE))
                 .withName(randomString())
                 .withTotalPrice(BigDecimal.valueOf(nextLong(1, Long.MAX_VALUE)))
                 .withCreatedAt(new Date());
