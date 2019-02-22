@@ -4,9 +4,11 @@ import com.jvmp.vouchershop.email.EmailService;
 import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.shopify.domain.Customer;
 import com.jvmp.vouchershop.shopify.domain.Order;
+import com.jvmp.vouchershop.system.PropertyNames;
 import com.jvmp.vouchershop.voucher.Voucher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.ITemplateEngine;
@@ -26,9 +28,13 @@ public class ThymeleafEmailService implements EmailService {
 
     private final ITemplateEngine templateEngine;
     private final JavaMailSender emailSender;
-    private static final String FROM = "auto-delivery@wallettopup.co.uk";
-    private static final String FROMNAME = "Sender Name";
     private final NotificationService notificationService;
+
+    @Value(PropertyNames.AWS_SES_FROM_EMAIL)
+    private String fromEmail;
+
+    @Value(PropertyNames.AWS_SES_FROM_NAME)
+    private String fromName;
 
     @Override
     public void sendVouchers(Set<Voucher> vouchers, Order order) {
@@ -42,7 +48,7 @@ public class ThymeleafEmailService implements EmailService {
         MimeMessage message = emailSender.createMimeMessage();
 
         try {
-            message.setFrom(new InternetAddress(FROM, FROMNAME));
+            message.setFrom(new InternetAddress(fromEmail, fromName));
             message.setRecipient(Message.RecipientType.TO, new InternetAddress(customer.getEmail()));
             message.setSubject("Your top up voucher code order #" + order.getOrderNumber()
                     + " from wallettopup.co.uk");

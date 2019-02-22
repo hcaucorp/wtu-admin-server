@@ -18,4 +18,6 @@ public class PropertyNames {
     public static final String AWS_SNS_TOPIC_REDEMPTIONS = "${es.coffeebyt.notification.redemptions-topic-arn}";
     public static final String AWS_SNS_ACCESS_KEY_ID = "${es.coffeebyt.notification.access-key-id}";
     public static final String AWS_SNS_SECRET_KEY_ID = "${es.coffeebyt.notification.secret-key-id}";
+    public static final String AWS_SES_FROM_EMAIL = "${es.coffeebyt.mail.from-email}";
+    public static final String AWS_SES_FROM_NAME = "${es.coffeebyt.mail.from-name}";
 }

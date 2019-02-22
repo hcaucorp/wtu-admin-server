@@ -26,18 +26,6 @@ spring:
 
 server.port: 8080
 
-# Amazon SES Service
-#spring.mail.host=email-smtp.us-west-2.amazonaws.com
-#spring.mail.username=username
-#spring.mail.password=password
-#spring.mail.properties.mail.transport.protocol=smtp
-#spring.mail.properties.mail.smtp.port=25
-#spring.mail.properties.mail.smtp.auth=true
-#spring.mail.properties.mail.smtp.starttls.enable=true
-#spring.mail.properties.mail.smtp.starttls.required=true
-# Please, be aware that Amazon requires you to verify your credentials before using them. Follow the link
-# http://docs.aws.amazon.com/ses/latest/DeveloperGuide/verify-email-addresses.html to verify your username and password.
-
 logging:
   level:
     root: INFO
