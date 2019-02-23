@@ -32,8 +32,9 @@ public class Fulfillment {
     @OneToMany
     private Set<Voucher> vouchers;
 
+    // this should be called orderNumber
     @Column(name = "order_id", nullable = false, updatable = false)
-    private Long orderId;
+    private Long orderId; // TODO refactor to orderNumber
 
     @Column(name = "completed_at", nullable = false, updatable = false)
     @CreatedDate

@@ -59,7 +59,7 @@ public class DefaultFulfillmentService implements FulfillmentService {
 
         try {
             emailService.sendVouchers(supplyForDemand, order);
-            shopifyService.markOrderFulfilled(order.getOrderNumber());
+            shopifyService.markOrderFulfilled(order.getId());
         } finally {
             fulfillment = completeFulfillment(fulfillment);
         }
@@ -124,10 +124,10 @@ public class DefaultFulfillmentService implements FulfillmentService {
 
     @VisibleForTesting
     void checkIfOrderIHasNotBeenFulfilledYet(@Nonnull Order order) {
-        Optional.ofNullable(fulfillmentRepository.findByOrderId(order.getOrderNumber()))
+        Optional.ofNullable(fulfillmentRepository.findByOrderId(order.getId()))
                 .ifPresent(fulfillment -> {
                         throw new IllegalOperationException(
-                                String.format("Order with id %d has already been fulfilled. Check fulfillment id %d here %s", order.getOrderNumber(),
+                                String.format("Order with id %d has already been fulfilled. Check fulfillment id %d here %s", order.getId(),
                                         fulfillment.getId(), "[[//TODO fulfillment link here]]"));
                 });
     }

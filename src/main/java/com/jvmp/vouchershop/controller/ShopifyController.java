@@ -73,7 +73,7 @@ public class ShopifyController {
     @PostMapping("/shopify/orders/fulfill")
     public void fulfillUnfulfilledOrders() {
         OrderList unfulfilledOrders = shopifyService.findUnfulfilledOrders();
-        unfulfilledOrders.getOrders().forEach(order -> shopifyService.markOrderFulfilled(order.getOrderNumber()));
+        unfulfilledOrders.getOrders().forEach(order -> shopifyService.markOrderFulfilled(order.getId()));
     }
 
 }

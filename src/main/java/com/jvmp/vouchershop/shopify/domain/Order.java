@@ -25,6 +25,8 @@ import java.util.List;
 @NoArgsConstructor
 public class Order
 {
+    private long id;
+
     private FulfillmentStatus fulfillmentStatus;
 
     private long orderNumber;

@@ -130,6 +130,7 @@ public class ShopifyControllerIT {
     @Test
     public void fulfillOrders_requiresAuthorization() {
         Order order = new Order();
+        order.setId(nextLong());
         order.setOrderNumber(nextLong());
         OrderList orderList = new OrderList();
         orderList.setOrders(singletonList(order));
@@ -143,7 +144,7 @@ public class ShopifyControllerIT {
     @Test
     public void fulfillOrders_successPath() {
         Order order = new Order();
-        order.setOrderNumber(nextLong());
+        order.setId(nextLong());
         OrderList orderList = new OrderList();
         orderList.setOrders(singletonList(order));
         when(shopifyService.findUnfulfilledOrders()).thenReturn(orderList);
@@ -158,6 +159,6 @@ public class ShopifyControllerIT {
         HttpStatus statusCode = template.postForEntity(url, request, String.class).getStatusCode();
 
         assertEquals(HttpStatus.OK, statusCode);
-        verify(shopifyService, times(1)).markOrderFulfilled(order.getOrderNumber());
+        verify(shopifyService, times(1)).markOrderFulfilled(order.getId());
     }
 }
