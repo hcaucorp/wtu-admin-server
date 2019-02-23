@@ -19,6 +19,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.*;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URI;
@@ -42,6 +43,7 @@ import static org.mockito.Mockito.*;
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @MockBean(NotificationService.class)
+@ActiveProfiles("it")
 public class ShopifyControllerIT {
 
     @LocalServerPort

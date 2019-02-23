@@ -4,6 +4,7 @@ import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.email.EmailService;
 import com.jvmp.vouchershop.shopify.domain.Customer;
 import com.jvmp.vouchershop.shopify.domain.Order;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +20,14 @@ import static org.apache.commons.lang3.RandomUtils.nextLong;
 @SpringBootTest(
         classes = Application.class,
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("it")
+@ActiveProfiles(value = {"it", "aws-it"})
 public class AwsSesIT {
 
     @Autowired
     private EmailService emailService;
 
     @Test
+    @Ignore(value = "This is a special kind of test meant to be run manually only to check AWS SES configuration")
     public void sendVouchers() {
         String name = "Tadzio";
         String email = "hubertinio@me.com";

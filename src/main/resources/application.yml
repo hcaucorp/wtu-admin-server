@@ -34,7 +34,8 @@ es:
 spring:
   mail:
     # Amazon SES Service
-    host: email-smtp.us-west-2.amazonaws.com
+    host: email-smtp.eu-west-1.amazonaws.com
+    port: 25
     # SMTP credentials for IAM user: ses-smtp-user.20190218-204939
     username: AKIAIFVDVEAXQGTMW2XA
     password: BFZ3rSNsXmBAk3ZEVQye0u4Qoo3NyVrMbCV+zc9nEwR8
@@ -59,6 +60,8 @@ spring:
       jdbc.lob.non_contextual_creation: true
       ddl-auto: update
     properties.hibernate.temp.use_jdbc_metadata_defaults: false
+  main:
+    banner-mode: "off"
 
 management:
   endpoints:
@@ -75,8 +78,7 @@ server:
 logging:
   level:
     root: INFO
-    org.bitcoinj.net.NioClientManager: ERROR
-    org.bitcoinj.net.ConnectionHandler: ERROR
+    org.bitcoinj: ERROR
 
 feign:
   okhttp:

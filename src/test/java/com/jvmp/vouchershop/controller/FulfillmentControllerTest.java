@@ -65,5 +65,4 @@ public class FulfillmentControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(content().string(objectMapper.writeValueAsString(ff)));
     }
-
 }
