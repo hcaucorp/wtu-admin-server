@@ -15,24 +15,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
-import static com.jvmp.vouchershop.utils.RandomUtils.randomString;
-import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucher;
-import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucherGenerationSpec;
-import static com.jvmp.vouchershop.utils.RandomUtils.randomWallet;
-import static com.jvmp.vouchershop.utils.TryUtils.expectingException;
+import static com.jvmp.vouchershop.utils.RandomUtils.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultVoucherServiceTest {
@@ -123,21 +112,6 @@ public class DefaultVoucherServiceTest {
         verify(voucherRepository, times(1)).save(eq(voucher.withRedeemed(true)));
     }
 
-    @Test
-    public void checkVoucher_expired() {
-        Voucher voucher = randomVoucher()
-                .withPublished(true)
-                .withSold(true)
-                .withCreatedAt(LocalDateTime.of(2015, 1, 1, 1, 1).toInstant(ZoneOffset.UTC).toEpochMilli())
-                .withExpiresAt(LocalDateTime.now().minusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli());
-
-        String expectedMessage = "Voucher " + voucher.getCode() + " has expired.";
-
-        Throwable throwable = expectingException(() -> DefaultVoucherService.checkVoucher(voucher));
-
-        assertEquals(expectedMessage, throwable.getMessage());
-    }
-
     @Test(expected = IllegalOperationException.class)
     public void checkVoucher_alreadyRedeemed() {
         DefaultVoucherService.checkVoucher(randomVoucher()
@@ -157,16 +131,5 @@ public class DefaultVoucherServiceTest {
     @Test(expected = IllegalOperationException.class)
     public void checkVoucher_notPublished() {
         DefaultVoucherService.checkVoucher(randomVoucher());
-    }
-
-    @Test
-    public void isExpired() {
-        assertFalse(DefaultVoucherService.isExpired(randomVoucher()
-                .withCreatedAt(Instant.now().toEpochMilli())
-                .withExpiresAt(LocalDateTime.now().plusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli())));
-
-        assertTrue(DefaultVoucherService.isExpired(randomVoucher()
-                .withCreatedAt(LocalDateTime.of(2015, 1, 1, 1, 1).toInstant(ZoneOffset.UTC).toEpochMilli())
-                .withExpiresAt(LocalDateTime.now().minusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli())));
     }
 }

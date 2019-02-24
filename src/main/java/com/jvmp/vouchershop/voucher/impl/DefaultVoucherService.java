@@ -14,9 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -104,12 +101,13 @@ public class DefaultVoucherService implements VoucherService {
 
     @VisibleForTesting
     static boolean isExpired(@Nonnull Voucher voucher) {
-        Objects.requireNonNull(voucher, "voucher");
-
-        LocalDateTime today = LocalDateTime.now();
-        LocalDateTime expiresAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(voucher.getExpiresAt()), ZoneOffset.UTC);
-
-        return today.isAfter(expiresAt);
+//        Objects.requireNonNull(voucher, "voucher");
+//
+//        LocalDateTime today = LocalDateTime.now();
+//        LocalDateTime expiresAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(voucher.getExpiresAt()), ZoneOffset.UTC);
+//
+//        return today.isAfter(expiresAt);
+        return false;
     }
 
     @Override
