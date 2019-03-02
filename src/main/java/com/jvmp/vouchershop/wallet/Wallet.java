@@ -44,8 +44,26 @@ public class Wallet implements Serializable {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreatedDate
-    @Min(1322697600) // 12/01/2011 @ 12:00am (UTC)
-    private long createdAt;
+    @Min(1322697600000L) // 12/01/2011 @ 12:00am (UTC)
+    private long createdAt; // in milliseconds
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Wallet wallet = (Wallet) o;
+
+        if (!mnemonic.equals(wallet.mnemonic)) return false;
+        return currency.equals(wallet.currency);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mnemonic.hashCode();
+        result = 31 * result + currency.hashCode();
+        return result;
+    }
 }
 
 

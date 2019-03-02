@@ -1,7 +1,7 @@
 package com.jvmp.vouchershop.crypto.btc;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
+import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
@@ -16,7 +16,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
 import javax.annotation.PreDestroy;
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
@@ -29,10 +31,9 @@ import static org.bitcoinj.wallet.Wallet.fromSeed;
 public class WalletServiceBtc implements WalletService, AutoCloseable {
 
     private final WalletRepository walletRepository;
-
     private final NetworkParameters networkParameters;
-
     private final BitcoinJAdapter bitcoinj;
+    private final NotificationService notificationService;
 
     public static String walletWords(@Nonnull org.bitcoinj.wallet.Wallet bitcoinjWallet) {
         return String.join(" ", Optional.ofNullable(bitcoinjWallet.getKeyChainSeed().getMnemonicCode())
@@ -44,27 +45,48 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
         bitcoinj.close();
     }
 
-    @VisibleForTesting
-    public Optional<Wallet> importWallet(String mnemonics, long creationTime) throws UnreadableWalletException {
+    public Optional<Wallet> importWallet(String mnemonic, long creationTime) throws UnreadableWalletException {
         if (!walletRepository.findAll().isEmpty()) {
             log.error("BTC wallet already exists. Currently we support only single wallet per currency");
             return Optional.empty();
         }
 
-        return Optional.of(
-                restoreWalletAndStart(
-                        fromSeed(networkParameters, new DeterministicSeed(mnemonics, null, "", creationTime))));
+        if (creationTime > Instant.now().getEpochSecond()) {
+            log.error("Creation time is set in the future. Are you trying to pass milli seconds?");
+            return Optional.empty();
+        }
+
+        return Optional.of(restoreWalletAndStart(fromSeed(networkParameters,
+                new DeterministicSeed(mnemonic, null, "", creationTime))));
     }
 
     private Wallet restoreWalletAndStart(org.bitcoinj.wallet.Wallet bitcoinjWallet) {
         bitcoinj.restoreWalletFromSeed(bitcoinjWallet.getKeyChainSeed());
 
-        return save(new Wallet()
+        Wallet savedWallet = save(new Wallet()
                 .withAddress(bitcoinjWallet.currentReceiveAddress().toString())
                 .withCreatedAt(bitcoinjWallet.getEarliestKeyCreationTime())
                 .withCurrency("BTC")
-                .withMnemonic(walletWords(bitcoinjWallet)))
+                .withMnemonic(walletWords(bitcoinjWallet)));
+
+        return savedWallet
                 .withBalance(bitcoinj.getBalance());
+    }
+
+    @Override
+    public Optional<Wallet> importWallet(Map<String, String> walletDescription) {
+        try {
+            String mnemonic = walletDescription.get("mnemonic");
+            String createdAtString = walletDescription.get("createdAt");
+
+            if (mnemonic == null || createdAtString == null)
+                return Optional.empty();
+
+            return importWallet(mnemonic, Long.valueOf(createdAtString));
+        } catch (UnreadableWalletException e) {
+            log.error(e.getMessage());
+            return Optional.empty();
+        }
     }
 
     public Wallet generateWallet(String currency) {
@@ -118,7 +140,8 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
 
             return sendResult.tx.getHashAsString();
         } catch (InsufficientMoneyException e) {
-            log.error("Not enough funds {} on the wallet {}", bitcoinj.getBalance(), from);
+            String message = "Not enough funds " + bitcoinj.getBalance() + " on the wallet " + from;
+            notificationService.pushRedemptionNotification(message);
         }
         return null;
     }

@@ -1,6 +1,7 @@
 package com.jvmp.vouchershop.crypto.btc;
 
 import com.jvmp.vouchershop.Application;
+import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.Wallet;
 import org.bitcoinj.core.Context;
@@ -31,12 +32,16 @@ public class WalletServiceBtcIT {
     @MockBean
     private BitcoinJAdapter bitcoinJAdapter;
 
+    @MockBean
+    private NotificationService notificationService;
+
     private WalletServiceBtc walletService;
 
     @Before
     public void setUp() {
         Context btcContext = new Context(UnitTestParams.get());
-        walletService = new WalletServiceBtc(walletRepository, btcContext.getParams(), bitcoinJAdapter);
+        walletService = new WalletServiceBtc(walletRepository, btcContext.getParams(), bitcoinJAdapter,
+                notificationService);
     }
 
     @Test
@@ -44,6 +49,10 @@ public class WalletServiceBtcIT {
         Wallet savedWallet = walletService.save(randomWallet());
 
         assertNotNull(savedWallet.getId());
-        assertTrue(Instant.ofEpochMilli(savedWallet.getCreatedAt()).isBefore(Instant.now()));
+
+        Instant now = Instant.now(), createdAt = Instant.ofEpochMilli(savedWallet.getCreatedAt());
+        assertTrue(
+                "Comparing values: " + now + " and " + createdAt,
+                !createdAt.isAfter(now));
     }
 }

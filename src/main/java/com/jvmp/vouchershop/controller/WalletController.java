@@ -5,14 +5,10 @@ import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RequestMapping("/api")
 @RestController
@@ -32,5 +28,14 @@ public class WalletController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(walletService.generateWallet(currency));
+    }
+
+    @PutMapping("/wallets")
+    public ResponseEntity<Object> importWallet(@RequestBody Map<String, String> walletDescription) {
+        return walletService.importWallet(walletDescription)
+                .map(wallet -> ResponseEntity
+                        .status(HttpStatus.CREATED)
+                        .build())
+                .orElse(ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build());
     }
 }

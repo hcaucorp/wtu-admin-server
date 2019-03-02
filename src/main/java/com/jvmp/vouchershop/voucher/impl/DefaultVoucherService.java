@@ -101,12 +101,7 @@ public class DefaultVoucherService implements VoucherService {
 
     @VisibleForTesting
     static boolean isExpired(@Nonnull Voucher voucher) {
-//        Objects.requireNonNull(voucher, "voucher");
-//
-//        LocalDateTime today = LocalDateTime.now();
-//        LocalDateTime expiresAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(voucher.getExpiresAt()), ZoneOffset.UTC);
-//
-//        return today.isAfter(expiresAt);
+        Objects.requireNonNull(voucher, "voucher");
         return false;
     }
 

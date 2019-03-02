@@ -31,7 +31,7 @@ public class RandomUtils {
     public static Fulfillment randomFulfillment() {
         return new Fulfillment()
                 .withOrderId(nextLong())
-                .withCompletedAt(Instant.now().toEpochMilli())
+                .withCompletedAt(Instant.now().getEpochSecond())
                 .withVouchers(IntStream.range(0, nextInt(3, 20)).mapToObj(i -> randomVoucher()).collect(Collectors.toSet()));
     }
 
@@ -87,8 +87,8 @@ public class RandomUtils {
                 .withSold(false)
                 .withRedeemed(false)
                 .withSku(randomSku())
-                .withCreatedAt(Instant.now().toEpochMilli())
-                .withExpiresAt(LocalDateTime.now().plusYears(1).toInstant(ZoneOffset.UTC).toEpochMilli());
+                .withCreatedAt(Instant.now().getEpochSecond())
+                .withExpiresAt(LocalDateTime.now().plusYears(1).toInstant(ZoneOffset.UTC).getEpochSecond());
     }
 
     public static VoucherGenerationDetails randomVoucherGenerationSpec() {

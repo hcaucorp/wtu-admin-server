@@ -14,13 +14,13 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class BitcoinJAdapter {
+public class BitcoinJAdapter implements AutoCloseable {
 
     private final WalletAppKit bitcoinj;
 
-    void close() {
+    public void close() {
         bitcoinj.stopAsync();
-        bitcoinj.awaitRunning();
+        bitcoinj.awaitTerminated();
     }
 
     void restoreWalletFromSeed(DeterministicSeed seed) {

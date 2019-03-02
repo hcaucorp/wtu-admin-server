@@ -1,6 +1,7 @@
 package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.Application;
+import com.jvmp.vouchershop.crypto.btc.BitcoinJAdapter;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJConfig;
 import com.jvmp.vouchershop.crypto.btc.WalletServiceBtc;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
@@ -19,6 +20,7 @@ import org.bitcoinj.core.Context;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.wallet.UnreadableWalletException;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,11 +31,7 @@ import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URI;
@@ -41,16 +39,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
-import static com.jvmp.vouchershop.utils.RandomUtils.randomSku;
-import static com.jvmp.vouchershop.utils.RandomUtils.randomString;
-import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucher;
-import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucherGenerationSpec;
-import static com.jvmp.vouchershop.utils.RandomUtils.randomWallet;
+import static com.jvmp.vouchershop.utils.RandomUtils.*;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -90,6 +81,8 @@ public class VoucherControllerIT {
     @Autowired
     private Auth0Service auth0Service;
 
+    private static BitcoinJAdapter closeMe;
+
     private List<Voucher> testVouchers;
 
     private String authorizationValue;
@@ -105,10 +98,19 @@ public class VoucherControllerIT {
         authorizationValue = "Bearer " + auth0Service.getToken().accessToken;
     }
 
+    @Autowired
+    private BitcoinJAdapter bitcoinJAdapter;
+
+    @AfterClass
+    public static void tearDownClass() {
+        closeMe.close();
+    }
+
     @After
     public void tearDown() {
         walletRepository.deleteAll();
         voucherRepository.deleteAll();
+        closeMe = bitcoinJAdapter;
     }
 
     @Test
