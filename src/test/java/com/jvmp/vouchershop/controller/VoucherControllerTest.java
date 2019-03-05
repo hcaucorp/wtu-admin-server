@@ -5,7 +5,7 @@ import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.security.TestSecurityConfig;
 import com.jvmp.vouchershop.utils.IAmATeapotException;
-import com.jvmp.vouchershop.voucher.VoucherNotFound;
+import com.jvmp.vouchershop.voucher.VoucherNotFoundException;
 import com.jvmp.vouchershop.voucher.VoucherService;
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
 import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
@@ -91,7 +91,7 @@ public class VoucherControllerTest {
     @Test
     public void redeemVoucher_notFound() throws Exception {
         RedemptionRequest request = randomRedemptionRequest();
-        when(voucherService.redeemVoucher(any())).thenThrow(new VoucherNotFound(randomString()));
+        when(voucherService.redeemVoucher(any())).thenThrow(new VoucherNotFoundException(randomString()));
 
         mvc.perform(post(baseUrl + "/vouchers/redeem")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)

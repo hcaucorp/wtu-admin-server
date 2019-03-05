@@ -12,11 +12,11 @@ import org.bitcoinj.wallet.Wallet.SendResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.Instant;
 import java.util.Optional;
 
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
@@ -62,15 +62,14 @@ public class WalletServiceBtcTest {
         assertEquals(expectedMessage, throwable.getMessage());
     }
 
-    @Test
+    @Test(expected = IllegalOperationException.class)
     public void sendMoneyShouldFailWhenInsufficientMoney() throws Exception {
         Wallet wallet = randomWallet().withCurrency("BTC");
         String to = randomBtcAddress();
         long amount = nextLong(1, 1_000);
         when(bitcoinJAdapter.sendCoins(any())).thenThrow(new InsufficientMoneyException(Coin.valueOf(amount)));
 
-        String transactionHash = walletServiceBtc.sendMoney(wallet, to, amount);
-        assertNull(transactionHash);
+        walletServiceBtc.sendMoney(wallet, to, amount);
     }
 
     @Test
@@ -92,12 +91,19 @@ public class WalletServiceBtcTest {
 
     @Test
     public void importWallet() throws UnreadableWalletException {
-        val testWallet = randomWallet();
-        when(walletRepository.save(any(Wallet.class))).thenReturn(testWallet.withId(nextLong(1, Long.MAX_VALUE)));
+        long createdAt = 1546175793;
+        Wallet testWallet = randomWallet()
+                .withCreatedAt(createdAt * 1_000);
 
-        Optional<Wallet> wallet = walletServiceBtc.importWallet(testWallet.getMnemonic(), Instant.now().getEpochSecond());
+        ArgumentCaptor<Wallet> walletCaptor = ArgumentCaptor.forClass(Wallet.class);
+        when(walletRepository.save(walletCaptor.capture())).thenReturn(testWallet.withId(nextLong(1, Long.MAX_VALUE)));
 
-        assertTrue(wallet.isPresent());
+        Optional<Wallet> optionalWallet = walletServiceBtc.importWallet(testWallet.getMnemonic(), createdAt);
+
+        assertTrue(optionalWallet.isPresent());
+
+        Wallet result = walletCaptor.getValue();
+        assertEquals(testWallet.getCreatedAt(), result.getCreatedAt());
     }
 
     @Test

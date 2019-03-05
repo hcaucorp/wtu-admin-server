@@ -2,7 +2,7 @@ package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.voucher.Voucher;
-import com.jvmp.vouchershop.voucher.VoucherNotFound;
+import com.jvmp.vouchershop.voucher.VoucherNotFoundException;
 import com.jvmp.vouchershop.voucher.VoucherService;
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
 import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
@@ -51,12 +51,12 @@ public class VoucherController {
     }
 
     @PostMapping("/vouchers/redeem")
-    public RedemptionResponse redeemVoucher(@RequestBody @Valid RedemptionRequest detail) throws VoucherNotFound, InterruptedException {
+    public RedemptionResponse redeemVoucher(@RequestBody @Valid RedemptionRequest detail) throws VoucherNotFoundException, InterruptedException {
         try {
             RedemptionResponse response = voucherService.redeemVoucher(detail);
             notificationService.pushRedemptionNotification("Redeemed " + detail.getVoucherCode());
             return response;
-        } catch (VoucherNotFound e) {
+        } catch (VoucherNotFoundException e) {
             notificationService.pushRedemptionNotification("Tried to redeem absent voucher: " + detail.getVoucherCode() +
                     " to a wallet: " + detail.getDestinationAddress());
 

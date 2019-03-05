@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Wither;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -43,7 +42,6 @@ public class Wallet implements Serializable {
     private String currency;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    @CreatedDate
     @Min(1322697600000L) // 12/01/2011 @ 12:00am (UTC)
     private long createdAt; // in milliseconds
 

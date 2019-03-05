@@ -4,6 +4,7 @@ import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJAdapter;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.security.Auth0Service;
+import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.Context;
@@ -24,13 +25,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URI;
 import java.net.URL;
-import java.time.Instant;
 import java.util.List;
 
 import static com.jvmp.vouchershop.utils.RandomUtils.randomWallet;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -106,18 +105,23 @@ public class WalletControllerIT {
     @Test
     public void importWallet() {
         String url = base.toString() + "/wallets";
+        long createdAt = 1546175793;
+        String mnemonic = randomWallet(networkParameters).getMnemonic();
 
         RequestEntity<?> requestEntity = RequestEntity
                 .put(URI.create(url))
                 .header(HttpHeaders.AUTHORIZATION, authorizationValue)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(randomWallet(networkParameters)
-                        .withCreatedAt(Instant.now().getEpochSecond())); // todo replace wallet with new request dto because dto should contain seconds but wallet unfortunatelly must stay with millis
+                .body(new ImportWalletRequest(mnemonic, createdAt));
 
         ResponseEntity<String> response = template.exchange(url, HttpMethod.PUT, requestEntity, String.class);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNull(response.getBody());
+
+        Wallet w = walletRepository.findAll().get(0);
+        assertNotNull(w);
+        assertEquals(createdAt * 1_000, w.getCreatedAt());
     }
 
     @Test

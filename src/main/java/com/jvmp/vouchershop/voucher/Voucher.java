@@ -46,6 +46,7 @@ public class Voucher implements Serializable {
     @Column(name = "wallet_id", nullable = false)
     private long walletId;
 
+    // todo remove this field
     @Column(nullable = false)
     private boolean published;
 

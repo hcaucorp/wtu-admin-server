@@ -4,7 +4,7 @@ import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.voucher.Voucher;
-import com.jvmp.vouchershop.voucher.VoucherNotFound;
+import com.jvmp.vouchershop.voucher.VoucherNotFoundException;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import org.bitcoinj.core.Context;
@@ -68,8 +68,8 @@ public class DefaultVoucherServiceTest {
         assertEquals(spec.getCount(), vouchers.size());
     }
 
-    @Test(expected = VoucherNotFound.class)
-    public void redeemVoucher_noVoucher() throws VoucherNotFound {
+    @Test(expected = VoucherNotFoundException.class)
+    public void redeemVoucher_noVoucher() throws VoucherNotFoundException {
         String code = randomString();
 
         when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.empty());
@@ -78,7 +78,7 @@ public class DefaultVoucherServiceTest {
     }
 
     @Test(expected = ResourceNotFoundException.class)
-    public void redeemVoucher_noWallet() throws VoucherNotFound {
+    public void redeemVoucher_noWallet() throws VoucherNotFoundException {
         Voucher voucher = randomVoucher()
                 .withSold(true)
                 .withPublished(true)
@@ -92,7 +92,28 @@ public class DefaultVoucherServiceTest {
     }
 
     @Test
-    public void redeemVoucher_happyEnding() throws VoucherNotFound {
+    public void redeemVoucher_notEnoughMoney() throws Exception {
+        Wallet wallet = randomWallet(UnitTestParams.get());
+        Voucher voucher = randomVoucher()
+                .withWalletId(wallet.getId())
+                .withSold(true)
+                .withPublished(true)
+                .withRedeemed(false);
+        String code = voucher.getCode();
+        String destinationAddress = randomString();
+
+        when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.of(voucher));
+        when(walletService.findById(eq(wallet.getId()))).thenReturn(Optional.of(wallet));
+        when(walletService.sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()))).thenReturn(randomString());
+
+        subject.redeemVoucher(new RedemptionRequest(destinationAddress, code));
+
+        verify(walletService, times(1)).sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()));
+        verify(voucherRepository, times(1)).save(eq(voucher.withRedeemed(true)));
+    }
+
+    @Test
+    public void redeemVoucher_happyEnding() throws VoucherNotFoundException {
         Wallet wallet = randomWallet(UnitTestParams.get());
         Voucher voucher = randomVoucher()
                 .withWalletId(wallet.getId())

@@ -23,5 +23,5 @@ public interface VoucherService {
      * has been performed. For BTC/~BCH it would be a transaction hash which allows to see the transaciton in the blockchain (blockchain explorer link for
      * tracking information)
      */
-    RedemptionResponse redeemVoucher(RedemptionRequest detail) throws VoucherNotFound;
+    RedemptionResponse redeemVoucher(RedemptionRequest detail) throws VoucherNotFoundException;
 }

@@ -5,7 +5,7 @@ import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.voucher.Voucher;
-import com.jvmp.vouchershop.voucher.VoucherNotFound;
+import com.jvmp.vouchershop.voucher.VoucherNotFoundException;
 import com.jvmp.vouchershop.voucher.VoucherService;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
@@ -78,11 +78,6 @@ public class DefaultVoucherService implements VoucherService {
     static void checkVoucher(@Nonnull Voucher voucher) {
         Objects.requireNonNull(voucher, "voucher");
 
-        if (!voucher.isPublished()) {
-            log.error("Attempting to redeem not published voucher {}", voucher);
-            throw new IllegalOperationException("Voucher " + voucher.getCode() + " hasn't been published for sale yet.");
-        }
-
         if (!voucher.isSold()) {
             log.error("Attempting to redeem not sold voucher {}", voucher);
             throw new IllegalOperationException("Voucher " + voucher.getCode() + " hasn't been sold yet.");
@@ -92,25 +87,14 @@ public class DefaultVoucherService implements VoucherService {
             log.warn("Attempting to redeem already redeemed voucher {}", voucher);
             throw new IllegalOperationException("Voucher " + voucher.getCode() + " has already been redeemed.");
         }
-
-        if (isExpired(voucher)) {
-            log.error("Attempting to redeem expired voucher {}", voucher);
-            throw new IllegalOperationException("Voucher " + voucher.getCode() + " has expired.");
-        }
-    }
-
-    @VisibleForTesting
-    static boolean isExpired(@Nonnull Voucher voucher) {
-        Objects.requireNonNull(voucher, "voucher");
-        return false;
     }
 
     @Override
-    public RedemptionResponse redeemVoucher(@Nonnull RedemptionRequest detail) throws VoucherNotFound {
+    public RedemptionResponse redeemVoucher(@Nonnull RedemptionRequest detail) throws VoucherNotFoundException {
         Objects.requireNonNull(detail, "voucher redemption details");
 
         Voucher voucher = voucherRepository.findByCode(detail.getVoucherCode())
-                .orElseThrow(() -> new VoucherNotFound("Voucher " + detail.getVoucherCode() + " not found."));
+                .orElseThrow(() -> new VoucherNotFoundException("Voucher " + detail.getVoucherCode() + " not found."));
 
         checkVoucher(voucher);
 
@@ -119,11 +103,7 @@ public class DefaultVoucherService implements VoucherService {
 
         // send money
         String transactionHash = walletService.sendMoney(wallet, detail.getDestinationAddress(), voucher.getAmount());
-
-        if (transactionHash != null) {
-            voucherRepository.save(voucher.withRedeemed(true));
-            return RedemptionUtils.fromTxHash(transactionHash);
-        }
-        return null;
+        voucherRepository.save(voucher.withRedeemed(true));
+        return RedemptionUtils.fromTxHash(transactionHash);
     }
 }

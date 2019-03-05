@@ -1,5 +1,6 @@
 package com.jvmp.vouchershop.controller;
 
+import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.AllArgsConstructor;
@@ -8,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RequestMapping("/api")
 @RestController
@@ -31,7 +31,7 @@ public class WalletController {
     }
 
     @PutMapping("/wallets")
-    public ResponseEntity<Object> importWallet(@RequestBody Map<String, String> walletDescription) {
+    public ResponseEntity<Object> importWallet(@RequestBody ImportWalletRequest walletDescription) {
         return walletService.importWallet(walletDescription)
                 .map(wallet -> ResponseEntity
                         .status(HttpStatus.CREATED)

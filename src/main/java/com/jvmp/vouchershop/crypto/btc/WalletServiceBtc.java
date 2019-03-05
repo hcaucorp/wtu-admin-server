@@ -3,6 +3,7 @@ package com.jvmp.vouchershop.crypto.btc;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.repository.WalletRepository;
+import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.PreDestroy;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
@@ -56,33 +56,35 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
             return Optional.empty();
         }
 
-        return Optional.of(restoreWalletAndStart(fromSeed(networkParameters,
-                new DeterministicSeed(mnemonic, null, "", creationTime))));
+        DeterministicSeed deterministicSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
+        org.bitcoinj.wallet.Wallet wallet = fromSeed(networkParameters, deterministicSeed);
+
+        return Optional.of(restoreWalletAndStart(wallet,
+                Instant.ofEpochSecond(creationTime).toEpochMilli()));
     }
 
-    private Wallet restoreWalletAndStart(org.bitcoinj.wallet.Wallet bitcoinjWallet) {
+    private Wallet restoreWalletAndStart(org.bitcoinj.wallet.Wallet bitcoinjWallet, long createdAtMillis) {
         bitcoinj.restoreWalletFromSeed(bitcoinjWallet.getKeyChainSeed());
 
-        Wallet savedWallet = save(new Wallet()
+        // order of withers matters here
+        return save(new Wallet()
+                .withBalance(bitcoinj.getBalance())
                 .withAddress(bitcoinjWallet.currentReceiveAddress().toString())
-                .withCreatedAt(bitcoinjWallet.getEarliestKeyCreationTime())
+                .withCreatedAt(createdAtMillis)
                 .withCurrency("BTC")
                 .withMnemonic(walletWords(bitcoinjWallet)));
-
-        return savedWallet
-                .withBalance(bitcoinj.getBalance());
     }
 
     @Override
-    public Optional<Wallet> importWallet(Map<String, String> walletDescription) {
+    public Optional<Wallet> importWallet(ImportWalletRequest walletDescription) {
         try {
-            String mnemonic = walletDescription.get("mnemonic");
-            String createdAtString = walletDescription.get("createdAt");
+            String mnemonic = walletDescription.mnemonic;
+            long createdAt = walletDescription.createdAt;
 
-            if (mnemonic == null || createdAtString == null)
+            if (mnemonic == null)
                 return Optional.empty();
 
-            return importWallet(mnemonic, Long.valueOf(createdAtString));
+            return importWallet(mnemonic, createdAt);
         } catch (UnreadableWalletException e) {
             log.error(e.getMessage());
             return Optional.empty();
@@ -103,7 +105,7 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
         log.info("Seed words are: {}", walletWords);
         log.info("Seed birthday is: {}", creationTime);
 
-        return restoreWalletAndStart(bitcoinjWallet);
+        return restoreWalletAndStart(bitcoinjWallet, creationTime);
     }
 
     @Override
@@ -140,9 +142,10 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
 
             return sendResult.tx.getHashAsString();
         } catch (InsufficientMoneyException e) {
-            String message = "Not enough funds " + bitcoinj.getBalance() + " on the wallet " + from;
+            String message = "Not enough funds " + bitcoinj.getBalance() + " on the wallet " + from.getId();
+            log.error(message);
             notificationService.pushRedemptionNotification(message);
+            throw new IllegalOperationException(message);
         }
-        return null;
     }
 }
