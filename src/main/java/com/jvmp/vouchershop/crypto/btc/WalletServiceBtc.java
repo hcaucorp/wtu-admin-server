@@ -16,11 +16,13 @@ import org.bitcoinj.wallet.Wallet.SendResult;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import static java.time.Instant.ofEpochSecond;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.bitcoinj.wallet.Wallet.fromSeed;
@@ -38,6 +40,12 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
     public static String walletWords(@Nonnull org.bitcoinj.wallet.Wallet bitcoinjWallet) {
         return String.join(" ", Optional.ofNullable(bitcoinjWallet.getKeyChainSeed().getMnemonicCode())
                 .orElse(emptyList()));
+    }
+
+    @PostConstruct
+    public void start() {
+        readWalletFromDB()
+                .ifPresent(bitcoinj::restoreWalletFromSeed);
     }
 
     @PreDestroy
@@ -59,20 +67,21 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
         DeterministicSeed deterministicSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
         org.bitcoinj.wallet.Wallet wallet = fromSeed(networkParameters, deterministicSeed);
 
-        return Optional.of(restoreWalletAndStart(wallet,
-                Instant.ofEpochSecond(creationTime).toEpochMilli()));
+        return Optional.of(restoreWalletSaveAndStart(wallet,
+                ofEpochSecond(creationTime).toEpochMilli()));
     }
 
-    private Wallet restoreWalletAndStart(org.bitcoinj.wallet.Wallet bitcoinjWallet, long createdAtMillis) {
+    private Wallet restoreWalletSaveAndStart(org.bitcoinj.wallet.Wallet bitcoinjWallet, long createdAtMillis) {
         bitcoinj.restoreWalletFromSeed(bitcoinjWallet.getKeyChainSeed());
 
-        // order of withers matters here
-        return save(new Wallet()
+        Wallet wallet = new Wallet()
                 .withBalance(bitcoinj.getBalance())
                 .withAddress(bitcoinjWallet.currentReceiveAddress().toString())
                 .withCreatedAt(createdAtMillis)
                 .withCurrency("BTC")
-                .withMnemonic(walletWords(bitcoinjWallet)));
+                .withMnemonic(walletWords(bitcoinjWallet));
+
+        return save(wallet);
     }
 
     @Override
@@ -91,6 +100,21 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
         }
     }
 
+    private Optional<DeterministicSeed> readWalletFromDB() {
+        return walletRepository.findAll().stream()
+                .findFirst()
+                .flatMap(wallet -> from(wallet.getMnemonic(), wallet.getCreatedAt()));
+    }
+
+    private Optional<DeterministicSeed> from(String mnemonic, long createdAtMillis) {
+        try {
+            long createdAtSeconds = ofEpochSecond(createdAtMillis).getEpochSecond();
+            return Optional.of(new DeterministicSeed(mnemonic, null, "", createdAtSeconds));
+        } catch (UnreadableWalletException e) {
+            return Optional.empty();
+        }
+    }
+
     public Wallet generateWallet(String currency) {
         if (!"BTC".equals(currency))
             throw new IllegalOperationException("Currency " + currency + " is not supported.");
@@ -105,7 +129,7 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
         log.info("Seed words are: {}", walletWords);
         log.info("Seed birthday is: {}", creationTime);
 
-        return restoreWalletAndStart(bitcoinjWallet, creationTime);
+        return restoreWalletSaveAndStart(bitcoinjWallet, creationTime);
     }
 
     @Override
