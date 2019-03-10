@@ -27,10 +27,25 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class DefaultVoucherService implements VoucherService {
 
+    public static final Supplier<String> DEFAULT_VOUCHER_CODE_GENERATOR = () -> UUID.randomUUID().toString();
+
     private final WalletService walletService;
     private final VoucherRepository voucherRepository;
 
-    public static final Supplier<String> DEFAULT_VOUCHER_CODE_GENERATOR = () -> UUID.randomUUID().toString();
+    @VisibleForTesting
+    static void checkVoucher(@Nonnull Voucher voucher) {
+        Objects.requireNonNull(voucher, "voucher");
+
+        if (!voucher.isSold()) {
+            log.error("Attempting to redeem not sold voucher {}", voucher.getCode());
+            throw new IllegalOperationException("Voucher " + voucher.getCode() + " hasn't been sold yet.");
+        }
+
+        if (voucher.isRedeemed()) {
+            log.error("Attempting to redeem already redeemed voucher {}", voucher.getCode());
+            throw new IllegalOperationException("Voucher " + voucher.getCode() + " has already been redeemed.");
+        }
+    }
 
     @Override
     public List<Voucher> generateVouchers(VoucherGenerationDetails spec) {
@@ -74,23 +89,8 @@ public class DefaultVoucherService implements VoucherService {
         voucherRepository.saveAll(vouchers);
     }
 
-    @VisibleForTesting
-    static void checkVoucher(@Nonnull Voucher voucher) {
-        Objects.requireNonNull(voucher, "voucher");
-
-        if (!voucher.isSold()) {
-            log.error("Attempting to redeem not sold voucher {}", voucher);
-            throw new IllegalOperationException("Voucher " + voucher.getCode() + " hasn't been sold yet.");
-        }
-
-        if (voucher.isRedeemed()) {
-            log.warn("Attempting to redeem already redeemed voucher {}", voucher);
-            throw new IllegalOperationException("Voucher " + voucher.getCode() + " has already been redeemed.");
-        }
-    }
-
     @Override
-    public RedemptionResponse redeemVoucher(@Nonnull RedemptionRequest detail) throws VoucherNotFoundException {
+    public synchronized RedemptionResponse redeemVoucher(@Nonnull RedemptionRequest detail) throws VoucherNotFoundException {
         Objects.requireNonNull(detail, "voucher redemption details");
 
         Voucher voucher = voucherRepository.findByCode(detail.getVoucherCode())
@@ -104,6 +104,7 @@ public class DefaultVoucherService implements VoucherService {
         // send money
         String transactionHash = walletService.sendMoney(wallet, detail.getDestinationAddress(), voucher.getAmount());
         voucherRepository.save(voucher.withRedeemed(true));
+
         return RedemptionUtils.fromTxHash(transactionHash);
     }
 }

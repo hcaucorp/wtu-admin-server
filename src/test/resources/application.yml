@@ -62,3 +62,9 @@ feign:
         #        decode404: false
         encoder: feign.jackson.JacksonEncoder
         decoder: feign.jackson.JacksonDecoder
+
+
+logging:
+  level:
+    root: INFO
+    com.auth0.spring.security.api: ERROR
