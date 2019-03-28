@@ -9,14 +9,12 @@ import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
 import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.time.Duration;
 import java.util.List;
 
 @RequestMapping("/api")
@@ -51,7 +49,7 @@ public class VoucherController {
     }
 
     @PostMapping("/vouchers/redeem")
-    public RedemptionResponse redeemVoucher(@RequestBody @Valid RedemptionRequest detail) throws VoucherNotFoundException, InterruptedException {
+    public RedemptionResponse redeemVoucher(@RequestBody @Valid RedemptionRequest detail) throws VoucherNotFoundException {
         try {
             RedemptionResponse response = voucherService.redeemVoucher(detail);
             notificationService.pushRedemptionNotification("Redeemed " + detail.getVoucherCode());
@@ -59,9 +57,6 @@ public class VoucherController {
         } catch (VoucherNotFoundException e) {
             notificationService.pushRedemptionNotification("Tried to redeem absent voucher: " + detail.getVoucherCode() +
                     " to a wallet: " + detail.getDestinationAddress());
-
-            // against brute force?
-            Thread.sleep(Duration.ofSeconds(RandomUtils.nextLong(10, 20)).toMillis());
 
             throw e;
         } catch (Exception e) {

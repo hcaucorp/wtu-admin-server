@@ -90,7 +90,8 @@ public class DefaultFulfillmentService implements FulfillmentService {
 
         if (totalCount > availableCount) {
             String skuList = lineItemsQuantities.stream().map(pair -> pair.left + "(" + pair.right + ")").collect(joining(", "));
-            String vouchersList = supplyForDemand.stream().map(Voucher::getSku)
+            String vouchersList = supplyForDemand.stream()
+                    .map(Voucher::getSku)
                     .collect(toMap(sku -> sku, sku -> 1L, (Long s, Long a) -> s + a))
                     .entrySet().stream()
                     .map(pair -> pair.getKey() + "(" + pair.getValue() + ")").collect(joining(", "));
