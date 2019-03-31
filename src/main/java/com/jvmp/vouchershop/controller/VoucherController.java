@@ -33,9 +33,8 @@ public class VoucherController {
     }
 
     @DeleteMapping("/vouchers/{sku}")
-    public ResponseEntity<?> deleteVoucherBySku(@PathVariable String sku) {
+    public void deleteVoucherBySku(@PathVariable String sku) {
         voucherService.deleteBySku(sku);
-        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/vouchers")
@@ -55,11 +54,13 @@ public class VoucherController {
             notificationService.pushRedemptionNotification("Redeemed " + detail.getVoucherCode());
             return response;
         } catch (VoucherNotFoundException e) {
+            log.warn("Tried to redeem absent voucher: {} to a wallet: {}", detail.getVoucherCode(), detail.getDestinationAddress());
             notificationService.pushRedemptionNotification("Tried to redeem absent voucher: " + detail.getVoucherCode() +
                     " to a wallet: " + detail.getDestinationAddress());
 
             throw e;
         } catch (Exception e) {
+            log.error("Redemption attempted but failed with exception: {}", e.getMessage());
             notificationService.pushRedemptionNotification("Redemption attempted but failed with exception: " + e.getMessage());
             throw e;
         }

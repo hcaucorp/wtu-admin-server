@@ -92,7 +92,7 @@ public class DefaultVoucherServiceTest {
     }
 
     @Test
-    public void redeemVoucher_notEnoughMoney() throws Exception {
+    public void redeemVoucher_notEnoughMoney() {
         Wallet wallet = randomWallet(UnitTestParams.get());
         Voucher voucher = randomVoucher()
                 .withWalletId(wallet.getId())
@@ -133,24 +133,33 @@ public class DefaultVoucherServiceTest {
         verify(voucherRepository, times(1)).save(eq(voucher.withRedeemed(true)));
     }
 
-    @Test(expected = IllegalOperationException.class)
-    public void checkVoucher_alreadyRedeemed() {
-        DefaultVoucherService.checkVoucher(randomVoucher()
-                .withPublished(true)
+    @Test
+    public void refund_happyEnding() {
+        Voucher voucher = randomVoucher()
                 .withSold(true)
-                .withRedeemed(true)
-        );
-    }
-
-    @Test(expected = IllegalOperationException.class)
-    public void checkVoucher_notSoldYet() {
-        DefaultVoucherService.checkVoucher(randomVoucher()
                 .withPublished(true)
-        );
+                .withRedeemed(false);
+
+        when(voucherRepository.findByCode(eq(voucher.getCode()))).thenReturn(Optional.of(voucher));
+
+        subject.refund(voucher.getCode());
+    }
+
+    @Test(expected = VoucherNotFoundException.class)
+    public void refund_NotFound() {
+        Voucher voucher = randomVoucher();
+        when(voucherRepository.findByCode(any())).thenReturn(Optional.empty());
+
+        subject.refund(voucher.getCode());
     }
 
     @Test(expected = IllegalOperationException.class)
-    public void checkVoucher_notPublished() {
-        DefaultVoucherService.checkVoucher(randomVoucher());
+    public void refund_NotRefundable() {
+        Voucher voucher = randomVoucher()
+                .withRedeemed(true);
+
+        when(voucherRepository.findByCode(eq(voucher.getCode()))).thenReturn(Optional.of(voucher));
+
+        subject.refund(voucher.getCode());
     }
 }
