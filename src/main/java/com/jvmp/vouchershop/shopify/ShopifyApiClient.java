@@ -1,8 +1,6 @@
 package com.jvmp.vouchershop.shopify;
 
-import com.jvmp.vouchershop.shopify.domain.Count;
-import com.jvmp.vouchershop.shopify.domain.FulfillmentResource;
-import com.jvmp.vouchershop.shopify.domain.OrderList;
+import com.jvmp.vouchershop.shopify.domain.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -93,4 +91,16 @@ public interface ShopifyApiClient {
             value = "/admin/orders/{order_id}/fulfillments.json",
             consumes = MediaType.APPLICATION_JSON_VALUE)
     FulfillmentResource fulfillOrder(@PathVariable("order_id") long order_id, FulfillmentResource request);
+
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "/admin/orders/{order_id}/fulfillments.json",
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    Order getOrder(String orderId);
+
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "/admin/orders/{order_id}/refunds.json"
+    )
+    Refund createRefund(String orderId);
 }

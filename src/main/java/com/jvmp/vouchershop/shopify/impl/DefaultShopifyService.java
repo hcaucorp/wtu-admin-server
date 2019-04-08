@@ -45,4 +45,9 @@ class DefaultShopifyService implements ShopifyService {
         return apiClient.getOrdersCount(open.toString(), unshipped.toString(), paid.toString())
                 .getCount();
     }
+
+    @Override
+    public void refundOrder(String orderId) {
+        apiClient.getOrder(orderId);
+    }
 }
