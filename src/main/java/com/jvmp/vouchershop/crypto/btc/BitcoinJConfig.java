@@ -31,8 +31,7 @@ public class BitcoinJConfig {
             case "mainnet":
                 return MainNetParams.get();
             default:
-                throw new InvalidConfigurationException("Correct value for " + PropertyNames.BITCOIN_NETWORK +
-                        "property is [regtest|testnet|mainnet]");
+                throw new InvalidConfigurationException("Correct value for " + PropertyNames.BITCOIN_NETWORK + "property is [regtest|testnet|mainnet]");
         }
     }
 

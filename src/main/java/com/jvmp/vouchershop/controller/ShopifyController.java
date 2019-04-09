@@ -76,4 +76,9 @@ public class ShopifyController {
         unfulfilledOrders.getOrders().forEach(order -> shopifyService.markOrderFulfilled(order.getId()));
     }
 
+    @PostMapping("/shopify/orders/{orderId}/refund")
+    public ResponseEntity<?> refundOrder(@RequestParam String orderId) {
+        shopifyService.refundOrder(orderId);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    }
 }

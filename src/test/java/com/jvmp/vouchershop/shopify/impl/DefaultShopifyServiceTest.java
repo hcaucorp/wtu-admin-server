@@ -48,7 +48,7 @@ public class DefaultShopifyServiceTest {
 
         assertNotNull(item);
         assertEquals(locationId, item.getLocationId());
-        assertEquals("" + orderNumber, item.getTrackingNumber());
+        assertEquals("Order ID: " + orderNumber, item.getTrackingNumber());
         assertTrue(item.getTrackingUrls().isEmpty()); //TODO change to assertFalse after adding tracking url endpoint
         assertTrue(item.isNotifyCustomer());
     }

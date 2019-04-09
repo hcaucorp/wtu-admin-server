@@ -163,12 +163,6 @@
             <artifactId>asm</artifactId>
             <version>6.2</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-maven-plugin</artifactId>
-            <version>3.4.1</version>
-        </dependency> -->
 
         <!-- tag::tests[] -->
         <dependency>

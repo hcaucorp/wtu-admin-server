@@ -65,10 +65,13 @@ public class VoucherControllerTest {
     }
 
     @Test
-    public void deleteById() throws Exception {
-        mvc.perform(delete(baseUrl + "/vouchers/1")
+    public void deleteBySku() throws Exception {
+        String sku = "sku-" + randomString();
+        mvc.perform(delete(baseUrl + "/vouchers/" + sku)
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
+
+        verify(voucherService, times(1)).deleteBySku(sku);
     }
 
     @Test
