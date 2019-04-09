@@ -108,7 +108,7 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
 
     private Optional<DeterministicSeed> from(String mnemonic, long createdAtMillis) {
         try {
-            long createdAtSeconds = ofEpochSecond(createdAtMillis).getEpochSecond();
+            long createdAtSeconds = Instant.ofEpochMilli(createdAtMillis).getEpochSecond();
             return Optional.of(new DeterministicSeed(mnemonic, null, "", createdAtSeconds));
         } catch (UnreadableWalletException e) {
             return Optional.empty();
