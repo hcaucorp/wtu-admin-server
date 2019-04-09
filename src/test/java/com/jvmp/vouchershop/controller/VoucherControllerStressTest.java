@@ -1,6 +1,5 @@
 package com.jvmp.vouchershop.controller;
 
-
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJAdapter;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJConfig;

@@ -15,7 +15,7 @@ auth0:
 # testnet/regtest/mainnet
 bitcoinj:
   network:
-    type: testnet
+    type: mainnet
 
 es:
   coffeebyt:

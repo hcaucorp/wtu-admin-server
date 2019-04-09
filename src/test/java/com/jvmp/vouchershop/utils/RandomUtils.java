@@ -25,6 +25,7 @@ import static com.jvmp.vouchershop.voucher.impl.DefaultVoucherService.DEFAULT_VO
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
 
+@SuppressWarnings("WeakerAccess")
 @UtilityClass
 public class RandomUtils {
 
@@ -113,5 +114,9 @@ public class RandomUtils {
 
     public static String randomEmail() {
         return randomString() + "@" + randomString() + ".io";
+    }
+
+    public static String randomIp() {
+        return nextInt(0, 256) + "." + nextInt(0, 256) + "." + nextInt(0, 256) + "." + nextInt(0, 256);
     }
 }

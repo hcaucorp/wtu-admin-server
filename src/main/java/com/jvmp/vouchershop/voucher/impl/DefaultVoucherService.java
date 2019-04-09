@@ -10,7 +10,6 @@ import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
 import javax.validation.constraints.NotBlank;
@@ -25,7 +24,6 @@ import static com.jvmp.vouchershop.voucher.impl.VoucherValidations.checkIfRefund
 import static java.util.stream.Collectors.toList;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class DefaultVoucherService implements VoucherService {
 
