@@ -77,8 +77,8 @@ public class ShopifyController {
     }
 
     @PostMapping("/shopify/orders/{orderId}/refund")
-    public ResponseEntity<?> refundOrder(@RequestParam String orderId) {
+    public ResponseEntity<?> refundOrder(@PathVariable String orderId) {
         shopifyService.refundOrder(orderId);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

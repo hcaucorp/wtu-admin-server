@@ -45,6 +45,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .configure(http)
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/api/vouchers/redeem", "/api/shopify/webhook/fulfill").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/health").permitAll()
                 .anyRequest().authenticated();
     }
 }

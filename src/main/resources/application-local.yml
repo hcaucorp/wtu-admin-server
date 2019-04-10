@@ -30,5 +30,3 @@ logging:
   level:
     root: INFO
     org.bitcoinj: INFO
-  pattern:
-    console: "%d %-5level| %logger{10} : %msg%n"
