@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.repository.VoucherRepository;
+import com.jvmp.vouchershop.security.RedemptionAttemptService;
 import com.jvmp.vouchershop.security.TestSecurityConfig;
 import com.jvmp.vouchershop.voucher.VoucherNotFoundException;
-import com.jvmp.vouchershop.voucher.ddos.RedemptionAttemptService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @MockBeans({
         @MockBean(NotificationService.class)
 })
-public class VoucherControllerDdosProtectionTest {
+public class VoucherControllerEnumerationProtectionTest {
 
     private final static String baseUrl = "/api";
 

@@ -19,16 +19,21 @@ bitcoinj:
 
 es:
   coffeebyt:
+    security:
+      enumeration-protection:
+        cool-down-time: 24
+        cool-down-unit: HOURS
+        max-attempts: 10
     notification:
       # topic with results of user actions
-      orders-topic-arn: "arn:aws:sns:eu-west-2:367570967874:orders"
-      redemptions-topic-arn: "arn:aws:sns:eu-west-2:367570967874:redemptions"
+      orders-topic-arn: arn:aws:sns:eu-west-2:367570967874:orders
+      redemptions-topic-arn: arn:aws:sns:eu-west-2:367570967874:redemptions
       # IAM sns-access-user
-      access-key-id: "AKIAITMQC6R6A773KPNQ"
-      secret-key-id: "na4eftnibgdw4GXj9+cnDyGTYYY60MG8adIpYttM"
+      access-key-id: AKIAITMQC6R6A773KPNQ
+      secret-key-id: na4eftnibgdw4GXj9+cnDyGTYYY60MG8adIpYttM
     mail:
-      from-email: "shop@wallettopup.co.uk"
-      from-name: "Wallet Top Up Delivery Bot"
+      from-email: shop@wallettopup.co.uk
+      from-name: Wallet Top Up Delivery Bot
 
 # Spring Reference https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 spring:
@@ -61,7 +66,7 @@ spring:
       ddl-auto: update
     properties.hibernate.temp.use_jdbc_metadata_defaults: false
   main:
-    banner-mode: "off"
+    banner-mode: off
 
 management:
   endpoints:

@@ -30,3 +30,11 @@ logging:
   level:
     root: INFO
     org.bitcoinj: INFO
+
+es:
+  coffeebyt:
+    security:
+      enumeration-protection:
+        cool-down-time: 100
+        cool-down-unit: MILLISECONDS
+        max-attempts: 10

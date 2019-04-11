@@ -1,4 +1,4 @@
-package com.jvmp.vouchershop.voucher.ddos;
+package com.jvmp.vouchershop.security;
 
 import org.junit.Before;
 import org.junit.Test;

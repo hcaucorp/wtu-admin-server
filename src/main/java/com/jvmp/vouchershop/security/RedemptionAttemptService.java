@@ -1,8 +1,9 @@
-package com.jvmp.vouchershop.voucher.ddos;
+package com.jvmp.vouchershop.security;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.jvmp.vouchershop.system.PropertyNames;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -14,8 +15,12 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class RedemptionAttemptService {
 
-    @Value("{}")
-    public static final int maxAttempts = 10;
+    @Value(PropertyNames.ENUMERATION_PROTECTION_MAX_ATTEMPTS)
+    public static int maxAttempts;
+    @Value(PropertyNames.ENUMERATION_PROTECTION_COOL_DOWN_TIME)
+    public static int coolDownTime = 10;
+    @Value(PropertyNames.ENUMERATION_PROTECTION_COOL_DOWN_UNIT)
+    public static String coolDownUnit;
 
     @SuppressWarnings("UnstableApiUsage")
     private LoadingCache<String, Integer> attemptsCache;
@@ -24,7 +29,8 @@ public class RedemptionAttemptService {
     public RedemptionAttemptService() {
         //noinspection NullableProblems
         attemptsCache = CacheBuilder.newBuilder().
-                expireAfterWrite(1, TimeUnit.DAYS).build(new CacheLoader<String, Integer>() {
+                expireAfterWrite(1, TimeUnit.valueOf(coolDownUnit))
+                .build(new CacheLoader<String, Integer>() {
             public Integer load(String ipAddress) {
                 return 0;
             }
@@ -50,7 +56,7 @@ public class RedemptionAttemptService {
 
     public boolean isBlocked(String ipAddress) {
         try {
-            return attemptsCache.get(ipAddress) >= MAX_ATTEMPTS;
+            return attemptsCache.get(ipAddress) >= maxAttempts;
         } catch (ExecutionException e) {
             return false;
         }

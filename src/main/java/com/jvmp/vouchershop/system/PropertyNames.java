@@ -20,4 +20,11 @@ public class PropertyNames {
     public static final String AWS_SNS_SECRET_KEY_ID = "${es.coffeebyt.notification.secret-key-id}";
     public static final String AWS_SES_FROM_EMAIL = "${es.coffeebyt.mail.from-email}";
     public static final String AWS_SES_FROM_NAME = "${es.coffeebyt.mail.from-name}";
+
+    public static final String ENUMERATION_PROTECTION_MAX_ATTEMPTS = "{es.coffeebyt.security.enumeration-protection.max-attempts}";
+    public static final String ENUMERATION_PROTECTION_COOL_DOWN_TIME = "{es.coffeebyt.security.enumeration-protection.cool-down-time}";
+    /**
+     * Any String value of java.util.concurrent.TimeUnit
+     **/
+    public static final String ENUMERATION_PROTECTION_COOL_DOWN_UNIT = "{es.coffeebyt.security.enumeration-protection.cool-down-unit}";
 }
