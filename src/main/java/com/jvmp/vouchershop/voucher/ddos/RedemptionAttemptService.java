@@ -4,6 +4,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ExecutionException;
@@ -12,6 +13,9 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 public class RedemptionAttemptService {
+
+    @Value("{}")
+    public static final int maxAttempts = 10;
 
     @SuppressWarnings("UnstableApiUsage")
     private LoadingCache<String, Integer> attemptsCache;
@@ -46,7 +50,7 @@ public class RedemptionAttemptService {
 
     public boolean isBlocked(String ipAddress) {
         try {
-            return attemptsCache.get(ipAddress) >= 10;
+            return attemptsCache.get(ipAddress) >= MAX_ATTEMPTS;
         } catch (ExecutionException e) {
             return false;
         }
