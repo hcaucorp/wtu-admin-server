@@ -56,7 +56,7 @@ public class VoucherController {
     }
 
     @PostMapping("/vouchers/redeem")
-    public RedemptionResponse redeemVoucher(@RequestBody @Valid RedemptionRequest detail) throws VoucherNotFoundException {
+    public RedemptionResponse redeemVoucher(@RequestBody @Valid RedemptionRequest detail) {
         String ip = getClientIP();
 
         if (redemptionAttemptService.isBlocked(ip)) {

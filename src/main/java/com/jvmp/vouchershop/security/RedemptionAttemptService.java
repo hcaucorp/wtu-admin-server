@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nonnull;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -15,26 +16,23 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class RedemptionAttemptService {
 
-    @Value(PropertyNames.ENUMERATION_PROTECTION_MAX_ATTEMPTS)
-    public static int maxAttempts;
-    @Value(PropertyNames.ENUMERATION_PROTECTION_COOL_DOWN_TIME)
-    public static int coolDownTime = 10;
-    @Value(PropertyNames.ENUMERATION_PROTECTION_COOL_DOWN_UNIT)
-    public static String coolDownUnit;
+    private final int maxAttempts;
 
-    @SuppressWarnings("UnstableApiUsage")
     private LoadingCache<String, Integer> attemptsCache;
 
-    @SuppressWarnings("WeakerAccess")
-    public RedemptionAttemptService() {
-        //noinspection NullableProblems
+    public RedemptionAttemptService(
+            @Value(PropertyNames.ENUMERATION_PROTECTION_COOL_DOWN_TIME) int coolDownTime,
+            @Value(PropertyNames.ENUMERATION_PROTECTION_COOL_DOWN_UNIT) String coolDownUnit,
+            @Value(PropertyNames.ENUMERATION_PROTECTION_MAX_ATTEMPTS) int maxAttempts
+    ) {
         attemptsCache = CacheBuilder.newBuilder().
-                expireAfterWrite(1, TimeUnit.valueOf(coolDownUnit))
+                expireAfterWrite(coolDownTime, TimeUnit.valueOf(coolDownUnit))
                 .build(new CacheLoader<String, Integer>() {
-            public Integer load(String ipAddress) {
-                return 0;
-            }
-        });
+                    public Integer load(@Nonnull String ipAddress) {
+                        return 0;
+                    }
+                });
+        this.maxAttempts = maxAttempts;
     }
 
     public void succeeded(String ipAddress) {

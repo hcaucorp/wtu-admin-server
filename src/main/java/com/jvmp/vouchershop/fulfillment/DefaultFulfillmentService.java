@@ -92,7 +92,7 @@ public class DefaultFulfillmentService implements FulfillmentService {
             String skuList = lineItemsQuantities.stream().map(pair -> pair.left + "(" + pair.right + ")").collect(joining(", "));
             String vouchersList = supplyForDemand.stream()
                     .map(Voucher::getSku)
-                    .collect(toMap(sku -> sku, sku -> 1L, (Long s, Long a) -> s + a))
+                    .collect(toMap(sku -> sku, sku -> 1L, Long::sum))
                     .entrySet().stream()
                     .map(pair -> pair.getKey() + "(" + pair.getValue() + ")").collect(joining(", "));
             vouchersList = isBlank(vouchersList) ? "0" : vouchersList;

@@ -96,7 +96,7 @@ public class VoucherControllerTest {
         verify(notificationService, times(1)).pushRedemptionNotification(any());
     }
 
-    private static RequestPostProcessor remoteHost(final String remoteHost) {
+    static RequestPostProcessor remoteHost(final String remoteHost) {
         return request -> {
             request.setRemoteAddr(remoteHost);
             return request;

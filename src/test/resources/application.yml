@@ -20,15 +20,21 @@ bitcoinj:
   network:
     type: testnet
 
-es.coffeebyt:
-  notification:
-    orders-topic-arn: "orders"
-    redemptions-topic-arn: "redemptions"
-    access-key-id: "foo"
-    secret-key-id: "bar"
-  mail:
-    from-email: "shop@wallettopup.co.uk"
-    from-name: "Wallet Top Up Delivery Bot"
+es:
+  coffeebyt:
+    security:
+      enumeration-protection:
+        cool-down-time: 100
+        cool-down-unit: "MILLISECONDS"
+        max-attempts: 10
+    notification:
+      orders-topic-arn: "orders"
+      redemptions-topic-arn: "redemptions"
+      access-key-id: "foo"
+      secret-key-id: "bar"
+    mail:
+      from-email: "shop@wallettopup.co.uk"
+      from-name: "Wallet Top Up Delivery Bot"
 
 spring:
   # Greenmail
