@@ -65,8 +65,6 @@ spring:
       jdbc.lob.non_contextual_creation: true
       ddl-auto: update
     properties.hibernate.temp.use_jdbc_metadata_defaults: false
-  main:
-    banner-mode: off
 
 management:
   endpoints:

@@ -48,8 +48,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         ddl-auto: create
-  main:
-    banner-mode: "off"
 
 feign:
   okhttp:
@@ -68,7 +66,6 @@ feign:
         #        decode404: false
         encoder: feign.jackson.JacksonEncoder
         decoder: feign.jackson.JacksonDecoder
-
 
 logging:
   level:

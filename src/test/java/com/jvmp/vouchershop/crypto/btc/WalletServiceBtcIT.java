@@ -18,8 +18,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.time.Instant;
 
 import static com.jvmp.vouchershop.utils.RandomUtils.randomWallet;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
@@ -47,12 +47,14 @@ public class WalletServiceBtcIT {
     @Test
     public void save() {
         Wallet savedWallet = walletService.save(randomWallet());
-
         assertNotNull(savedWallet.getId());
-
         Instant now = Instant.now(), createdAt = Instant.ofEpochMilli(savedWallet.getCreatedAt());
-        assertTrue(
-                "Comparing values: " + now + " and " + createdAt,
-                !createdAt.isAfter(now));
+        assertFalse(createdAt.isAfter(now));
+    }
+
+    @Test
+    public void generateWallet() {
+        Wallet savedWallet = walletService.generateWallet("BTC");
+        assertNotNull(savedWallet.getId());
     }
 }

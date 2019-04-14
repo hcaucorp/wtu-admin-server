@@ -129,7 +129,7 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
         log.info("Seed words are: {}", walletWords);
         log.info("Seed birthday is: {}", creationTime);
 
-        return restoreWalletSaveAndStart(bitcoinjWallet, creationTime);
+        return restoreWalletSaveAndStart(bitcoinjWallet, Instant.ofEpochSecond(creationTime).toEpochMilli());
     }
 
     @Override
