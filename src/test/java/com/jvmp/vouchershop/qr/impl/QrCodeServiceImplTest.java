@@ -11,6 +11,7 @@ import com.jvmp.vouchershop.qr.QrCode;
 import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
+import org.bitcoinj.params.TestNet3Params;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -27,7 +28,7 @@ import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucher;
 import static com.jvmp.vouchershop.utils.RandomUtils.randomWallet;
 import static java.util.Collections.singletonMap;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -52,10 +53,10 @@ public class QrCodeServiceImplTest {
     @Test
     public void createQRCode() throws Exception {
         Voucher voucher = randomVoucher();
-        Wallet wallet = randomWallet();
+        Wallet wallet = randomWallet(TestNet3Params.get());
         String expected = String.format(QR_CODE_MESSAGE_FORMAT, voucher.getCode(), wallet.getCurrency());
 
-        when(walletService.findById(eq(wallet.getId()))).thenReturn(Optional.of(wallet));
+        when(walletService.findById(any())).thenReturn(Optional.of(wallet));
 
         QrCode qrCode;
         qrCode = qrCodeService.createQRCode(voucher);

@@ -1,16 +1,21 @@
 package com.jvmp.vouchershop.email.impl;
 
+import com.jvmp.vouchershop.notifications.NotificationService;
+import com.jvmp.vouchershop.qr.QrCode;
+import com.jvmp.vouchershop.qr.QrCodeService;
 import com.jvmp.vouchershop.shopify.domain.Customer;
 import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;
+import com.jvmp.vouchershop.wallet.WalletService;
+import org.bitcoinj.params.TestNet3Params;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.util.InMemoryResource;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.IContext;
 
@@ -19,6 +24,7 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.jvmp.vouchershop.Collections.asSet;
@@ -38,13 +44,27 @@ public class ThymeleafEmailServiceTest {
     @Mock
     private JavaMailSender javaMailSender;
 
-    @InjectMocks
+    @Mock
+    private WalletService walletService;
+
+    @Mock
+    private QrCodeService qrCodeService;
+
+    @Mock
+    private QrCode qrCode;
+
     private ThymeleafEmailService thymeleafEmailService;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         when(templateEngine.process(any(String.class), any(IContext.class))).thenReturn(randomString());
         when(javaMailSender.createMimeMessage()).thenReturn(new M3());
+        when(walletService.findById(any())).thenReturn(Optional.of(randomWallet(TestNet3Params.get())));
+        when(qrCodeService.createQRCode(any())).thenReturn(qrCode);
+        when(qrCode.getBytes()).thenReturn("".getBytes());
+        when(qrCode.toInputStreamSource()).thenReturn(new InMemoryResource(""));
+        thymeleafEmailService = new ThymeleafEmailService(templateEngine, javaMailSender, mock(NotificationService.class), qrCodeService,
+                "", "", "");
     }
 
     @Test

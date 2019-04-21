@@ -1,5 +1,4 @@
 ##### Backlog
-- Generate QR and attach to voucher delivery email
 - [ ] Redemption- add time consuming hash as body
 - [ ] add coin type as 3rd param for redemption
 - [ ] Redemption form: “Send to” button should be clickable only once

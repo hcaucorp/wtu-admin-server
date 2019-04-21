@@ -7,6 +7,7 @@ import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.wallet.WalletService;
 import org.bitcoinj.params.TestNet3Params;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class AwsSesIT {
     private WalletService walletService;
 
     @Test
-//    @Ignore(value = "This is a special kind of test meant to be run manually only to check AWS SES configuration")
+    @Ignore(value = "This is a special kind of test meant to be run manually only to check AWS SES configuration")
     public void sendVouchers() {
         String name = "Tadzio";
         String email = "hubertinio@me.com";

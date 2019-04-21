@@ -9,7 +9,6 @@ import com.jvmp.vouchershop.shopify.domain.Customer;
 import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.system.PropertyNames;
 import com.jvmp.vouchershop.voucher.Voucher;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -26,7 +25,6 @@ import java.util.Set;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class ThymeleafEmailService implements EmailService {
 
     private final ITemplateEngine templateEngine;
@@ -34,14 +32,28 @@ public class ThymeleafEmailService implements EmailService {
     private final NotificationService notificationService;
     private final QrCodeService qrCodeService;
 
-    @Value(PropertyNames.AWS_SES_FROM_EMAIL)
-    private String fromEmail;
+    private final String fromEmail;
+    private final String fromName;
+    private final String emailDeliveryTemplateFileName;
 
-    @Value(PropertyNames.AWS_SES_FROM_NAME)
-    private String fromName;
+    ThymeleafEmailService(
+            ITemplateEngine templateEngine,
+            JavaMailSender emailSender,
+            NotificationService notificationService,
+            QrCodeService qrCodeService,
 
-    @Value(PropertyNames.THYMELEAF_TEMPLATE_EMAIL_DELIVER_VOUCHERS)
-    private String emailDeliveryTemplateFileName;
+            @Value(PropertyNames.AWS_SES_FROM_EMAIL) String fromEmail,
+            @Value(PropertyNames.AWS_SES_FROM_NAME) String fromName,
+            @Value(PropertyNames.THYMELEAF_TEMPLATE_EMAIL_DELIVER_VOUCHERS) String emailDeliveryTemplateFileName
+    ) {
+        this.templateEngine = templateEngine;
+        this.emailSender = emailSender;
+        this.notificationService = notificationService;
+        this.qrCodeService = qrCodeService;
+        this.fromEmail = fromEmail;
+        this.fromName = fromName;
+        this.emailDeliveryTemplateFileName = emailDeliveryTemplateFileName;
+    }
 
     @Override
     public void sendVouchers(Set<Voucher> vouchers, Order order) {

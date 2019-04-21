@@ -7,25 +7,30 @@ import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.shopify.domain.Customer;
 import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;
+import com.jvmp.vouchershop.wallet.WalletService;
+import org.bitcoinj.params.TestNet3Params;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.internet.MimeMessage;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.jvmp.vouchershop.Collections.asSet;
-import static com.jvmp.vouchershop.utils.RandomUtils.randomEmail;
-import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucher;
+import static com.jvmp.vouchershop.utils.RandomUtils.*;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(
@@ -40,10 +45,15 @@ public class ThymeleafEmailServiceIT {
     @Autowired
     private ThymeleafEmailService thymeleafEmailService;
 
+    @MockBean
+    private WalletService walletService;
+
     @Test
     public void sendVouchers() throws Exception {
         String name = "Tadzio";
         String email = randomEmail();
+        when(walletService.findById(any())).thenReturn(Optional.of(randomWallet(TestNet3Params.get())));
+
         long orderNumber = nextLong();
         Set<Voucher> vouchers = asSet(randomVoucher(), randomVoucher());
         thymeleafEmailService.sendVouchers(vouchers, new Order()
