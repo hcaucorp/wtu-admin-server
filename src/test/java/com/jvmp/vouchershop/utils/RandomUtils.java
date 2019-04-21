@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -25,7 +26,6 @@ import static com.jvmp.vouchershop.voucher.impl.DefaultVoucherService.DEFAULT_VO
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
 
-@SuppressWarnings("WeakerAccess")
 @UtilityClass
 public class RandomUtils {
 
@@ -33,7 +33,7 @@ public class RandomUtils {
         return new Fulfillment()
                 .withOrderId(nextLong())
                 .withCompletedAt(Instant.now().getEpochSecond())
-                .withVouchers(IntStream.range(0, nextInt(3, 20)).mapToObj(i -> randomVoucher()).collect(Collectors.toSet()));
+                .withVouchers(randomVouchers(nextInt(3, 20)));
     }
 
     public static Wallet randomWallet(NetworkParameters params) {
@@ -75,6 +75,10 @@ public class RandomUtils {
 
     public static String randomSku() {
         return "SKU-" + RandomStringUtils.randomAlphanumeric(12);
+    }
+
+    public static Set<Voucher> randomVouchers(int howMany) {
+        return IntStream.range(0, howMany).mapToObj(i -> randomVoucher()).collect(Collectors.toSet());
     }
 
     public static Voucher randomVoucher() {

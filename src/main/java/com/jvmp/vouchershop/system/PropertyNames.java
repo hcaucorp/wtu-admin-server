@@ -27,4 +27,5 @@ public class PropertyNames {
      * Any String value of java.util.concurrent.TimeUnit
      **/
     public static final String ENUMERATION_PROTECTION_COOL_DOWN_UNIT = "${es.coffeebyt.security.enumeration-protection.cool-down-unit}";
+    public static final String THYMELEAF_TEMPLATE_EMAIL_DELIVER_VOUCHERS = "${es.coffeebyt.mail.templates.deliver-vouchers}";
 }

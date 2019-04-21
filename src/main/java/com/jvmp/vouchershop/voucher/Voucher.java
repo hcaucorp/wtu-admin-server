@@ -70,4 +70,8 @@ public class Voucher implements Serializable {
      */
     @Column(name = "expires_at")
     private long expiresAt;
+
+    public String toQrCodeString() {
+        return null;
+    }
 }

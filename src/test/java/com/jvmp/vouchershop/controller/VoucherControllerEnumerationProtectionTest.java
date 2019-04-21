@@ -108,8 +108,6 @@ public class VoucherControllerEnumerationProtectionTest {
         requestRedemption(notExistingVoucher, maxAttempts + 1);
         assertTrue(redemptionAttemptService.isBlocked(testIp));
 
-//        Thread.sleep(Duration.of(coolDownTime, TimeUnit.valueOf(coolDownUnit).toChronoUnit()).toMillis() + 1);
-
         Thread.sleep(Duration.of(coolDownTime, toChronoUnit(TimeUnit.valueOf(coolDownUnit))).toMillis() + 1);
         assertFalse(redemptionAttemptService.isBlocked(testIp));
     }

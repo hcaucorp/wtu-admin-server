@@ -35,6 +35,8 @@ es:
     mail:
       from-email: "shop@wallettopup.co.uk"
       from-name: "Wallet Top Up Delivery Bot"
+      templates:
+        deliver-vouchers: "email-deliver-vouchers.html"
 
 spring:
   # Greenmail

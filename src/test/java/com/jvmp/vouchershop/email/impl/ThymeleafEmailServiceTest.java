@@ -1,6 +1,5 @@
 package com.jvmp.vouchershop.email.impl;
 
-import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.shopify.domain.Customer;
 import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;
@@ -8,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -38,14 +38,11 @@ public class ThymeleafEmailServiceTest {
     @Mock
     private JavaMailSender javaMailSender;
 
-    @Mock
-    private NotificationService notificationService;
-
+    @InjectMocks
     private ThymeleafEmailService thymeleafEmailService;
 
     @Before
     public void setUp() {
-        thymeleafEmailService = new ThymeleafEmailService(templateEngine, javaMailSender, notificationService);
         when(templateEngine.process(any(String.class), any(IContext.class))).thenReturn(randomString());
         when(javaMailSender.createMimeMessage()).thenReturn(new M3());
     }
@@ -73,6 +70,7 @@ public class ThymeleafEmailServiceTest {
         assertNotNull(message);
         assertEquals(email, message.getRecipients(Message.RecipientType.TO)[0].toString());
     }
+
 
     static class M3 extends MimeMessage {
         private Address[] recipients = null;
