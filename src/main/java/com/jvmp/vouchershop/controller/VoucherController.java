@@ -28,6 +28,8 @@ import java.util.List;
 @Slf4j
 public class VoucherController {
 
+    static final String HTTP_HEADER_X_WALLETTOPUP_HMAC_SHA512 = "X-WalletTopUp-Hmac-SHA512";
+
     private final NotificationService notificationService;
     private final VoucherService voucherService;
     private final RedemptionAttemptService redemptionAttemptService;

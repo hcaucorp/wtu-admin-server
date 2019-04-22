@@ -43,8 +43,12 @@ public class RandomUtils {
                 .withId(nextLong())
                 .withAddress(wallet.currentReceiveAddress().toBase58())
                 .withCreatedAt(Instant.now().toEpochMilli())
-                .withCurrency(RandomStringUtils.randomAlphabetic(3).toUpperCase())
+                .withCurrency(randomCurrency())
                 .withMnemonic(walletWords(wallet));
+    }
+
+    public static String randomCurrency() {
+        return RandomStringUtils.randomAlphabetic(3).toUpperCase();
     }
 
     public static Wallet randomWallet() {
@@ -85,7 +89,7 @@ public class RandomUtils {
         return new Voucher()
                 .withAmount(nextLong(1_000, 2_000))
                 .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get())
-                .withCurrency("BTC")
+                .withCurrency(randomCurrency())
                 .withId(nextLong(1, 1_000))
                 .withWalletId(nextLong(1, 1_000))
                 .withPublished(false)
@@ -104,15 +108,16 @@ public class RandomUtils {
                 .withCount(vouchersCount)
                 .withTotalAmount(vouchersCount * 5)
                 .withWalletId(id)
-                .withPrice(1)
                 .withPriceCurrency("GBP")
+                .withPrice(nextLong(5, 10))
                 .withSku(randomSku());
     }
 
     public static RedemptionRequest randomRedemptionRequest() {
         return new RedemptionRequest(
                 randomString(),
-                randomString()
+                randomString(),
+                randomCurrency()
         );
     }
 

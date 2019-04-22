@@ -67,7 +67,7 @@ public class ShopifyControllerIT {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    private Function<String, String> hmacHashingFunction = input -> HmacUtil.encode1(webhookSecret, input.getBytes()).orElseThrow(AssertionError::new);
+    private Function<String, String> hmacHashingFunction = input -> HmacUtil.encodeMaybe(webhookSecret, input.getBytes()).orElseThrow(AssertionError::new);
 
     @Before
     public void setUp() throws Exception {

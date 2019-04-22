@@ -74,7 +74,7 @@ public class DefaultVoucherServiceTest {
 
         when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.empty());
 
-        subject.redeemVoucher(new RedemptionRequest(randomString(), code));
+        subject.redeemVoucher(new RedemptionRequest(randomString(), code, null));
     }
 
     @Test(expected = ResourceNotFoundException.class)
@@ -88,10 +88,10 @@ public class DefaultVoucherServiceTest {
 
         when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.of(voucher));
 
-        subject.redeemVoucher(new RedemptionRequest(destinationAddress, code));
+        subject.redeemVoucher(new RedemptionRequest(destinationAddress, code, null));
     }
 
-    @Test
+    @Test(expected = IllegalOperationException.class)
     public void redeemVoucher_notEnoughMoney() {
         Wallet wallet = randomWallet(UnitTestParams.get());
         Voucher voucher = randomVoucher()
@@ -104,12 +104,9 @@ public class DefaultVoucherServiceTest {
 
         when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.of(voucher));
         when(walletService.findById(eq(wallet.getId()))).thenReturn(Optional.of(wallet));
-        when(walletService.sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()))).thenReturn(randomString());
+        when(walletService.sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()))).thenThrow(new IllegalOperationException());
 
-        subject.redeemVoucher(new RedemptionRequest(destinationAddress, code));
-
-        verify(walletService, times(1)).sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()));
-        verify(voucherRepository, times(1)).save(eq(voucher.withRedeemed(true)));
+        subject.redeemVoucher(new RedemptionRequest(destinationAddress, code, null));
     }
 
     @Test
@@ -127,7 +124,7 @@ public class DefaultVoucherServiceTest {
         when(walletService.findById(eq(wallet.getId()))).thenReturn(Optional.of(wallet));
         when(walletService.sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()))).thenReturn(randomString());
 
-        subject.redeemVoucher(new RedemptionRequest(destinationAddress, code));
+        subject.redeemVoucher(new RedemptionRequest(destinationAddress, code, null));
 
         verify(walletService, times(1)).sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()));
         verify(voucherRepository, times(1)).save(eq(voucher.withRedeemed(true)));
@@ -161,5 +158,43 @@ public class DefaultVoucherServiceTest {
         when(voucherRepository.findByCode(eq(voucher.getCode()))).thenReturn(Optional.of(voucher));
 
         subject.refund(voucher.getCode());
+    }
+
+    @Test(expected = IllegalOperationException.class)
+    public void redeemVoucher_requestingWrongRedemptionCurrency() throws VoucherNotFoundException {
+        Wallet wallet = randomWallet(UnitTestParams.get());
+        Voucher voucher = randomVoucher()
+                .withWalletId(wallet.getId())
+                .withSold(true)
+                .withPublished(true)
+                .withRedeemed(false);
+        String code = voucher.getCode();
+        String destinationAddress = randomString();
+
+        when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.of(voucher));
+        when(walletService.findById(eq(wallet.getId()))).thenReturn(Optional.of(wallet));
+
+        subject.redeemVoucher(new RedemptionRequest(destinationAddress, code, randomCurrency()));
+    }
+
+    @Test
+    public void redeemVoucher_requestingCorrectRedemptionCurrency() throws VoucherNotFoundException {
+        Wallet wallet = randomWallet(UnitTestParams.get());
+        Voucher voucher = randomVoucher()
+                .withWalletId(wallet.getId())
+                .withSold(true)
+                .withPublished(true)
+                .withRedeemed(false);
+        String code = voucher.getCode();
+        String destinationAddress = randomString();
+
+        when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.of(voucher));
+        when(walletService.findById(eq(wallet.getId()))).thenReturn(Optional.of(wallet));
+        when(walletService.sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()))).thenReturn(randomString());
+
+        subject.redeemVoucher(new RedemptionRequest(destinationAddress, code, wallet.getCurrency()));
+
+        verify(walletService, times(1)).sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()));
+        verify(voucherRepository, times(1)).save(eq(voucher.withRedeemed(true)));
     }
 }

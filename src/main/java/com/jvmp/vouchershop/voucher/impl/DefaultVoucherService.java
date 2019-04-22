@@ -20,8 +20,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-import static com.jvmp.vouchershop.voucher.impl.VoucherValidations.checkIfRedeemable;
-import static com.jvmp.vouchershop.voucher.impl.VoucherValidations.checkIfRefundable;
+import static com.jvmp.vouchershop.voucher.impl.VoucherValidations.*;
 import static java.util.stream.Collectors.toList;
 
 @Slf4j
@@ -87,6 +86,8 @@ public class DefaultVoucherService implements VoucherService {
 
         Wallet wallet = walletService.findById(voucher.getWalletId())
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet " + voucher.getWalletId() + " not found."));
+
+        checkIfWalletCurrency(wallet, detail.getCurrency());
 
         // send money
         String transactionHash = walletService.sendMoney(wallet, detail.getDestinationAddress(), voucher.getAmount());
