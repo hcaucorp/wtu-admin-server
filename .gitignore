@@ -1,7 +1,9 @@
 /.btc
 /.idea
 /target
-/server.iml
+/bitcoinj-cash
+
+*.iml
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

@@ -5,7 +5,7 @@
 
     <groupId>com.jvmp.vouchershop</groupId>
     <artifactId>server</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -170,6 +170,7 @@
             <version>3.3.3</version>
         </dependency>
 
+        <!-- for QR codes generation -->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
