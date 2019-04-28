@@ -16,6 +16,7 @@
 
 package cash.bitcoinj.core;
 
+import cash.bitcoinj.core.listeners.*;
 import cash.bitcoinj.net.AbstractTimeoutHandler;
 import cash.bitcoinj.net.NioClient;
 import cash.bitcoinj.net.NioClientManager;

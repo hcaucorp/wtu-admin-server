@@ -16,6 +16,7 @@
 
 package cash.bitcoinj.protocols.channels;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.crypto.TransactionSignature;
 import cash.bitcoinj.script.Script;
 import cash.bitcoinj.script.ScriptBuilder;

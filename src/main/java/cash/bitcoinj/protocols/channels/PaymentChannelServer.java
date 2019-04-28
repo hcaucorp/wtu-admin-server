@@ -17,6 +17,7 @@
 package cash.bitcoinj.protocols.channels;
 
 import cash.bitcoin.paymentchannel.Protos;
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.utils.Threading;
 import cash.bitcoinj.wallet.Wallet;
 import com.google.common.collect.ImmutableMap;
@@ -381,23 +382,23 @@ public class PaymentChannelServer {
                 return;
             try {
                 switch (msg.getType()) {
-                    case Protos.TwoWayChannelMessage.MessageType.CLIENT_VERSION:
+                    case CLIENT_VERSION:
                         receiveVersionMessage(msg);
                         return;
-                    case Protos.TwoWayChannelMessage.MessageType.PROVIDE_REFUND:
+                    case PROVIDE_REFUND:
                         receiveRefundMessage(msg);
                         return;
-                    case Protos.TwoWayChannelMessage.MessageType.PROVIDE_CONTRACT:
+                    case PROVIDE_CONTRACT:
                         receiveContractMessage(msg);
                         return;
-                    case Protos.TwoWayChannelMessage.MessageType.UPDATE_PAYMENT:
+                    case UPDATE_PAYMENT:
                         checkState(step == InitStep.CHANNEL_OPEN && msg.hasUpdatePayment());
                         receiveUpdatePaymentMessage(msg.getUpdatePayment(), true);
                         return;
-                    case Protos.TwoWayChannelMessage.MessageType.CLOSE:
+                    case CLOSE:
                         receiveCloseMessage();
                         return;
-                    case Protos.TwoWayChannelMessage.MessageType.ERROR:
+                    case ERROR:
                         checkState(msg.hasError());
                         log.error("Client sent ERROR {} with explanation {}", msg.getError().getCode().name(),
                                 msg.getError().hasExplanation() ? msg.getError().getExplanation() : "");

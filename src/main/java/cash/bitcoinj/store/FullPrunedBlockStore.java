@@ -16,6 +16,8 @@
 
 package cash.bitcoinj.store;
 
+import cash.bitcoinj.core.*;
+
 /**
  * <p>An implementor of FullPrunedBlockStore saves StoredBlock objects to some storage mechanism.</p>
  *

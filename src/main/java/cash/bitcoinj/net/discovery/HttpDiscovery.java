@@ -18,6 +18,7 @@
 package cash.bitcoinj.net.discovery;
 
 import cash.bitcoin.crawler.PeerSeedProtos;
+import cash.bitcoinj.core.*;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.squareup.okhttp.HttpUrl;

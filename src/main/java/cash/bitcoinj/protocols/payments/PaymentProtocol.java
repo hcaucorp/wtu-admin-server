@@ -18,6 +18,7 @@
 package cash.bitcoinj.protocols.payments;
 
 import cash.bitcoin.protocols.payments.Protos;
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.crypto.X509Utils;
 import cash.bitcoinj.script.ScriptBuilder;
 import com.google.common.base.MoreObjects;

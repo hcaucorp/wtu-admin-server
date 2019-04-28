@@ -18,6 +18,7 @@
 package cash.bitcoinj.core;
 
 import cash.bitcoinj.net.discovery.HttpDiscovery;
+import cash.bitcoinj.params.*;
 import cash.bitcoinj.script.Script;
 import cash.bitcoinj.script.ScriptOpCodes;
 import cash.bitcoinj.utils.MonetaryFormat;

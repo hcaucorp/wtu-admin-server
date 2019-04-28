@@ -16,6 +16,7 @@
 
 package cash.bitcoinj.protocols.channels;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.utils.Threading;
 import cash.bitcoinj.wallet.Wallet;
 import cash.bitcoinj.wallet.WalletExtension;
@@ -53,7 +54,7 @@ public class StoredPaymentChannelServerStates implements WalletExtension {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(StoredPaymentChannelServerStates.class);
     @GuardedBy("lock")
     @VisibleForTesting
-    final Map<Sha256Hash, StoredServerChannel> mapChannels = new HashMap<Sha256Hash, StoredServerChannel>();
+    final Map<Sha256Hash, StoredServerChannel> mapChannels = new HashMap<>();
     private final SettableFuture<TransactionBroadcaster> broadcasterFuture = SettableFuture.create();
 
     private final Timer channelTimeoutHandler = new Timer(true);
@@ -229,7 +230,7 @@ public class StoredPaymentChannelServerStates implements WalletExtension {
         try {
             final NetworkParameters params = getNetworkParameters();
             // If we haven't attached to a wallet yet we can't check against network parameters
-            final boolean hasMaxMoney = params != null ? params.hasMaxMoney() : true;
+            final boolean hasMaxMoney = params == null || params.hasMaxMoney();
             final Coin networkMaxMoney = params != null ? params.getMaxMoney() : NetworkParameters.MAX_MONEY;
             ServerState.StoredServerPaymentChannels.Builder builder = ServerState.StoredServerPaymentChannels.newBuilder();
             for (StoredServerChannel channel : mapChannels.values()) {

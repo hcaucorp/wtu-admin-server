@@ -16,6 +16,7 @@
 
 package cash.bitcoinj.protocols.channels;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.crypto.TransactionSignature;
 import cash.bitcoinj.script.Script;
 import cash.bitcoinj.script.ScriptBuilder;
@@ -156,7 +157,7 @@ public class PaymentChannelV1ServerState extends PaymentChannelServerState {
     }
 
     protected Script createOutputScript() {
-        return ScriptBuilder.createMultiSigOutputScript(2, ImmutableList.<ECKey>of(clientKey, serverKey));
+        return ScriptBuilder.createMultiSigOutputScript(2, ImmutableList.of(clientKey, serverKey));
     }
 
     protected ECKey getClientKey() {

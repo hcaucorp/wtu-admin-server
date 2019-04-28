@@ -35,6 +35,11 @@ public final class Coin implements Monetary, Comparable<Coin>, Serializable {
      * constants derive from it.
      */
     public static final int SMALLEST_UNIT_EXPONENT = 8;
+    private static final long COIN_VALUE = LongMath.pow(10, SMALLEST_UNIT_EXPONENT);
+    /**
+     * One Bitcoin.
+     */
+    public static final Coin COIN = Coin.valueOf(COIN_VALUE);
     /**
      * Zero Bitcoins.
      */
@@ -63,11 +68,6 @@ public final class Coin implements Monetary, Comparable<Coin>, Serializable {
     /**
      * The number of satoshis equal to one bitcoin.
      */
-    private static final long COIN_VALUE = LongMath.pow(10, SMALLEST_UNIT_EXPONENT);
-    /**
-     * One Bitcoin.
-     */
-    public static final Coin COIN = Coin.valueOf(COIN_VALUE);
     private static final MonetaryFormat FRIENDLY_FORMAT = MonetaryFormat.BTC.minDecimals(2).repeatOptionalDecimals(1, 6).postfixCode();
     private static final MonetaryFormat PLAIN_FORMAT = MonetaryFormat.BTC.minDecimals(0).repeatOptionalDecimals(1, 8).noCode();
     /**

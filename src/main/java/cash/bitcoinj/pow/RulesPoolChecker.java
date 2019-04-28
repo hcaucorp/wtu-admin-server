@@ -1,5 +1,6 @@
 package cash.bitcoinj.pow;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.store.BlockStore;
 import cash.bitcoinj.store.BlockStoreException;
 
@@ -12,7 +13,7 @@ public class RulesPoolChecker extends AbstractPowRulesChecker {
 
     public RulesPoolChecker(NetworkParameters networkParameters) {
         super(networkParameters);
-        this.rules = new ArrayList<AbstractPowRulesChecker>();
+        this.rules = new ArrayList<>();
     }
 
     @Override

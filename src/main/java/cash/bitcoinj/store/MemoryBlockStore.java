@@ -16,6 +16,8 @@
 
 package cash.bitcoinj.store;
 
+import cash.bitcoinj.core.*;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 

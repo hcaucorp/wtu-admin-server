@@ -17,6 +17,7 @@
 
 package cash.bitcoinj.wallet;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.crypto.KeyCrypter;
 import cash.bitcoinj.crypto.KeyCrypterScrypt;
 import cash.bitcoinj.script.Script;
@@ -675,25 +676,25 @@ public class WalletProtobufSerializer {
 
         if (txProto.hasPurpose()) {
             switch (txProto.getPurpose()) {
-                case Protos.Transaction.Purpose.UNKNOWN:
+                case UNKNOWN:
                     tx.setPurpose(Transaction.Purpose.UNKNOWN);
                     break;
-                case Protos.Transaction.Purpose.USER_PAYMENT:
+                case USER_PAYMENT:
                     tx.setPurpose(Transaction.Purpose.USER_PAYMENT);
                     break;
-                case Protos.Transaction.Purpose.KEY_ROTATION:
+                case KEY_ROTATION:
                     tx.setPurpose(Transaction.Purpose.KEY_ROTATION);
                     break;
-                case Protos.Transaction.Purpose.ASSURANCE_CONTRACT_CLAIM:
+                case ASSURANCE_CONTRACT_CLAIM:
                     tx.setPurpose(Transaction.Purpose.ASSURANCE_CONTRACT_CLAIM);
                     break;
-                case Protos.Transaction.Purpose.ASSURANCE_CONTRACT_PLEDGE:
+                case ASSURANCE_CONTRACT_PLEDGE:
                     tx.setPurpose(Transaction.Purpose.ASSURANCE_CONTRACT_PLEDGE);
                     break;
-                case Protos.Transaction.Purpose.ASSURANCE_CONTRACT_STUB:
+                case ASSURANCE_CONTRACT_STUB:
                     tx.setPurpose(Transaction.Purpose.ASSURANCE_CONTRACT_STUB);
                     break;
-                case Protos.Transaction.Purpose.RAISE_FEE:
+                case RAISE_FEE:
                     tx.setPurpose(Transaction.Purpose.RAISE_FEE);
                     break;
                 default:
@@ -727,24 +728,24 @@ public class WalletProtobufSerializer {
         Transaction tx = txMap.get(txProto.getHash());
         final WalletTransaction.Pool pool;
         switch (txProto.getPool()) {
-            case Protos.Transaction.Pool.DEAD:
+            case DEAD:
                 pool = WalletTransaction.Pool.DEAD;
                 break;
-            case Protos.Transaction.Pool.PENDING:
+            case PENDING:
                 pool = WalletTransaction.Pool.PENDING;
                 break;
-            case Protos.Transaction.Pool.SPENT:
+            case SPENT:
                 pool = WalletTransaction.Pool.SPENT;
                 break;
-            case Protos.Transaction.Pool.UNSPENT:
+            case UNSPENT:
                 pool = WalletTransaction.Pool.UNSPENT;
                 break;
             // Upgrade old wallets: inactive pool has been merged with the pending pool.
             // Remove this some time after 0.9 is old and everyone has upgraded.
             // There should not be any spent outputs in this tx as old wallets would not allow them to be spent
             // in this state.
-            case Protos.Transaction.Pool.INACTIVE:
-            case Protos.Transaction.Pool.PENDING_INACTIVE:
+            case INACTIVE:
+            case PENDING_INACTIVE:
                 pool = WalletTransaction.Pool.PENDING;
                 break;
             default:
@@ -786,23 +787,23 @@ public class WalletProtobufSerializer {
         }
         TransactionConfidence.ConfidenceType confidenceType;
         switch (confidenceProto.getType()) {
-            case Protos.TransactionConfidence.Type.BUILDING:
+            case BUILDING:
                 confidenceType = TransactionConfidence.ConfidenceType.BUILDING;
                 break;
-            case Protos.TransactionConfidence.Type.DEAD:
+            case DEAD:
                 confidenceType = TransactionConfidence.ConfidenceType.DEAD;
                 break;
             // These two are equivalent (must be able to read old wallets).
-            case Protos.TransactionConfidence.Type.NOT_IN_BEST_CHAIN:
+            case NOT_IN_BEST_CHAIN:
                 confidenceType = TransactionConfidence.ConfidenceType.PENDING;
                 break;
-            case Protos.TransactionConfidence.Type.PENDING:
+            case PENDING:
                 confidenceType = TransactionConfidence.ConfidenceType.PENDING;
                 break;
-            case Protos.TransactionConfidence.Type.IN_CONFLICT:
+            case IN_CONFLICT:
                 confidenceType = TransactionConfidence.ConfidenceType.IN_CONFLICT;
                 break;
-            case Protos.TransactionConfidence.Type.UNKNOWN:
+            case UNKNOWN:
                 // Fall through.
             default:
                 confidenceType = TransactionConfidence.ConfidenceType.UNKNOWN;
@@ -851,13 +852,13 @@ public class WalletProtobufSerializer {
         if (confidenceProto.hasLastBroadcastedAt())
             confidence.setLastBroadcastedAt(new Date(confidenceProto.getLastBroadcastedAt()));
         switch (confidenceProto.getSource()) {
-            case Protos.TransactionConfidence.Source.SOURCE_SELF:
+            case SOURCE_SELF:
                 confidence.setSource(TransactionConfidence.Source.SELF);
                 break;
-            case Protos.TransactionConfidence.Source.SOURCE_NETWORK:
+            case SOURCE_NETWORK:
                 confidence.setSource(TransactionConfidence.Source.NETWORK);
                 break;
-            case Protos.TransactionConfidence.Source.SOURCE_UNKNOWN:
+            case SOURCE_UNKNOWN:
                 // Fall through.
             default:
                 confidence.setSource(TransactionConfidence.Source.UNKNOWN);

@@ -17,6 +17,7 @@
 
 package cash.bitcoinj.params;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.utils.MonetaryFormat;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;

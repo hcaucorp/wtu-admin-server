@@ -16,6 +16,7 @@
 
 package cash.bitcoinj.signers;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.crypto.ChildNumber;
 import cash.bitcoinj.crypto.TransactionSignature;
 import cash.bitcoinj.script.Script;

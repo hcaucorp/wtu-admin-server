@@ -16,6 +16,7 @@
 
 package cash.bitcoinj.protocols.channels;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.utils.Threading;
 import cash.bitcoinj.wallet.Wallet;
 import cash.bitcoinj.wallet.WalletExtension;
@@ -292,7 +293,7 @@ public class StoredPaymentChannelClientStates implements WalletExtension {
         try {
             final NetworkParameters params = getNetworkParameters();
             // If we haven't attached to a wallet yet we can't check against network parameters
-            final boolean hasMaxMoney = params != null ? params.hasMaxMoney() : true;
+            final boolean hasMaxMoney = params == null || params.hasMaxMoney();
             final Coin networkMaxMoney = params != null ? params.getMaxMoney() : NetworkParameters.MAX_MONEY;
             ClientState.StoredClientPaymentChannels.Builder builder = ClientState.StoredClientPaymentChannels.newBuilder();
             for (StoredClientChannel channel : mapChannels.values()) {

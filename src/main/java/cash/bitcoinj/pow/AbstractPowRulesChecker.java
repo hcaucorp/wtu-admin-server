@@ -1,5 +1,6 @@
 package cash.bitcoinj.pow;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.store.BlockStore;
 import cash.bitcoinj.store.BlockStoreException;
 

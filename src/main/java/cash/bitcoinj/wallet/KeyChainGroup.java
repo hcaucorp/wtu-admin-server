@@ -17,6 +17,7 @@
 
 package cash.bitcoinj.wallet;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.crypto.*;
 import cash.bitcoinj.script.Script;
 import cash.bitcoinj.script.ScriptBuilder;

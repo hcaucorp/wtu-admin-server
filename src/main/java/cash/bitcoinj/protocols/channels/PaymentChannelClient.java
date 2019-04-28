@@ -18,6 +18,7 @@
 package cash.bitcoinj.protocols.channels;
 
 import cash.bitcoin.paymentchannel.Protos;
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.protocols.channels.PaymentChannelCloseException.CloseReason;
 import cash.bitcoinj.utils.Threading;
 import cash.bitcoinj.wallet.Wallet;

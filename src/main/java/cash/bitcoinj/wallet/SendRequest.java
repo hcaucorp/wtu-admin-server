@@ -18,6 +18,7 @@
 package cash.bitcoinj.wallet;
 
 import cash.bitcoin.protocols.payments.Protos;
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.script.Script;
 import cash.bitcoinj.script.ScriptBuilder;
 import cash.bitcoinj.utils.ExchangeRate;

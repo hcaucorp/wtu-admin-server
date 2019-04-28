@@ -172,4 +172,9 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
             throw new IllegalOperationException(message);
         }
     }
+
+    @Override
+    public boolean canHandle(String currency) {
+        return "BTC".equalsIgnoreCase(currency);
+    }
 }

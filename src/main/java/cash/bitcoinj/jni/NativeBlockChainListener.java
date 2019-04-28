@@ -16,6 +16,7 @@
 
 package cash.bitcoinj.jni;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.core.listeners.NewBestBlockListener;
 import cash.bitcoinj.core.listeners.ReorganizeListener;
 import cash.bitcoinj.core.listeners.TransactionReceivedInBlockListener;

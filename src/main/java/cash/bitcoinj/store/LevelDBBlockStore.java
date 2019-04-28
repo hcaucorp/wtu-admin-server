@@ -14,7 +14,8 @@
 
 package cash.bitcoinj.store;
 
-import org.fusesource.leveldbjni.*;
+import cash.bitcoinj.core.*;
+import org.fusesource.leveldbjni.JniDBFactory;
 import org.iq80.leveldb.*;
 
 import javax.annotation.Nullable;

@@ -17,11 +17,13 @@
 
 package cash.bitcoinj.core;
 
+import cash.bitcoinj.core.listeners.*;
 import cash.bitcoinj.crypto.DRMWorkaround;
 import cash.bitcoinj.net.BlockingClientManager;
 import cash.bitcoinj.net.ClientConnectionManager;
 import cash.bitcoinj.net.FilterMerger;
 import cash.bitcoinj.net.NioClientManager;
+import cash.bitcoinj.net.discovery.*;
 import cash.bitcoinj.script.Script;
 import cash.bitcoinj.utils.ContextPropagatingThreadFactory;
 import cash.bitcoinj.utils.ExponentialBackoff;
@@ -124,19 +126,19 @@ public class PeerGroup implements TransactionBroadcaster {
      * Callbacks for events related to peers connecting
      */
     protected final CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>> peerConnectedEventListeners
-            = new CopyOnWriteArrayList<ListenerRegistration<PeerConnectedEventListener>>();
+            = new CopyOnWriteArrayList<>();
     /**
      * Callbacks for events related to peer connection/disconnection
      */
     protected final CopyOnWriteArrayList<ListenerRegistration<PeerDiscoveredEventListener>> peerDiscoveredEventListeners
-            = new CopyOnWriteArrayList<ListenerRegistration<PeerDiscoveredEventListener>>();
+            = new CopyOnWriteArrayList<>();
     /**
      * Callbacks for events related to peers disconnecting
      */
     protected final CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>> peerDisconnectedEventListeners
-            = new CopyOnWriteArrayList<ListenerRegistration<PeerDisconnectedEventListener>>();
+            = new CopyOnWriteArrayList<>();
     protected final CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>> peersTransactionBroadastEventListeners
-            = new CopyOnWriteArrayList<ListenerRegistration<OnTransactionBroadcastListener>>();
+            = new CopyOnWriteArrayList<>();
     // Addresses to try to connect to, excluding active peers.
     @GuardedBy("lock")
     private final PriorityQueue<PeerAddress> inactives;
@@ -811,7 +813,7 @@ public class PeerGroup implements TransactionBroadcaster {
      * chain download starts.</p>
      */
     public void addChainDownloadStartedEventListener(Executor executor, ChainDownloadStartedEventListener listener) {
-        peersChainDownloadStartedEventListeners.add(new ListenerRegistration<ChainDownloadStartedEventListener>(checkNotNull(listener), executor));
+        peersChainDownloadStartedEventListeners.add(new ListenerRegistration<>(checkNotNull(listener), executor));
         for (Peer peer : getConnectedPeers())
             peer.addChainDownloadStartedEventListener(executor, listener);
         for (Peer peer : getPendingPeers())

@@ -17,6 +17,7 @@
 
 package cash.bitcoinj.kits;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.core.listeners.DownloadProgressTracker;
 import cash.bitcoinj.net.discovery.DnsDiscovery;
 import cash.bitcoinj.net.discovery.PeerDiscovery;
@@ -25,6 +26,7 @@ import cash.bitcoinj.protocols.channels.StoredPaymentChannelServerStates;
 import cash.bitcoinj.store.BlockStore;
 import cash.bitcoinj.store.BlockStoreException;
 import cash.bitcoinj.store.SPVBlockStore;
+import cash.bitcoinj.wallet.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.AbstractIdleService;
 import com.google.common.util.concurrent.FutureCallback;

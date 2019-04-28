@@ -16,6 +16,7 @@
 
 package cash.bitcoinj.store;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.utils.Threading;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

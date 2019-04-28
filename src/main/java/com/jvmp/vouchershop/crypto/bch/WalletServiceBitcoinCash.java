@@ -28,7 +28,7 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class WalletServiceBitcoinCash implements WalletService {
+public class WalletServiceBitcoinCash implements WalletService, AutoCloseable {
     private final WalletRepository walletRepository;
     private final NetworkParameters networkParameters;
     private final BitcoinCashJAdapter bitcoinj;
@@ -168,5 +168,10 @@ public class WalletServiceBitcoinCash implements WalletService {
             notificationService.pushRedemptionNotification(message);
             throw new IllegalOperationException(message);
         }
+    }
+
+    @Override
+    public boolean canHandle(String currency) {
+        return "BCH".equalsIgnoreCase(currency);
     }
 }

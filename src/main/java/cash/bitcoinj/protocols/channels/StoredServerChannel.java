@@ -16,6 +16,7 @@
 
 package cash.bitcoinj.protocols.channels;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.wallet.Wallet;
 
 import javax.annotation.Nullable;

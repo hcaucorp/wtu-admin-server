@@ -16,8 +16,9 @@
 
 package cash.bitcoinj.wallet;
 
+import cash.bitcoinj.core.*;
+
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -25,7 +26,7 @@ import java.util.List;
  */
 public class FilteringCoinSelector implements CoinSelector {
     protected CoinSelector delegate;
-    protected HashSet<TransactionOutPoint> spent = new HashSet<TransactionOutPoint>();
+    protected HashSet<TransactionOutPoint> spent = new HashSet<>();
 
     public FilteringCoinSelector(CoinSelector delegate) {
         this.delegate = delegate;
@@ -39,11 +40,7 @@ public class FilteringCoinSelector implements CoinSelector {
 
     @Override
     public CoinSelection select(Coin target, List<TransactionOutput> candidates) {
-        Iterator<TransactionOutput> iter = candidates.iterator();
-        while (iter.hasNext()) {
-            TransactionOutput output = iter.next();
-            if (spent.contains(output.getOutPointFor())) iter.remove();
-        }
+        candidates.removeIf(output -> spent.contains(output.getOutPointFor()));
         return delegate.select(target, candidates);
     }
 }

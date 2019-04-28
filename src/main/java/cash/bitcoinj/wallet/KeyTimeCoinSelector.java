@@ -16,6 +16,7 @@
 
 package cash.bitcoinj.wallet;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.script.Script;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;

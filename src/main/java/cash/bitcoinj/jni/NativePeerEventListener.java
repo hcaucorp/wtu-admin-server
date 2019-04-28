@@ -16,6 +16,7 @@
 
 package cash.bitcoinj.jni;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.core.listeners.OnTransactionBroadcastListener;
 import cash.bitcoinj.core.listeners.PeerConnectionEventListener;
 import cash.bitcoinj.core.listeners.PeerDataEventListener;

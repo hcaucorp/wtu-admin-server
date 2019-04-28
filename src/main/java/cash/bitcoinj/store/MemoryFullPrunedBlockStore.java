@@ -16,6 +16,7 @@
 
 package cash.bitcoinj.store;
 
+import cash.bitcoinj.core.*;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -252,9 +253,9 @@ public class MemoryFullPrunedBlockStore implements FullPrunedBlockStore {
      * @param fullStoreDepth The depth of blocks to keep FullStoredBlocks instead of StoredBlocks
      */
     public MemoryFullPrunedBlockStore(NetworkParameters params, int fullStoreDepth) {
-        blockMap = new TransactionalHashMap<Sha256Hash, StoredBlockAndWasUndoableFlag>();
-        fullBlockMap = new TransactionalMultiKeyHashMap<Sha256Hash, Integer, StoredUndoableBlock>();
-        transactionOutputMap = new TransactionalHashMap<StoredTransactionOutPoint, UTXO>();
+        blockMap = new TransactionalHashMap<>();
+        fullBlockMap = new TransactionalMultiKeyHashMap<>();
+        transactionOutputMap = new TransactionalHashMap<>();
         this.fullStoreDepth = fullStoreDepth > 0 ? fullStoreDepth : 1;
         // Insert the genesis block.
         try {

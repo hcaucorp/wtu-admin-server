@@ -167,10 +167,10 @@ public class PartialMerkleTree extends Message {
 
     @Override
     protected void parse() throws ProtocolException {
-        transactionCount = (int) Utils.readUint32();
+        transactionCount = (int) readUint32();
 
         int nHashes = (int) readVarInt();
-        hashes = new ArrayList<Sha256Hash>(nHashes);
+        hashes = new ArrayList<>(nHashes);
         for (int i = 0; i < nHashes; i++)
             hashes.add(readHash());
 

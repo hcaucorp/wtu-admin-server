@@ -18,6 +18,7 @@
 
 package cash.bitcoinj.script;
 
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.crypto.TransactionSignature;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -82,7 +83,7 @@ public class Script {
 
     // Used from ScriptBuilder.
     Script(List<ScriptChunk> chunks) {
-        this.chunks = Collections.unmodifiableList(new ArrayList<ScriptChunk>(chunks));
+        this.chunks = Collections.unmodifiableList(new ArrayList<>(chunks));
         creationTimeSeconds = Utils.currentTimeSeconds();
     }
 
@@ -273,7 +274,7 @@ public class Script {
 
             int opcode = inputScript[cursor++] & 0xFF;
             int additionalBytes = 0;
-            if (opcode >= 0 && opcode < ScriptOpCodes.OP_PUSHDATA1) {
+            if (opcode < ScriptOpCodes.OP_PUSHDATA1) {
                 additionalBytes = opcode;
             } else if (opcode == ScriptOpCodes.OP_PUSHDATA1) {
                 additionalBytes = (0xFF & inputScript[cursor]) + 1;
@@ -345,8 +346,8 @@ public class Script {
 
     /**
      * Exposes the script interpreter. Normally you should not use this directly, instead use
-     * {@link TransactionInput#verify(TransactionOutput)} or
-     * {@link Script#correctlySpends(Transaction, long, Script)}. This method
+     * {@link cash.bitcoinj.core.TransactionInput#verify(cash.bitcoinj.core.TransactionOutput)} or
+     * {@link Script#correctlySpends(cash.bitcoinj.core.Transaction, long, Script)}. This method
      * is useful if you need more precise control or access to the final state of the stack. This interface is very
      * likely to change in future.
      *

@@ -16,6 +16,7 @@
 
 package cash.bitcoinj.crypto;
 
+import cash.bitcoinj.core.*;
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.google.common.primitives.Bytes;

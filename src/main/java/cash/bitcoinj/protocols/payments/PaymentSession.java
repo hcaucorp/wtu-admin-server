@@ -15,6 +15,7 @@
 package cash.bitcoinj.protocols.payments;
 
 import cash.bitcoin.protocols.payments.Protos;
+import cash.bitcoinj.core.*;
 import cash.bitcoinj.crypto.TrustStoreLoader;
 import cash.bitcoinj.params.MainNetParams;
 import cash.bitcoinj.protocols.payments.PaymentProtocol.PkiVerificationData;
