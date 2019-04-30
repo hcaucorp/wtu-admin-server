@@ -13,9 +13,5 @@ public interface WalletService {
 
     Optional<Wallet> findById(Long id);
 
-    Wallet save(Wallet Wallet);
-
-    String sendMoney(Wallet from, String toAddress, long amount);
-
-    boolean canHandle(String currency);
+    Wallet save(Wallet wallet);
 }

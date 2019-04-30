@@ -28,7 +28,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WalletServiceBtcTest {
+public class BitcoinServiceTest {
 
     @Mock
     private WalletRepository walletRepository;
@@ -39,14 +39,14 @@ public class WalletServiceBtcTest {
     @Mock
     private NotificationService notificationService;
 
-    private WalletServiceBtc walletServiceBtc;
+    private BitcoinService bitcoinService;
 
     private Context btcContext;
 
     @Before
     public void setUp() {
         btcContext = new Context(UnitTestParams.get());
-        walletServiceBtc = new WalletServiceBtc(walletRepository, btcContext.getParams(), bitcoinJAdapter,
+        bitcoinService = new BitcoinService(walletRepository, btcContext.getParams(), bitcoinJAdapter,
                 notificationService);
     }
 
@@ -57,7 +57,7 @@ public class WalletServiceBtcTest {
         long amount = nextLong(1, Long.MAX_VALUE);
         String expectedMessage = "Wallet " + wallet.toString() + " can provide only for vouchers in BTC";
 
-        Throwable throwable = expectingException(() -> walletServiceBtc.sendMoney(wallet, to, amount));
+        Throwable throwable = expectingException(() -> bitcoinService.sendMoney(wallet, to, amount));
         assertEquals(IllegalOperationException.class, throwable.getClass());
         assertEquals(expectedMessage, throwable.getMessage());
     }
@@ -69,7 +69,7 @@ public class WalletServiceBtcTest {
         long amount = nextLong(1, 1_000);
         when(bitcoinJAdapter.sendCoins(any())).thenThrow(new InsufficientMoneyException(Coin.valueOf(amount)));
 
-        walletServiceBtc.sendMoney(wallet, to, amount);
+        bitcoinService.sendMoney(wallet, to, amount);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class WalletServiceBtcTest {
         when(bitcoinJAdapter.sendCoins(any())).thenReturn(sendResult);
         //wtf pretty long setup
 
-        String result = walletServiceBtc.sendMoney(wallet, to, amount);
+        String result = bitcoinService.sendMoney(wallet, to, amount);
         assertEquals(tx.getHashAsString(), result);
     }
 
@@ -98,7 +98,7 @@ public class WalletServiceBtcTest {
         ArgumentCaptor<Wallet> walletCaptor = ArgumentCaptor.forClass(Wallet.class);
         when(walletRepository.save(walletCaptor.capture())).thenReturn(testWallet.withId(nextLong(1, Long.MAX_VALUE)));
 
-        Optional<Wallet> optionalWallet = walletServiceBtc.importWallet(testWallet.getMnemonic(), createdAt);
+        Optional<Wallet> optionalWallet = bitcoinService.importWallet(testWallet.getMnemonic(), createdAt);
 
         assertTrue(optionalWallet.isPresent());
 
@@ -110,7 +110,7 @@ public class WalletServiceBtcTest {
     public void generateWalletShouldFailForNotBTC() {
         String expectedMessage = "Currency BSV is not supported.";
 
-        Throwable t = expectingException(() -> walletServiceBtc.generateWallet("BSV"));
+        Throwable t = expectingException(() -> bitcoinService.generateWallet("BSV"));
 
         assertNotNull(t);
         assertEquals(IllegalOperationException.class, t.getClass());
@@ -122,7 +122,7 @@ public class WalletServiceBtcTest {
         String expectedMessage = "BTC wallet already exists. Currently we support only single wallet per currency";
         when(walletRepository.findAll()).thenReturn(singletonList(randomWallet()));
 
-        Throwable t = expectingException(() -> walletServiceBtc.generateWallet("BTC"));
+        Throwable t = expectingException(() -> bitcoinService.generateWallet("BTC"));
 
         assertNotNull(t);
         assertEquals(IllegalOperationException.class, t.getClass());
@@ -135,7 +135,7 @@ public class WalletServiceBtcTest {
         when(walletRepository.save(any(Wallet.class))).thenReturn(testWallet.withId(nextLong(1, Long.MAX_VALUE)));
         when(walletRepository.findAll()).thenReturn(emptyList());
 
-        Wallet wallet = walletServiceBtc.generateWallet("BTC");
+        Wallet wallet = bitcoinService.generateWallet("BTC");
 
         assertNotNull(wallet);
 

@@ -12,6 +12,9 @@ import javax.validation.constraints.NotBlank;
 public class ImportWalletRequest {
 
     @NotBlank
+    public String currency;
+
+    @NotBlank
     public String mnemonic;
 
     @Min(1322697600L)

@@ -3,7 +3,7 @@ package com.jvmp.vouchershop.controller;
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJAdapter;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJConfig;
-import com.jvmp.vouchershop.crypto.btc.WalletServiceBtc;
+import com.jvmp.vouchershop.crypto.btc.BitcoinService;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.repository.VoucherRepository;
@@ -73,7 +73,7 @@ public class VoucherControllerIT {
     private WalletRepository walletRepository;
 
     @Autowired
-    private WalletServiceBtc btcWalletService;
+    private BitcoinService btcWalletService;
 
     @Autowired
     private NetworkParameters networkParameters;

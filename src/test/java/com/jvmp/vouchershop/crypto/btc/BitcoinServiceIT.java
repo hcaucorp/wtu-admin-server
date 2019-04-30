@@ -24,7 +24,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @ActiveProfiles("it")
-public class WalletServiceBtcIT {
+public class BitcoinServiceIT {
 
     @Autowired
     private WalletRepository walletRepository;
@@ -35,12 +35,12 @@ public class WalletServiceBtcIT {
     @MockBean
     private NotificationService notificationService;
 
-    private WalletServiceBtc walletService;
+    private BitcoinService walletService;
 
     @Before
     public void setUp() {
         Context btcContext = new Context(UnitTestParams.get());
-        walletService = new WalletServiceBtc(walletRepository, btcContext.getParams(), bitcoinJAdapter,
+        walletService = new BitcoinService(walletRepository, btcContext.getParams(), bitcoinJAdapter,
                 notificationService);
     }
 

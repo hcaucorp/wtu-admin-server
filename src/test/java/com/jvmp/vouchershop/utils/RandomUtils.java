@@ -21,7 +21,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.jvmp.vouchershop.crypto.btc.WalletServiceBtc.walletWords;
+import static com.jvmp.vouchershop.crypto.btc.BitcoinService.walletWords;
 import static com.jvmp.vouchershop.voucher.impl.DefaultVoucherService.DEFAULT_VOUCHER_CODE_GENERATOR;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.apache.commons.lang3.RandomUtils.nextLong;

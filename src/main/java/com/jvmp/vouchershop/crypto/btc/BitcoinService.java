@@ -1,11 +1,11 @@
 package com.jvmp.vouchershop.crypto.btc;
 
+import com.jvmp.vouchershop.crypto.CurrencyService;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
-import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.*;
@@ -19,18 +19,19 @@ import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
+import static java.lang.String.format;
 import static java.time.Instant.ofEpochSecond;
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static org.bitcoinj.wallet.Wallet.fromSeed;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class WalletServiceBtc implements WalletService, AutoCloseable {
+public class BitcoinService implements CurrencyService, AutoCloseable {
+
+    private final static String BTC = "BTC";
 
     private final WalletRepository walletRepository;
     private final NetworkParameters networkParameters;
@@ -78,10 +79,10 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
                 .withBalance(bitcoinj.getBalance())
                 .withAddress(bitcoinjWallet.currentReceiveAddress().toString())
                 .withCreatedAt(createdAtMillis)
-                .withCurrency("BTC")
+                .withCurrency(BTC)
                 .withMnemonic(walletWords(bitcoinjWallet));
 
-        return save(wallet);
+        return walletRepository.save(wallet);
     }
 
     @Override
@@ -101,8 +102,7 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
     }
 
     private Optional<DeterministicSeed> readWalletFromDB() {
-        return walletRepository.findAll().stream()
-                .findFirst()
+        return walletRepository.findOneByCurrency(BTC)
                 .flatMap(wallet -> from(wallet.getMnemonic(), wallet.getCreatedAt()));
     }
 
@@ -115,11 +115,8 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
         }
     }
 
-    public Wallet generateWallet(String currency) {
-        if (!"BTC".equals(currency))
-            throw new IllegalOperationException("Currency " + currency + " is not supported.");
-
-        if (!walletRepository.findAll().isEmpty())
+    public Wallet generateWallet() {
+        if (walletRepository.findOneByCurrency(BTC).isPresent())
             throw new IllegalOperationException("BTC wallet already exists. Currently we support only single wallet per currency");
 
         org.bitcoinj.wallet.Wallet bitcoinjWallet = new org.bitcoinj.wallet.Wallet(networkParameters);
@@ -133,27 +130,10 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
     }
 
     @Override
-    public List<Wallet> findAll() {
-        return walletRepository.findAll().stream()
-                .map(wallet -> wallet.withBalance(bitcoinj.getBalance()))
-                .collect(toList());
-    }
-
-    @Override
-    public Optional<Wallet> findById(Long id) {
-        return walletRepository.findById(id);
-    }
-
-    @Override
-    public Wallet save(Wallet wallet) {
-        return walletRepository.save(wallet);
-    }
-
-    @Override
     public String sendMoney(Wallet from, String toAddress, long amount) {
-        if (!"BTC".equals(from.getCurrency())) {
-            log.error("Wallet {} can provide only for vouchers in BTC", from.toString());
-            throw new IllegalOperationException("Wallet " + from.toString() + " can provide only for vouchers in BTC");
+        if (!worksWith(from.getCurrency())) {
+            String message = format("Wallet %s can provide only for vouchers in %s", from.getId(), from.getCurrency());
+            throw new IllegalOperationException(message);
         }
 
         Address targetAddress = Address.fromBase58(networkParameters, toAddress);
@@ -166,15 +146,19 @@ public class WalletServiceBtc implements WalletService, AutoCloseable {
 
             return sendResult.tx.getHashAsString();
         } catch (InsufficientMoneyException e) {
-            String message = "Not enough funds " + bitcoinj.getBalance() + " on the wallet " + from.getId();
-            log.error(message);
+            String message = format("Not enough funds %d on the wallet %s", bitcoinj.getBalance(), from.getId());
             notificationService.pushRedemptionNotification(message);
             throw new IllegalOperationException(message);
         }
     }
 
     @Override
-    public boolean canHandle(String currency) {
-        return "BTC".equalsIgnoreCase(currency);
+    public long getBalance(Wallet wallet) {
+        return worksWith(wallet.getCurrency()) ? bitcoinj.getBalance() : 0;
+    }
+
+    @Override
+    public boolean worksWith(String currency) {
+        return BTC.equals(currency);
     }
 }
