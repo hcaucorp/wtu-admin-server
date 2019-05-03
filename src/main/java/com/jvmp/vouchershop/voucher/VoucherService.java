@@ -13,6 +13,10 @@ public interface VoucherService {
 
     void deleteBySku(String sku);
 
+    void publishBySku(String sku);
+
+    void unPublishBySku(String sku);
+
     void save(List<Voucher> vouchers);
 
     /**

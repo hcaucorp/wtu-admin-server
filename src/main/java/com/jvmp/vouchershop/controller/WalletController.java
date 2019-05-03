@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Nonnull;
+import javax.validation.Valid;
 import java.util.List;
 
 @RequestMapping("/api")
@@ -28,7 +30,7 @@ public class WalletController {
     }
 
     @PostMapping("/wallets")
-    public ResponseEntity<Wallet> generateWallet(@RequestBody String currency) {
+    public ResponseEntity<Wallet> generateWallet(@RequestBody String currency) throws CurrencyNotSupported {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(currencyServiceSupplier.findByCurrency(currency)
@@ -37,10 +39,12 @@ public class WalletController {
     }
 
     @PutMapping("/wallets")
-    public ResponseEntity<Object> importWallet(@RequestBody ImportWalletRequest walletDescription) {
-        currencyServiceSupplier.findByCurrency(walletDescription.)
+    public ResponseEntity<Object> importWallet(@RequestBody @Valid @Nonnull ImportWalletRequest walletDescription)
+            throws CurrencyNotSupported {
+        CurrencyService currencyService = currencyServiceSupplier.findByCurrency(walletDescription.currency)
+                .orElseThrow(() -> new CurrencyNotSupported(walletDescription.currency));
 
-        return walletService.importWallet(walletDescription)
+        return currencyService.importWallet(walletDescription)
                 .map(wallet -> ResponseEntity
                         .status(HttpStatus.CREATED)
                         .build())

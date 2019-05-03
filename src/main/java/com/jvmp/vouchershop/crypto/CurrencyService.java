@@ -5,7 +5,10 @@ import com.jvmp.vouchershop.wallet.Wallet;
 
 import java.util.Optional;
 
-public interface CurrencyService {
+/**
+ * Responsible for money related actions like sending, getting balances
+ */
+public interface CurrencyService extends AutoCloseable {
 
     Optional<Wallet> importWallet(ImportWalletRequest walletDescription);
 

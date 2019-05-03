@@ -55,6 +55,7 @@ public class WalletControllerIT {
 
     @Autowired
     private NetworkParameters networkParameters;
+
     @Autowired
     private WalletRepository walletRepository;
 
@@ -112,7 +113,7 @@ public class WalletControllerIT {
                 .put(URI.create(url))
                 .header(HttpHeaders.AUTHORIZATION, authorizationValue)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ImportWalletRequest(mnemonic, createdAt));
+                .body(new ImportWalletRequest("BTC", mnemonic, createdAt));
 
         ResponseEntity<String> response = template.exchange(url, HttpMethod.PUT, requestEntity, String.class);
 
@@ -122,6 +123,25 @@ public class WalletControllerIT {
         Wallet w = walletRepository.findAll().get(0);
         assertNotNull(w);
         assertEquals(createdAt * 1_000, w.getCreatedAt());
+    }
+
+    @Test
+    public void importWallet_shouldFailForUnknownCurrency() {
+        String url = base.toString() + "/wallets";
+        long createdAt = 1546175793;
+        String mnemonic = randomWallet(networkParameters).getMnemonic();
+
+        RequestEntity<?> requestEntity = RequestEntity
+                .put(URI.create(url))
+                .header(HttpHeaders.AUTHORIZATION, authorizationValue)
+                .contentType(MediaType.APPLICATION_JSON)
+                // unknown currency code
+                .body(new ImportWalletRequest("ZZZ", mnemonic, createdAt));
+
+        ResponseEntity<String> response = template.exchange(url, HttpMethod.PUT, requestEntity, String.class);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
     }
 
     @Test

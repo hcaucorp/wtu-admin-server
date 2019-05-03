@@ -1,6 +1,8 @@
 package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.Application;
+import com.jvmp.vouchershop.crypto.CurrencyService;
+import com.jvmp.vouchershop.crypto.bch.BitcoinCashService;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJAdapter;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJConfig;
 import com.jvmp.vouchershop.crypto.btc.BitcoinService;
@@ -14,6 +16,7 @@ import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
 import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
 import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
+import com.jvmp.vouchershop.wallet.CurrencyServiceSupplier;
 import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.Context;
@@ -39,6 +42,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
+import static com.jvmp.vouchershop.crypto.bch.BitcoinCashService.BCH;
+import static com.jvmp.vouchershop.crypto.btc.BitcoinService.BTC;
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.*;
@@ -73,7 +78,13 @@ public class VoucherControllerIT {
     private WalletRepository walletRepository;
 
     @Autowired
-    private BitcoinService btcWalletService;
+    private CurrencyServiceSupplier currencyServiceSupplier;
+
+    @Autowired
+    private BitcoinCashService bitcoinCashService;
+
+    @Autowired
+    private BitcoinService bitcoinService;
 
     @Autowired
     private NetworkParameters networkParameters;
@@ -167,13 +178,24 @@ public class VoucherControllerIT {
     }
 
     @Test
-    public void redeemVoucher() throws UnreadableWalletException {
+    public void redeemBtcVoucher() throws UnreadableWalletException {
         // receive address: myAUke4cumJb6fYvHAGvXVMzHbKTusrixG
-        Wallet wallet = btcWalletService.importWallet(
+        redeemVoucher(BTC);
+    }
+
+    @Test
+    public void redeemBchVoucher() throws UnreadableWalletException {
+        redeemVoucher(BCH);
+    }
+
+
+    public void redeemVoucher(String currency) throws UnreadableWalletException {
+        CurrencyService currencyService = currencyServiceSupplier.apply(currency);
+        Wallet wallet = currencyService.importWallet(
                 "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary", 1546128000L)
                 .orElseThrow(IllegalOperationException::new);
 
-        btcWalletService.findAll(); // to start the service
+        currencyService.start();
 
         log.info("Service should be running now.");
 

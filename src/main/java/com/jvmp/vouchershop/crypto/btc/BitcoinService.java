@@ -31,7 +31,7 @@ import static org.bitcoinj.wallet.Wallet.fromSeed;
 @RequiredArgsConstructor
 public class BitcoinService implements CurrencyService, AutoCloseable {
 
-    private final static String BTC = "BTC";
+    public final static String BTC = "BTC";
 
     private final WalletRepository walletRepository;
     private final NetworkParameters networkParameters;

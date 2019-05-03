@@ -29,7 +29,8 @@ public class DefaultWalletService implements WalletService {
 
     @Override
     public Wallet generateWallet(String currency) {
-        return null;
+        return currencyServiceSupplier.findByCurrency(currency)
+                .generateWallet();
     }
 
     @Override

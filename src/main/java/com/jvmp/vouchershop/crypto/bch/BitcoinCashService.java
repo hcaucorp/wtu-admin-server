@@ -29,7 +29,7 @@ import static java.util.Collections.emptyList;
 @RequiredArgsConstructor
 public class BitcoinCashService implements CurrencyService, AutoCloseable {
 
-    private final static String BCH = "BCH";
+    public final static String BCH = "BCH";
 
     private final WalletRepository walletRepository;
     private final NetworkParameters networkParameters;

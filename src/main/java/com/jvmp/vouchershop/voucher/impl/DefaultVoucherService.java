@@ -6,6 +6,7 @@ import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.voucher.VoucherNotFoundException;
 import com.jvmp.vouchershop.voucher.VoucherService;
+import com.jvmp.vouchershop.wallet.CurrencyServiceSupplier;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static com.jvmp.vouchershop.voucher.impl.VoucherValidations.*;
+import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
 @Slf4j
@@ -32,12 +34,15 @@ public class DefaultVoucherService implements VoucherService {
 
     private final WalletService walletService;
     private final VoucherRepository voucherRepository;
+    private final CurrencyServiceSupplier currencyServiceSupplier;
 
     @Override
     public List<Voucher> generateVouchers(VoucherGenerationDetails spec) {
-        if (spec.totalAmount % spec.count != 0)
-            throw new IllegalOperationException("Total amount must be divisible by count because all vouchers must be identical. Current specification is " +
-                    "incorrect: can't split amount of: " + spec.totalAmount + " into " + spec.count + " equal pieces.");
+        if (spec.totalAmount % spec.count != 0) {
+            String message = format("Total amount must be divisible by count because all vouchers must be identical. Current " +
+                    "specification is incorrect: can't split amount of: %s into %s equal pieces.", spec.totalAmount, spec.count);
+            throw new IllegalOperationException(message);
+        }
 
         String currency = walletService.findById(spec.walletId)
                 .map(Wallet::getCurrency)
@@ -71,6 +76,27 @@ public class DefaultVoucherService implements VoucherService {
     }
 
     @Override
+    public void publishBySku(String sku) {
+        List<Voucher> vouchers = voucherRepository.findByPublishedFalseAndSku(sku)
+                .stream()
+                .map(voucher -> voucher.withPublished(true))
+                .collect(toList());
+        if (!vouchers.isEmpty())
+            voucherRepository.saveAll(vouchers);
+    }
+
+    @Override
+    public void unPublishBySku(String sku) {
+        List<Voucher> vouchers = voucherRepository.findByPublishedTrueAndSku(sku)
+                .stream()
+                .map(voucher -> voucher.withPublished(false))
+                .collect(toList());
+        if (!vouchers.isEmpty())
+            voucherRepository.saveAll(vouchers);
+    }
+
+
+    @Override
     public void save(List<Voucher> vouchers) {
         voucherRepository.saveAll(vouchers);
     }
@@ -90,7 +116,9 @@ public class DefaultVoucherService implements VoucherService {
         checkIfWalletCurrency(wallet, detail.getCurrency());
 
         // send money
-        String transactionHash = walletService.sendMoney(wallet, detail.getDestinationAddress(), voucher.getAmount());
+        String transactionHash = currencyServiceSupplier.findByCurrency(detail.getCurrency())
+                .sendMoney(wallet, detail.getDestinationAddress(), voucher.getAmount());
+
         voucherRepository.save(voucher.withRedeemed(true));
 
         return RedemptionUtils.fromTxHash(transactionHash);

@@ -2,6 +2,7 @@ package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJAdapter;
+import com.jvmp.vouchershop.exception.CurrencyNotSupported;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.security.TestSecurityConfig;
 import com.jvmp.vouchershop.wallet.Wallet;
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static com.jvmp.vouchershop.utils.RandomUtils.randomWallet;
 import static java.util.Collections.emptyList;
+import static junit.framework.TestCase.fail;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.mockito.Mockito.when;
@@ -91,6 +93,8 @@ public class WalletControllerTest {
         when(walletRepository.findAll()).thenReturn(emptyList());
         when(walletRepository.save(ArgumentMatchers.any(Wallet.class))).thenReturn(new Wallet());
 
+        fail("apply pojo ");
+        fail("test currency service resolution");
         mvc.perform(put(baseUrl + "/wallets")
                 //todo: create a pojo for this
                 .content("{\n" +
@@ -100,5 +104,10 @@ public class WalletControllerTest {
                         "        }")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
+    }
+
+    @Test(expected = CurrencyNotSupported.class)
+    public void importWallet_unsupportedCurrency_shouldFail() {
+        fail("anyway");
     }
 }
