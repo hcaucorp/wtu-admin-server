@@ -2,6 +2,7 @@
 /.idea
 /target
 /bitcoinj-cash
+.DS_Store
 
 *.iml
 

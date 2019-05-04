@@ -20,5 +20,6 @@ public class RedemptionRequest implements Serializable {
     @NotBlank
     private String voucherCode;
 
+    @NotBlank
     private String currency;
 }

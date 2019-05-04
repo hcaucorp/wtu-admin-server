@@ -21,14 +21,14 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
+import static java.lang.String.format;
+
 @RequestMapping("/api")
 @RequiredArgsConstructor
 @RestController
 @CrossOrigin
 @Slf4j
 public class VoucherController {
-
-    static final String HTTP_HEADER_X_WALLETTOPUP_HMAC_SHA512 = "X-WalletTopUp-Hmac-SHA512";
 
     private final NotificationService notificationService;
     private final VoucherService voucherService;
@@ -73,14 +73,15 @@ public class VoucherController {
 
             return response;
         } catch (VoucherNotFoundException e) {
-            log.warn("Tried to redeem absent voucher: {} to a wallet: {}", detail.getVoucherCode(), detail.getDestinationAddress());
-            notificationService.pushRedemptionNotification("Tried to redeem absent voucher: " + detail.getVoucherCode() +
-                    " to a wallet: " + detail.getDestinationAddress());
+            String message = format("Tried to redeem absent voucher: %s to a wallet: %s", detail.getVoucherCode(), detail.getDestinationAddress());
+            log.warn(message);
+            notificationService.pushRedemptionNotification(message);
             redemptionAttemptService.failed(ip);
             throw e;
         } catch (Exception e) {
-            log.error("Redemption attempted but failed with exception: {}", e.getMessage());
-            notificationService.pushRedemptionNotification("Redemption attempted but failed with exception: " + e.getMessage());
+            String message = "Redemption attempted but failed with exception: " + e.getMessage();
+            log.error(message);
+            notificationService.pushRedemptionNotification(message);
             throw new IllegalOperationException();
         }
     }
