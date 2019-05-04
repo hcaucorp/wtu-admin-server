@@ -5,7 +5,7 @@ import lombok.experimental.UtilityClass;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.jvmp.vouchershop.Collections.asSet;
+import static com.jvmp.Collections.asSet;
 
 @UtilityClass
 public class RedemptionUtils {

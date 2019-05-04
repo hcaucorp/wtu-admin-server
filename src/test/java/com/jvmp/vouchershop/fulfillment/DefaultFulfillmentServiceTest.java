@@ -2,7 +2,6 @@ package com.jvmp.vouchershop.fulfillment;
 
 import com.jvmp.vouchershop.email.EmailService;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
-import com.jvmp.vouchershop.exception.InvalidOrderException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.FulfillmentRepository;
 import com.jvmp.vouchershop.repository.VoucherRepository;
@@ -23,7 +22,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.jvmp.vouchershop.Collections.asSet;
+import static com.jvmp.Collections.asSet;
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
 import static com.jvmp.vouchershop.voucher.impl.DefaultVoucherService.DEFAULT_VOUCHER_CODE_GENERATOR;
 import static java.util.Arrays.asList;

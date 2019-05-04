@@ -110,7 +110,7 @@ public class BitcoinServiceTest {
     public void generateWalletShouldFailForNotBTC() {
         String expectedMessage = "Currency BSV is not supported.";
 
-        Throwable t = expectingException(() -> bitcoinService.generateWallet("BSV"));
+        Throwable t = expectingException(() -> bitcoinService.generateWallet());
 
         assertNotNull(t);
         assertEquals(IllegalOperationException.class, t.getClass());
@@ -122,7 +122,7 @@ public class BitcoinServiceTest {
         String expectedMessage = "BTC wallet already exists. Currently we support only single wallet per currency";
         when(walletRepository.findAll()).thenReturn(singletonList(randomWallet()));
 
-        Throwable t = expectingException(() -> bitcoinService.generateWallet("BTC"));
+        Throwable t = expectingException(() -> bitcoinService.generateWallet());
 
         assertNotNull(t);
         assertEquals(IllegalOperationException.class, t.getClass());
@@ -135,7 +135,7 @@ public class BitcoinServiceTest {
         when(walletRepository.save(any(Wallet.class))).thenReturn(testWallet.withId(nextLong(1, Long.MAX_VALUE)));
         when(walletRepository.findAll()).thenReturn(emptyList());
 
-        Wallet wallet = bitcoinService.generateWallet("BTC");
+        Wallet wallet = bitcoinService.generateWallet();
 
         assertNotNull(wallet);
 

@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import static com.jvmp.vouchershop.crypto.bch.BitcoinCashService.BCH;
 import static com.jvmp.vouchershop.crypto.btc.BitcoinService.BTC;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
@@ -27,7 +28,7 @@ public class CurrencyServiceSupplierIT {
 
     @Test
     public void testCorrectSpringContextAndServiceResolution() {
-        assertEquals(bitcoinService, subject.apply(BTC));
-        assertEquals(bitcoinCashService, subject.apply(BCH));
+        assertEquals(bitcoinService, subject.findByCurrency(BTC));
+        assertEquals(bitcoinCashService, subject.findByCurrency(BCH));
     }
 }

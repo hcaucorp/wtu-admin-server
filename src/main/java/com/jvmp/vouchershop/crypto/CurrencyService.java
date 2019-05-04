@@ -18,5 +18,5 @@ public interface CurrencyService extends AutoCloseable {
 
     long getBalance(Wallet wallet);
 
-    boolean worksWith(String currency);
+    boolean acceptsCurrency(String currency);
 }

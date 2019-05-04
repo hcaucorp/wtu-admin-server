@@ -17,11 +17,11 @@ import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
 import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
 import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
 import com.jvmp.vouchershop.wallet.CurrencyServiceSupplier;
+import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.Context;
 import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.wallet.UnreadableWalletException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -178,24 +178,28 @@ public class VoucherControllerIT {
     }
 
     @Test
-    public void redeemBtcVoucher() throws UnreadableWalletException {
+    public void redeemBtcVoucher() {
         // receive address: myAUke4cumJb6fYvHAGvXVMzHbKTusrixG
         redeemVoucher(BTC);
     }
 
     @Test
-    public void redeemBchVoucher() throws UnreadableWalletException {
+    public void redeemBchVoucher() {
         redeemVoucher(BCH);
     }
 
 
-    public void redeemVoucher(String currency) throws UnreadableWalletException {
-        CurrencyService currencyService = currencyServiceSupplier.apply(currency);
+    public void redeemVoucher(String currency) {
+        CurrencyService currencyService = currencyServiceSupplier.findByCurrency(currency);
         Wallet wallet = currencyService.importWallet(
-                "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary", 1546128000L)
+                ImportWalletRequest.of(currency, "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary", 1546128000L))
                 .orElseThrow(IllegalOperationException::new);
 
-        currencyService.start();
+        if (currencyService instanceof BitcoinService)
+            ((BitcoinService) currencyService).start();
+
+        if (currencyService instanceof BitcoinCashService)
+            ((BitcoinCashService) currencyService).start();
 
         log.info("Service should be running now.");
 

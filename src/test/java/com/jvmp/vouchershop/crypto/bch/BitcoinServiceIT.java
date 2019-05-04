@@ -1,6 +1,8 @@
-package com.jvmp.vouchershop.crypto.btc;
+package com.jvmp.vouchershop.crypto.bch;
 
 import com.jvmp.vouchershop.Application;
+import com.jvmp.vouchershop.crypto.btc.BitcoinJAdapter;
+import com.jvmp.vouchershop.crypto.btc.BitcoinService;
 import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.Wallet;

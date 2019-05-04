@@ -1,14 +1,16 @@
 package com.jvmp.vouchershop.wallet;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Value;
+import lombok.experimental.Wither;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
 @AllArgsConstructor
-@Data
+@Value(staticConstructor = "of")
+@Wither
 public class ImportWalletRequest {
 
     @NotBlank

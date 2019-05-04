@@ -36,9 +36,10 @@ public class DefaultWalletService implements WalletService {
     @Override
     public List<Wallet> findAll() {
         return walletRepository.findAll().stream()
-                .map(wallet -> currencyServiceSupplier.findByCurrency(wallet.getCurrency())
-                        .map(currencyService -> wallet.withBalance(currencyService.getBalance(wallet)))
-                        .orElse(wallet))
+                .map(wallet -> wallet
+                        .withBalance(currencyServiceSupplier
+                                .findByCurrency(wallet.getCurrency())
+                                .getBalance(wallet)))
                 .collect(toList());
     }
 

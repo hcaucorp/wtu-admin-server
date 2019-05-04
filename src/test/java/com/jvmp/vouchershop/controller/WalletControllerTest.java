@@ -1,8 +1,8 @@
 package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.Application;
+import com.jvmp.vouchershop.crypto.CurrencyNotSupported;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJAdapter;
-import com.jvmp.vouchershop.exception.CurrencyNotSupported;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.security.TestSecurityConfig;
 import com.jvmp.vouchershop.wallet.Wallet;

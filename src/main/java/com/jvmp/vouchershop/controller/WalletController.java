@@ -1,7 +1,7 @@
 package com.jvmp.vouchershop.controller;
 
+import com.jvmp.vouchershop.crypto.CurrencyNotSupported;
 import com.jvmp.vouchershop.crypto.CurrencyService;
-import com.jvmp.vouchershop.exception.CurrencyNotSupported;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.CurrencyServiceSupplier;
 import com.jvmp.vouchershop.wallet.ImportWalletRequest;
@@ -31,18 +31,18 @@ public class WalletController {
 
     @PostMapping("/wallets")
     public ResponseEntity<Wallet> generateWallet(@RequestBody String currency) throws CurrencyNotSupported {
+
+        Wallet wallet = currencyServiceSupplier.findByCurrency(currency).generateWallet();
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(currencyServiceSupplier.findByCurrency(currency)
-                        .map(CurrencyService::generateWallet)
-                        .orElseThrow(() -> new CurrencyNotSupported(currency)));
+                .body(wallet);
     }
 
     @PutMapping("/wallets")
-    public ResponseEntity<Object> importWallet(@RequestBody @Valid @Nonnull ImportWalletRequest walletDescription)
-            throws CurrencyNotSupported {
-        CurrencyService currencyService = currencyServiceSupplier.findByCurrency(walletDescription.currency)
-                .orElseThrow(() -> new CurrencyNotSupported(walletDescription.currency));
+    public ResponseEntity<Object> importWallet(@RequestBody @Valid @Nonnull ImportWalletRequest walletDescription) throws CurrencyNotSupported {
+
+        CurrencyService currencyService = currencyServiceSupplier.findByCurrency(walletDescription.currency);
 
         return currencyService.importWallet(walletDescription)
                 .map(wallet -> ResponseEntity

@@ -41,9 +41,12 @@ public class Wallet implements Serializable {
     @Size(min = 3, max = 3)
     private String currency;
 
+    /**
+     * In millis. Minimum value 1322697600000L (12/01/2011 @ 12:00am (UTC))
+     */
     @Column(name = "created_at", nullable = false, updatable = false)
-    @Min(1322697600000L) // 12/01/2011 @ 12:00am (UTC)
-    private long createdAt; // in milliseconds
+    @Min(1322697600000L) //
+    private long createdAt;
 
     @Override
     public boolean equals(Object o) {

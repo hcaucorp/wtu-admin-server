@@ -1,7 +1,7 @@
 package com.jvmp.vouchershop.wallet;
 
+import com.jvmp.vouchershop.crypto.CurrencyNotSupported;
 import com.jvmp.vouchershop.crypto.CurrencyService;
-import com.jvmp.vouchershop.exception.CurrencyNotSupported;
 import com.jvmp.vouchershop.exception.InvalidConfigurationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ public class CurrencyServiceSupplier {
 
     public CurrencyService findByCurrency(String currency) {
         Set<CurrencyService> currencyServices = registeredServices.stream()
-                .filter(currencyService -> currencyService.worksWith(currency))
+                .filter(currencyService -> currencyService.acceptsCurrency(currency))
                 .collect(toSet());
 
         if (currencyServices.size() > 1) {

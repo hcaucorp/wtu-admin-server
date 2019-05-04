@@ -3,7 +3,6 @@ package com.jvmp.vouchershop.fulfillment;
 import com.google.common.annotations.VisibleForTesting;
 import com.jvmp.vouchershop.email.EmailService;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
-import com.jvmp.vouchershop.exception.InvalidOrderException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.FulfillmentRepository;
 import com.jvmp.vouchershop.repository.VoucherRepository;

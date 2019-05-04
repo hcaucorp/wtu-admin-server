@@ -1,10 +1,12 @@
 package com.jvmp.vouchershop.voucher.impl;
 
+import com.jvmp.vouchershop.crypto.CurrencyService;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.voucher.VoucherNotFoundException;
+import com.jvmp.vouchershop.wallet.CurrencyServiceSupplier;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import org.bitcoinj.core.Context;
@@ -20,6 +22,7 @@ import java.util.Optional;
 
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -32,13 +35,20 @@ public class DefaultVoucherServiceTest {
     @Mock
     private VoucherRepository voucherRepository;
 
+    @Mock
+    private CurrencyServiceSupplier currencyServiceSupplier;
+
+    @Mock
+    private CurrencyService currencyService;
+
     private DefaultVoucherService subject;
 
     @Before
     public void setUp() {
         Context btcContext = new Context(UnitTestParams.get());
         Context.propagate(btcContext);
-        subject = new DefaultVoucherService(walletService, voucherRepository);
+        when(currencyServiceSupplier.findByCurrency(any())).thenReturn(currencyService);
+        subject = new DefaultVoucherService(walletService, voucherRepository, currencyServiceSupplier);
     }
 
     @Test(expected = IllegalOperationException.class)
@@ -104,7 +114,7 @@ public class DefaultVoucherServiceTest {
 
         when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.of(voucher));
         when(walletService.findById(eq(wallet.getId()))).thenReturn(Optional.of(wallet));
-        when(walletService.sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()))).thenThrow(new IllegalOperationException());
+        when(currencyService.sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()))).thenThrow(new IllegalOperationException());
 
         subject.redeemVoucher(new RedemptionRequest(destinationAddress, code, null));
     }
@@ -122,11 +132,11 @@ public class DefaultVoucherServiceTest {
 
         when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.of(voucher));
         when(walletService.findById(eq(wallet.getId()))).thenReturn(Optional.of(wallet));
-        when(walletService.sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()))).thenReturn(randomString());
+        when(currencyService.sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()))).thenReturn(randomString());
 
         subject.redeemVoucher(new RedemptionRequest(destinationAddress, code, null));
 
-        verify(walletService, times(1)).sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()));
+        verify(currencyService, times(1)).sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()));
         verify(voucherRepository, times(1)).save(eq(voucher.withRedeemed(true)));
     }
 
@@ -190,11 +200,37 @@ public class DefaultVoucherServiceTest {
 
         when(voucherRepository.findByCode(eq(code))).thenReturn(Optional.of(voucher));
         when(walletService.findById(eq(wallet.getId()))).thenReturn(Optional.of(wallet));
-        when(walletService.sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()))).thenReturn(randomString());
+        when(currencyService.sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()))).thenReturn(randomString());
 
         subject.redeemVoucher(new RedemptionRequest(destinationAddress, code, wallet.getCurrency()));
 
-        verify(walletService, times(1)).sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()));
+        verify(currencyService, times(1)).sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()));
         verify(voucherRepository, times(1)).save(eq(voucher.withRedeemed(true)));
+    }
+
+    @Test
+    public void publishVouchersBySku_noVoucherFound() {
+        fail();
+    }
+
+    @Test
+    public void publishVouchersBySku_shouldSuceedForMultipleVouchers() {
+        fail();
+    }
+
+    @Test
+    public void unPublishVouchersBySku_noSku() {
+        fail();
+    }
+
+
+    @Test
+    public void unPublishVouchersBySku_shouldSucceedForMultipleVouchers() {
+        fail();
+    }
+
+    @Test
+    public void unPublishVouchersBySku_shouldNotUnpublishSoldVouchers() {
+        fail();
     }
 }

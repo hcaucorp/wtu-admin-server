@@ -131,7 +131,7 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
 
     @Override
     public String sendMoney(Wallet from, String toAddress, long amount) {
-        if (!worksWith(from.getCurrency())) {
+        if (!acceptsCurrency(from.getCurrency())) {
             String message = format("Wallet %s can provide only for vouchers in %s", from.getId(), from.getCurrency());
             throw new IllegalOperationException(message);
         }
@@ -146,7 +146,7 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
 
             return sendResult.tx.getHashAsString();
         } catch (InsufficientMoneyException e) {
-            String message = format("Not enough funds %d on the wallet %s", bitcoinj.getBalance(), from.getId());
+            String message = format("Not enough funds %s wallet. Available %d, but requested %d", from.getId(), bitcoinj.getBalance(), amount);
             notificationService.pushRedemptionNotification(message);
             throw new IllegalOperationException(message);
         }
@@ -154,11 +154,11 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
 
     @Override
     public long getBalance(Wallet wallet) {
-        return worksWith(wallet.getCurrency()) ? bitcoinj.getBalance() : 0;
+        return acceptsCurrency(wallet.getCurrency()) ? bitcoinj.getBalance() : 0;
     }
 
     @Override
-    public boolean worksWith(String currency) {
+    public boolean acceptsCurrency(String currency) {
         return BTC.equals(currency);
     }
 }

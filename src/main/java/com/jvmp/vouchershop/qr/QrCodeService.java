@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public interface QrCodeService {
 
-    String QR_CODE_MESSAGE_FORMAT = "wallettopup.co.uk,%s,%s";
+    String QR_CODE_MESSAGE_FORMAT = "%s,%s,wtu";
 
     /**
      * <p>

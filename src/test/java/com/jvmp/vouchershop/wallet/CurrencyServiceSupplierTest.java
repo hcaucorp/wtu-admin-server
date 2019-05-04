@@ -1,28 +1,42 @@
 package com.jvmp.vouchershop.wallet;
 
+import com.jvmp.vouchershop.crypto.CurrencyNotSupported;
+import com.jvmp.vouchershop.crypto.CurrencyService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.junit.Assert.fail;
+import static com.jvmp.vouchershop.utils.RandomUtils.randomCurrency;
+import static java.util.Collections.singletonList;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CurrencyServiceSupplierTest {
 
+    @Mock
+    private CurrencyService currencyService;
+
     private CurrencyServiceSupplier subject;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
+        subject = new CurrencyServiceSupplier(singletonList(currencyService));
     }
 
     @Test
     public void findByCurrency() {
-        fail();
+        String currency = randomCurrency();
+        when(currencyService.acceptsCurrency(eq(currency))).thenReturn(true);
+
+        assertEquals(currencyService, subject.findByCurrency(currency));
     }
 
-    @Test
-    public void apply() {
-        fail();
+    @Test(expected = CurrencyNotSupported.class)
+    public void findByCurrency_notSupportedCurrency() {
+        subject.findByCurrency(randomCurrency());
     }
 }

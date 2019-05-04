@@ -21,7 +21,8 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-import static com.jvmp.vouchershop.voucher.impl.VoucherValidations.*;
+import static com.jvmp.vouchershop.voucher.impl.VoucherValidations.checkIfRedeemable;
+import static com.jvmp.vouchershop.voucher.impl.VoucherValidations.checkIfRefundable;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
@@ -77,6 +78,8 @@ public class DefaultVoucherService implements VoucherService {
 
     @Override
     public void publishBySku(String sku) {
+        //TODO check if required balance is present on corresponding wallet
+
         List<Voucher> vouchers = voucherRepository.findByPublishedFalseAndSku(sku)
                 .stream()
                 .map(voucher -> voucher.withPublished(true))
@@ -112,8 +115,6 @@ public class DefaultVoucherService implements VoucherService {
 
         Wallet wallet = walletService.findById(voucher.getWalletId())
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet " + voucher.getWalletId() + " not found."));
-
-        checkIfWalletCurrency(wallet, detail.getCurrency());
 
         // send money
         String transactionHash = currencyServiceSupplier.findByCurrency(detail.getCurrency())

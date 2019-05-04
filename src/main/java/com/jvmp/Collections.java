@@ -1,4 +1,4 @@
-package com.jvmp.vouchershop;
+package com.jvmp;
 
 import lombok.experimental.UtilityClass;
 

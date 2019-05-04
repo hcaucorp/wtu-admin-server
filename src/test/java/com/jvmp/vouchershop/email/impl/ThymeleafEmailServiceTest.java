@@ -27,7 +27,7 @@ import javax.mail.internet.MimeMessage;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.jvmp.vouchershop.Collections.asSet;
+import static com.jvmp.Collections.asSet;
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
 import static org.junit.Assert.assertEquals;

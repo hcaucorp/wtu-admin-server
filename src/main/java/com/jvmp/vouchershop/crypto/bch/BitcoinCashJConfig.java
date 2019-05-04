@@ -39,6 +39,6 @@ public class BitcoinCashJConfig {
     public WalletAppKit walletAppKit(NetworkParameters networkParameters) {
         String fileSuffix = networkType + "wallet.storage";
 
-        return new WalletAppKit(networkParameters, new File(".btc"), fileSuffix);
+        return new WalletAppKit(networkParameters, new File(".bch"), fileSuffix);
     }
 }

@@ -34,7 +34,19 @@ public class Fulfillment {
 
     // this should be called orderNumber
     @Column(name = "order_id", nullable = false, updatable = false)
-    private Long orderId; // TODO refactor to orderNumber
+    private Long orderId;
+
+    //TODO to refactor orderId to orderNumber:
+    //     1. Add orderNumber field - DONE
+    //     2. Deploy
+    //     2. Switch source code to use orderNumber instead of orderId
+    //     3. Copy over values from orderId to orderNumber in db (manually?). This is just an exercise
+    //     3. Deploy
+    //     3. Copy over values from orderId to orderNumber in db AGAIN. (manually?)
+    //     7. Try to add nullable = false, updatable = false constraints to orderNumber column
+
+    @Column(name = "orderNumber")
+    private Long orderNumber;
 
     @Column(name = "completed_at", nullable = false, updatable = false)
     @CreatedDate
