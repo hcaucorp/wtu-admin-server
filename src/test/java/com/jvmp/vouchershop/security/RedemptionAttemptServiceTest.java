@@ -2,6 +2,7 @@ package com.jvmp.vouchershop.security;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import static com.jvmp.vouchershop.utils.RandomUtils.randomString;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
@@ -24,19 +25,21 @@ public class RedemptionAttemptServiceTest {
     @Test
     public void testBlockingAndReset() {
         String ip = randomString(); // random ip?
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRemoteAddr(ip);
 
         for (int i = 0; i < maxAttempts - 1; i++) {
             assertFalse(subject.isBlocked(ip));
-            subject.failed(ip);
+            subject.failed(request);
         }
 
         assertFalse(subject.isBlocked(ip));
 
-        subject.succeeded(ip); // should reset counter
+        subject.succeeded(request); // should reset counter
 
         for (int i = 0; i < maxAttempts; i++) {
             assertFalse(subject.isBlocked(ip));
-            subject.failed(ip);
+            subject.failed(request);
         }
 
         assertTrue(subject.isBlocked(ip));

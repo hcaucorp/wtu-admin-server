@@ -1,12 +1,13 @@
 package com.jvmp.vouchershop.wallet.impl;
 
+import com.jvmp.vouchershop.crypto.CurrencyServiceSupplier;
 import com.jvmp.vouchershop.repository.WalletRepository;
-import com.jvmp.vouchershop.wallet.CurrencyServiceSupplier;
 import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bitcoinj.wallet.UnreadableWalletException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -23,8 +24,9 @@ public class DefaultWalletService implements WalletService {
     private final CurrencyServiceSupplier currencyServiceSupplier;
 
     @Override
-    public Optional<Wallet> importWallet(ImportWalletRequest walletDescription) {
-        return Optional.empty();
+    public Wallet importWallet(ImportWalletRequest walletDescription) throws UnreadableWalletException {
+        return currencyServiceSupplier.findByCurrency(walletDescription.currency)
+                .importWallet(walletDescription);
     }
 
     @Override

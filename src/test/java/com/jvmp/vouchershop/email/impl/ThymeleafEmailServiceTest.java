@@ -6,8 +6,6 @@ import com.jvmp.vouchershop.qr.QrCodeService;
 import com.jvmp.vouchershop.shopify.domain.Customer;
 import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;
-import com.jvmp.vouchershop.wallet.WalletService;
-import org.bitcoinj.params.TestNet3Params;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +22,6 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.jvmp.Collections.asSet;
@@ -45,9 +42,6 @@ public class ThymeleafEmailServiceTest {
     private JavaMailSender javaMailSender;
 
     @Mock
-    private WalletService walletService;
-
-    @Mock
     private QrCodeService qrCodeService;
 
     @Mock
@@ -59,7 +53,6 @@ public class ThymeleafEmailServiceTest {
     public void setUp() throws Exception {
         when(templateEngine.process(any(String.class), any(IContext.class))).thenReturn(randomString());
         when(javaMailSender.createMimeMessage()).thenReturn(new M3());
-        when(walletService.findById(any())).thenReturn(Optional.of(randomWallet(TestNet3Params.get())));
         when(qrCodeService.createQRCode(any())).thenReturn(qrCode);
         when(qrCode.getBytes()).thenReturn("".getBytes());
         when(qrCode.toInputStreamSource()).thenReturn(new InMemoryResource(""));

@@ -1,7 +1,8 @@
 package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.Application;
-import com.jvmp.vouchershop.crypto.btc.BitcoinJAdapter;
+import com.jvmp.vouchershop.crypto.CurrencyService;
+import com.jvmp.vouchershop.crypto.CurrencyServiceSupplier;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJConfig;
 import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.repository.VoucherRepository;
@@ -54,8 +55,7 @@ import static org.mockito.Mockito.*;
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @MockBeans({
-        @MockBean(NotificationService.class),
-        @MockBean(BitcoinJAdapter.class)
+        @MockBean(NotificationService.class)
 })
 public class VoucherControllerStressTest {
 
@@ -75,6 +75,12 @@ public class VoucherControllerStressTest {
 
     @MockBean
     private WalletService walletService;
+
+    @MockBean
+    private CurrencyServiceSupplier currencyServiceSupplier;
+
+    @MockBean(name = "bitcoinService")
+    private CurrencyService currencyService;
 
     private String authorizationValue;
 
@@ -96,7 +102,8 @@ public class VoucherControllerStressTest {
 
         wallet = randomWallet(TestNet3Params.get());
         when(walletService.findById(any())).thenReturn(Optional.of(wallet));
-        when(walletService.sendMoney(any(), any(), anyLong())).thenReturn(randomString());
+        when(currencyService.sendMoney(any(), any(), anyLong())).thenReturn(randomString());
+        when(currencyServiceSupplier.findByCurrency(any())).thenReturn(currencyService);
     }
 
     @Test
@@ -117,7 +124,7 @@ public class VoucherControllerStressTest {
         assertTrue(byId.isPresent());
         assertTrue(byId.get().isRedeemed());
 
-        verify(walletService, times(1)).sendMoney(wallet, destinationAddress, voucher.getAmount());
+        verify(currencyService, times(1)).sendMoney(wallet, destinationAddress, voucher.getAmount());
     }
 
     public void runSimulation(int numWorkers) throws InterruptedException {

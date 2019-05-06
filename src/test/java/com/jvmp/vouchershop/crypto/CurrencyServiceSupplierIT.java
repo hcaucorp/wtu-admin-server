@@ -1,4 +1,4 @@
-package com.jvmp.vouchershop.wallet;
+package com.jvmp.vouchershop.crypto;
 
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.crypto.bch.BitcoinCashService;

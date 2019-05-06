@@ -21,7 +21,7 @@ public class BitcoinCashJConfig {
     @Value(PropertyNames.BITCOIN_NETWORK)
     private String networkType;
 
-    @Bean
+    @Bean("BitcoinCashNetworkProperties")
     public NetworkParameters networkParameters() {
         switch (networkType) {
             case "testnet":
@@ -35,7 +35,7 @@ public class BitcoinCashJConfig {
         }
     }
 
-    @Bean
+    @Bean("BitcoinCashWalletAppKit")
     public WalletAppKit walletAppKit(NetworkParameters networkParameters) {
         String fileSuffix = networkType + "wallet.storage";
 

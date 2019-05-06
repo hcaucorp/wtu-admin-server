@@ -11,7 +11,6 @@ import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 @Data
@@ -30,10 +29,6 @@ public class Voucher implements Serializable {
     @Column(nullable = false, updatable = false, unique = true)
     @NotBlank
     private String code;
-
-    @Column(nullable = false, updatable = false, length = 3)
-    @Size(min = 3, max = 3)
-    private String currency;
 
     @Id
     @GeneratedValue(generator = "voucher_generator")
@@ -69,8 +64,4 @@ public class Voucher implements Serializable {
      */
     @Column(name = "expires_at")
     private long expiresAt;
-
-    public String toQrCodeString() {
-        return null;
-    }
 }

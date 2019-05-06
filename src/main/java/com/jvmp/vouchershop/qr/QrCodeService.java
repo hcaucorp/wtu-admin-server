@@ -7,16 +7,7 @@ import java.io.IOException;
 
 public interface QrCodeService {
 
-    String QR_CODE_MESSAGE_FORMAT = "%s,%s,wtu";
-
     /**
-     * <p>
-     * Creates a csv string with "wallettopup.co.uk" identifying that it is a Wallet Top Up brand voucher, then voucher code, then currency:
-     *
-     * <br>
-     * wallettopup.co.uk,voucher-code,currency
-     *
-     * </p>
      * <p>
      * This is for client wallets to be able to recognize QR code as redeemable voucher coming from us and to make
      * sure to redeem wallet to correct block chain. Make sure to respect CURRENCY, otherwise you could

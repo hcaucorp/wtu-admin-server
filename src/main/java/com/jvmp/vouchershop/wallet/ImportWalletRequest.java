@@ -9,7 +9,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
 @AllArgsConstructor
-@Value(staticConstructor = "of")
+@Value
 @Wither
 public class ImportWalletRequest {
 

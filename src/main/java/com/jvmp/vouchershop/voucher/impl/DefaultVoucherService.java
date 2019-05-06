@@ -1,12 +1,13 @@
 package com.jvmp.vouchershop.voucher.impl;
 
+import com.jvmp.vouchershop.crypto.CurrencyServiceSupplier;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.voucher.Voucher;
+import com.jvmp.vouchershop.voucher.VoucherCodeGenerator;
 import com.jvmp.vouchershop.voucher.VoucherNotFoundException;
 import com.jvmp.vouchershop.voucher.VoucherService;
-import com.jvmp.vouchershop.wallet.CurrencyServiceSupplier;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,6 @@ import javax.annotation.Nonnull;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
-import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static com.jvmp.vouchershop.voucher.impl.VoucherValidations.checkIfRedeemable;
@@ -31,7 +30,7 @@ import static java.util.stream.Collectors.toList;
 @Component
 public class DefaultVoucherService implements VoucherService {
 
-    public static final Supplier<String> DEFAULT_VOUCHER_CODE_GENERATOR = () -> UUID.randomUUID().toString();
+    private final VoucherCodeGenerator voucherCodeGenerator;
 
     private final WalletService walletService;
     private final VoucherRepository voucherRepository;
@@ -45,8 +44,7 @@ public class DefaultVoucherService implements VoucherService {
             throw new IllegalOperationException(message);
         }
 
-        String currency = walletService.findById(spec.walletId)
-                .map(Wallet::getCurrency)
+        walletService.findById(spec.walletId)
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet with id " + spec.walletId + " not found."));
 
         long amount = spec.totalAmount / spec.count;
@@ -54,8 +52,7 @@ public class DefaultVoucherService implements VoucherService {
         return IntStream.range(0, spec.count)
                 .mapToObj(next -> new Voucher()
                         .withAmount(amount)
-                        .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get())
-                        .withCurrency(currency)
+                        .withCode(voucherCodeGenerator.apply(spec))
                         .withWalletId(spec.walletId)
                         .withSold(false)
                         .withPublished(false)
@@ -98,7 +95,6 @@ public class DefaultVoucherService implements VoucherService {
             voucherRepository.saveAll(vouchers);
     }
 
-
     @Override
     public void save(List<Voucher> vouchers) {
         voucherRepository.saveAll(vouchers);
@@ -117,7 +113,7 @@ public class DefaultVoucherService implements VoucherService {
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet " + voucher.getWalletId() + " not found."));
 
         // send money
-        String transactionHash = currencyServiceSupplier.findByCurrency(detail.getCurrency())
+        String transactionHash = currencyServiceSupplier.findByCurrency(wallet.getCurrency())
                 .sendMoney(wallet, detail.getDestinationAddress(), voucher.getAmount());
 
         voucherRepository.save(voucher.withRedeemed(true));

@@ -90,7 +90,7 @@ public class VoucherControllerEnumerationProtectionTest {
     }
 
     private void requestRedemption(Voucher v, int times) throws Exception {
-        RedemptionRequest redemptionRequest = new RedemptionRequest(randomBtcAddress(TestNet3Params.get()), v.getCode(), null);
+        RedemptionRequest redemptionRequest = new RedemptionRequest(randomBtcAddress(TestNet3Params.get()), v.getCode());
         String url = baseUrl + "/vouchers/redeem";
 
         for (int i = 0; i < times; i++)

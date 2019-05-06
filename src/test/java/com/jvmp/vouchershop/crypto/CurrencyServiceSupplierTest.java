@@ -1,7 +1,5 @@
-package com.jvmp.vouchershop.wallet;
+package com.jvmp.vouchershop.crypto;
 
-import com.jvmp.vouchershop.crypto.CurrencyNotSupported;
-import com.jvmp.vouchershop.crypto.CurrencyService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

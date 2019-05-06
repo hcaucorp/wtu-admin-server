@@ -1,5 +1,7 @@
 package com.jvmp.vouchershop.wallet;
 
+import org.bitcoinj.wallet.UnreadableWalletException;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -11,7 +13,7 @@ import java.util.Optional;
  */
 public interface WalletService {
 
-    Optional<Wallet> importWallet(ImportWalletRequest walletDescription);
+    Wallet importWallet(ImportWalletRequest walletDescription) throws UnreadableWalletException;
 
     Wallet generateWallet(String currency);
 

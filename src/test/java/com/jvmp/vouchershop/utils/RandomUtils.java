@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.jvmp.vouchershop.crypto.btc.BitcoinService.walletWords;
-import static com.jvmp.vouchershop.voucher.impl.DefaultVoucherService.DEFAULT_VOUCHER_CODE_GENERATOR;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
 
@@ -85,11 +84,14 @@ public class RandomUtils {
         return IntStream.range(0, howMany).mapToObj(i -> randomVoucher()).collect(Collectors.toSet());
     }
 
+    public static String randomVoucherCode() {
+        return "wtu" + randomCurrency() + "-" + randomString();
+    }
+
     public static Voucher randomVoucher() {
         return new Voucher()
                 .withAmount(nextLong(1_000, 2_000))
-                .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get())
-                .withCurrency(randomCurrency())
+                .withCode(randomVoucherCode())
                 .withId(nextLong(1, 1_000))
                 .withWalletId(nextLong(1, 1_000))
                 .withPublished(false)
@@ -116,9 +118,7 @@ public class RandomUtils {
     public static RedemptionRequest randomRedemptionRequest() {
         return new RedemptionRequest(
                 randomString(),
-                randomString(),
-                randomCurrency()
-        );
+                randomString());
     }
 
     public static String randomEmail() {

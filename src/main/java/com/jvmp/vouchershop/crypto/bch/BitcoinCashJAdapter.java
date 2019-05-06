@@ -8,6 +8,7 @@ import cash.bitcoinj.wallet.Wallet;
 import com.google.common.util.concurrent.Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BitcoinCashJAdapter implements AutoCloseable {
 
+    @Qualifier("BitcoinCashWalletAppKit")
     private final WalletAppKit bitcoinj;
 
     public void close() {

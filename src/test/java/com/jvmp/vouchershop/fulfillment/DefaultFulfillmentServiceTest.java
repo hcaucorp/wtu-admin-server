@@ -24,7 +24,6 @@ import java.util.Set;
 
 import static com.jvmp.Collections.asSet;
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
-import static com.jvmp.vouchershop.voucher.impl.DefaultVoucherService.DEFAULT_VOUCHER_CODE_GENERATOR;
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
@@ -61,7 +60,6 @@ public class DefaultFulfillmentServiceTest {
         String sku = randomSku();
         Voucher voucher = randomVoucher()
                 .withAmount(100)
-                .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get())
                 .withSku(sku);
         String email = "test@email." + RandomStringUtils.randomAlphabetic(3);
         Order order = randomOrder()
@@ -103,12 +101,10 @@ public class DefaultFulfillmentServiceTest {
         Set<Voucher> vouchers = asSet(
                 randomVoucher()
                         .withSku(randomSku())
-                        .withAmount(100)
-                        .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get()),
+                        .withAmount(100),
                 randomVoucher()
                         .withSku(randomSku())
                         .withAmount(100)
-                        .withCode(DEFAULT_VOUCHER_CODE_GENERATOR.get())
         );
 
         Fulfillment fulfillment = new Fulfillment()

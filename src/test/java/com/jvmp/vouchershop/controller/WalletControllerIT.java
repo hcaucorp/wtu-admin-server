@@ -141,7 +141,6 @@ public class WalletControllerIT {
         ResponseEntity<String> response = template.exchange(url, HttpMethod.PUT, requestEntity, String.class);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
     }
 
     @Test

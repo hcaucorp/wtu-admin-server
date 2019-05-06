@@ -2,11 +2,12 @@ package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.crypto.CurrencyService;
+import com.jvmp.vouchershop.crypto.CurrencyServiceSupplier;
+import com.jvmp.vouchershop.crypto.bch.BitcoinCashJAdapter;
 import com.jvmp.vouchershop.crypto.bch.BitcoinCashService;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJAdapter;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJConfig;
 import com.jvmp.vouchershop.crypto.btc.BitcoinService;
-import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.repository.WalletRepository;
@@ -16,7 +17,6 @@ import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
 import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
 import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
-import com.jvmp.vouchershop.wallet.CurrencyServiceSupplier;
 import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.extern.slf4j.Slf4j;
@@ -39,13 +39,17 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import static com.jvmp.Collections.asSet;
 import static com.jvmp.vouchershop.crypto.bch.BitcoinCashService.BCH;
 import static com.jvmp.vouchershop.crypto.btc.BitcoinService.BTC;
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
-import static java.util.Arrays.asList;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toSet;
 import static org.junit.Assert.*;
 
 @Slf4j
@@ -80,28 +84,30 @@ public class VoucherControllerIT {
     @Autowired
     private CurrencyServiceSupplier currencyServiceSupplier;
 
-    @Autowired
-    private BitcoinCashService bitcoinCashService;
-
-    @Autowired
-    private BitcoinService bitcoinService;
-
+    private static final Set<AutoCloseable> closeUs = new HashSet<>();
     @Autowired
     private NetworkParameters networkParameters;
-
     @Autowired
     private Auth0Service auth0Service;
-
-    private static BitcoinJAdapter closeMe;
-
-    private List<Voucher> testVouchers;
+    @Autowired
+    private BitcoinJAdapter bitcoinJAdapter;
+    @Autowired
+    private BitcoinCashJAdapter bitcoinCashJAdapter;
+    private Set<Voucher> testVouchers;
 
     private String authorizationValue;
+
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+        for (AutoCloseable autoCloseable : closeUs) {
+            autoCloseable.close();
+        }
+    }
 
     @Before
     public void setUpTest() throws Exception {
         base = new URL("http://localhost:" + port + "/api");
-        testVouchers = asList(
+        testVouchers = asSet(
                 voucherRepository.save(randomVoucher()),
                 voucherRepository.save(randomVoucher())
         );
@@ -109,19 +115,12 @@ public class VoucherControllerIT {
         authorizationValue = "Bearer " + auth0Service.getToken().accessToken;
     }
 
-    @Autowired
-    private BitcoinJAdapter bitcoinJAdapter;
-
-    @AfterClass
-    public static void tearDownClass() {
-        closeMe.close();
-    }
-
     @After
     public void tearDown() {
         walletRepository.deleteAll();
         voucherRepository.deleteAll();
-        closeMe = bitcoinJAdapter;
+        closeUs.add(bitcoinJAdapter);
+        closeUs.add(bitcoinCashJAdapter);
     }
 
     @Test
@@ -133,13 +132,19 @@ public class VoucherControllerIT {
                 .build();
         ResponseEntity<List<Voucher>> response = template
                 .exchange(base.toString() + "/vouchers", HttpMethod.GET, requestEntity, new VoucherList());
-        assertEquals(testVouchers, response.getBody());
+
+        List<Voucher> body = response.getBody();
+        assertNotNull(body);
+
+        Set<Voucher> expected = new HashSet<>(testVouchers), actual = new HashSet<>(body);
+
+        assertEquals(expected, actual);
     }
 
     @Test
     public void deleteVoucherBySku() {
         String sku = randomSku();
-        testVouchers = asList(
+        testVouchers = asSet(
                 voucherRepository.save(randomVoucher().withSku(sku)),
                 voucherRepository.save(randomVoucher().withSku(sku))
         );
@@ -179,7 +184,6 @@ public class VoucherControllerIT {
 
     @Test
     public void redeemBtcVoucher() {
-        // receive address: myAUke4cumJb6fYvHAGvXVMzHbKTusrixG
         redeemVoucher(BTC);
     }
 
@@ -191,9 +195,9 @@ public class VoucherControllerIT {
 
     public void redeemVoucher(String currency) {
         CurrencyService currencyService = currencyServiceSupplier.findByCurrency(currency);
+        // receive address: myAUke4cumJb6fYvHAGvXVMzHbKTusrixG
         Wallet wallet = currencyService.importWallet(
-                ImportWalletRequest.of(currency, "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary", 1546128000L))
-                .orElseThrow(IllegalOperationException::new);
+                new ImportWalletRequest(currency, "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary", 1546128000L));
 
         if (currencyService instanceof BitcoinService)
             ((BitcoinService) currencyService).start();
@@ -201,7 +205,7 @@ public class VoucherControllerIT {
         if (currencyService instanceof BitcoinCashService)
             ((BitcoinCashService) currencyService).start();
 
-        log.info("Service should be running now.");
+        log.debug("Service should be running now.");
 
         Voucher voucher = voucherRepository.save(randomVoucher()
                 .withWalletId(wallet.getId())
@@ -233,5 +237,57 @@ public class VoucherControllerIT {
 
     private static class VoucherList extends ParameterizedTypeReference<List<Voucher>> {
         //
+    }
+
+    @Test
+    public void publishVouchersBySku() {
+        String sku = randomSku();
+
+        Voucher published = randomVoucher().withSku(sku).withPublished(true),
+                unpublished = randomVoucher().withSku(sku).withPublished(false);
+        testVouchers = asSet(published, unpublished);
+
+        String url = base.toString() + format("/vouchers/%s/publish", sku);
+        RequestEntity<?> requestEntity = RequestEntity
+                .post(URI.create(url))
+                .header(HttpHeaders.AUTHORIZATION, authorizationValue)
+                .build();
+
+        ResponseEntity<String> response =
+                template.postForEntity(url, requestEntity, String.class);
+
+        Set<Voucher> expected = testVouchers.stream()
+                .map(voucher -> voucher.withPublished(true))
+                .collect(toSet());
+        Set<Voucher> actual = new HashSet<>(voucherRepository.findAll());
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void unpublishVouchersBySku() {
+        String sku = randomSku();
+        testVouchers = asSet(
+                voucherRepository.save(randomVoucher().withSku(sku).withPublished(false)),
+                voucherRepository.save(randomVoucher().withSku(sku).withPublished(true))
+        );
+
+        String url = base.toString() + format("/vouchers/%s/unpublish", sku);
+        RequestEntity<?> requestEntity = RequestEntity
+                .post(URI.create(url))
+                .header(HttpHeaders.AUTHORIZATION, authorizationValue)
+                .build();
+
+        ResponseEntity<String> response =
+                template.postForEntity(url, requestEntity, String.class);
+
+        Set<Voucher> expected = testVouchers.stream()
+                .map(voucher -> voucher.withPublished(false))
+                .collect(toSet());
+        Set<Voucher> actual = new HashSet<>(voucherRepository.findAll());
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expected, actual);
     }
 }

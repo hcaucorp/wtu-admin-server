@@ -1,10 +1,11 @@
 package com.jvmp.vouchershop.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jvmp.vouchershop.Application;
-import com.jvmp.vouchershop.crypto.CurrencyNotSupported;
 import com.jvmp.vouchershop.crypto.btc.BitcoinJAdapter;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.security.TestSecurityConfig;
+import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
 import org.bitcoinj.core.NetworkParameters;
 import org.junit.Before;
@@ -22,7 +23,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static com.jvmp.vouchershop.utils.RandomUtils.randomWallet;
 import static java.util.Collections.emptyList;
-import static junit.framework.TestCase.fail;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.mockito.Mockito.when;
@@ -39,6 +39,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class WalletControllerTest {
 
     private final static String baseUrl = "/api";
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private MockMvc mvc;
@@ -93,21 +96,25 @@ public class WalletControllerTest {
         when(walletRepository.findAll()).thenReturn(emptyList());
         when(walletRepository.save(ArgumentMatchers.any(Wallet.class))).thenReturn(new Wallet());
 
-        fail("apply pojo ");
-        fail("test currency service resolution");
         mvc.perform(put(baseUrl + "/wallets")
-                //todo: create a pojo for this
-                .content("{\n" +
-                        "            \"currency\": \"BTC\",\n" +
-                        "            \"mnemonic\": \"olive poet gather huge museum jewel cute giant rent canvas mask lift\",\n" +
-                        "            \"createdAt\": 1546175793\n" +
-                        "        }")
+                .content(objectMapper.writeValueAsString(new ImportWalletRequest(
+                        "BTC",
+                        "olive poet gather huge museum jewel cute giant rent canvas mask lift",
+                        1546175793)))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
     }
 
-    @Test(expected = CurrencyNotSupported.class)
-    public void importWallet_unsupportedCurrency_shouldFail() {
-        fail("anyway");
+    @Test
+    public void importWallet_unsupportedCurrency_shouldFail() throws Exception {
+        when(walletRepository.findAll()).thenReturn(emptyList());
+
+        mvc.perform(put(baseUrl + "/wallets")
+                .content(objectMapper.writeValueAsString(new ImportWalletRequest(
+                        "ZZZ",
+                        "olive poet gather huge museum jewel cute giant rent canvas mask lift",
+                        1546175793)))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }

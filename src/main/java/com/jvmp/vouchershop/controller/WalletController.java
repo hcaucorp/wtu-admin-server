@@ -1,9 +1,8 @@
 package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.crypto.CurrencyNotSupported;
-import com.jvmp.vouchershop.crypto.CurrencyService;
+import com.jvmp.vouchershop.crypto.CurrencyServiceSupplier;
 import com.jvmp.vouchershop.repository.WalletRepository;
-import com.jvmp.vouchershop.wallet.CurrencyServiceSupplier;
 import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.AllArgsConstructor;
@@ -15,7 +14,7 @@ import javax.annotation.Nonnull;
 import javax.validation.Valid;
 import java.util.List;
 
-@RequestMapping("/api")
+@RequestMapping("/api/wallets")
 @RestController
 @AllArgsConstructor
 @CrossOrigin
@@ -24,12 +23,12 @@ public class WalletController {
     private CurrencyServiceSupplier currencyServiceSupplier;
     private WalletRepository walletRepository;
 
-    @GetMapping("/wallets")
+    @GetMapping
     public List<Wallet> getAllWallets() {
         return walletRepository.findAll();
     }
 
-    @PostMapping("/wallets")
+    @PostMapping
     public ResponseEntity<Wallet> generateWallet(@RequestBody String currency) throws CurrencyNotSupported {
 
         Wallet wallet = currencyServiceSupplier.findByCurrency(currency).generateWallet();
@@ -39,15 +38,13 @@ public class WalletController {
                 .body(wallet);
     }
 
-    @PutMapping("/wallets")
+    @PutMapping
     public ResponseEntity<Object> importWallet(@RequestBody @Valid @Nonnull ImportWalletRequest walletDescription) throws CurrencyNotSupported {
+        currencyServiceSupplier.findByCurrency(walletDescription.currency)
+                .importWallet(walletDescription);
 
-        CurrencyService currencyService = currencyServiceSupplier.findByCurrency(walletDescription.currency);
-
-        return currencyService.importWallet(walletDescription)
-                .map(wallet -> ResponseEntity
-                        .status(HttpStatus.CREATED)
-                        .build())
-                .orElse(ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build());
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .build();
     }
 }

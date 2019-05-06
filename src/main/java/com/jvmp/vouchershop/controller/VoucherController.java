@@ -23,7 +23,7 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-@RequestMapping("/api")
+@RequestMapping("/api/vouchers")
 @RequiredArgsConstructor
 @RestController
 @CrossOrigin
@@ -37,17 +37,17 @@ public class VoucherController {
     @Autowired
     private HttpServletRequest request;
 
-    @GetMapping("/vouchers")
+    @GetMapping
     public List<Voucher> getAllVouchers() {
         return voucherService.findAll();
     }
 
-    @DeleteMapping("/vouchers/{sku}")
+    @DeleteMapping("/{sku}")
     public void deleteVoucherBySku(@PathVariable String sku) {
         voucherService.deleteBySku(sku);
     }
 
-    @PostMapping("/vouchers")
+    @PostMapping
     public ResponseEntity<?> generateVouchers(@RequestBody @Valid VoucherGenerationDetails details) {
         voucherService.save(voucherService.generateVouchers(details));
 
@@ -57,26 +57,21 @@ public class VoucherController {
                 .build();
     }
 
-    @PostMapping("/vouchers/redeem")
+    @PostMapping("/redeem")
     public RedemptionResponse redeemVoucher(@RequestBody @Valid RedemptionRequest detail) {
-        String ip = getClientIP();
 
-        if (redemptionAttemptService.isBlocked(ip)) {
-            redemptionAttemptService.failed(ip);
-            throw new IllegalOperationException();
-        }
+        redemptionAttemptService.checkIfBlocked(request);
 
         try {
             RedemptionResponse response = voucherService.redeemVoucher(detail);
             notificationService.pushRedemptionNotification("Redeemed " + detail.getVoucherCode());
-            redemptionAttemptService.succeeded(ip);
-
+            redemptionAttemptService.succeeded(request);
             return response;
         } catch (VoucherNotFoundException e) {
             String message = format("Tried to redeem absent voucher: %s to a wallet: %s", detail.getVoucherCode(), detail.getDestinationAddress());
             log.warn(message);
             notificationService.pushRedemptionNotification(message);
-            redemptionAttemptService.failed(ip);
+            redemptionAttemptService.failed(request);
             throw e;
         } catch (Exception e) {
             String message = "Redemption attempted but failed with exception: " + e.getMessage();
@@ -86,11 +81,13 @@ public class VoucherController {
         }
     }
 
-    private String getClientIP() {
-        String xfHeader = request.getHeader("X-Forwarded-For");
-        if (xfHeader == null) {
-            return request.getRemoteAddr();
-        }
-        return xfHeader.split(",")[0];
+    @PostMapping("/{sku}/publish")
+    public void publishVouchers(@PathVariable String sku) {
+        voucherService.publishBySku(sku);
+    }
+
+    @PostMapping("/{sku}/unpublish")
+    public void unpublishVouchers(@PathVariable String sku) {
+        voucherService.unPublishBySku(sku);
     }
 }

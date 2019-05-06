@@ -3,12 +3,14 @@ package com.jvmp.vouchershop.security;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.system.PropertyNames;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
+import javax.servlet.http.HttpServletRequest;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -35,21 +37,16 @@ public class RedemptionAttemptService {
         this.maxAttempts = maxAttempts;
     }
 
-    public void succeeded(String ipAddress) {
-        attemptsCache.invalidate(ipAddress);
+    private static String getClientIP(HttpServletRequest request) {
+        String xfHeader = request.getHeader("X-Forwarded-For");
+        if (xfHeader == null) {
+            return request.getRemoteAddr();
+        }
+        return xfHeader.split(",")[0];
     }
 
-    public void failed(String ipAddress) {
-        int attempts = 0;
-        try {
-            attempts = attemptsCache.get(ipAddress);
-        } catch (ExecutionException ignored) {
-        }
-        attempts++;
-        attemptsCache.put(ipAddress, attempts);
-
-        if (attempts % 100_000 == 0)
-            log.warn("{} attempts made from ip {}", attempts, ipAddress);
+    public void succeeded(HttpServletRequest request) {
+        attemptsCache.invalidate(getClientIP(request));
     }
 
     public boolean isBlocked(String ipAddress) {
@@ -57,6 +54,30 @@ public class RedemptionAttemptService {
             return attemptsCache.get(ipAddress) >= maxAttempts;
         } catch (ExecutionException e) {
             return false;
+        }
+    }
+
+    public void failed(HttpServletRequest request) {
+        String ip = getClientIP(request);
+
+        int attempts = 0;
+        try {
+            attempts = attemptsCache.get(ip);
+        } catch (ExecutionException ignored) {
+        }
+        attempts++;
+        attemptsCache.put(ip, attempts);
+
+        if (attempts % 100_000 == 0)
+            log.warn("{} attempts made from ip {}", attempts, ip);
+    }
+
+    public void checkIfBlocked(HttpServletRequest request) {
+        String ip = getClientIP(request);
+
+        if (isBlocked(ip)) {
+            failed(request);
+            throw new IllegalOperationException();
         }
     }
 }

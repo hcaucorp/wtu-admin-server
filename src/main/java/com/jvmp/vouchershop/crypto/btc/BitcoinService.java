@@ -21,9 +21,11 @@ import javax.annotation.PreDestroy;
 import java.time.Instant;
 import java.util.Optional;
 
+import static com.jvmp.vouchershop.exception.Thrower.logAndThrowIllegalOperationException;
 import static java.lang.String.format;
 import static java.time.Instant.ofEpochSecond;
 import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
 import static org.bitcoinj.wallet.Wallet.fromSeed;
 
 @Slf4j
@@ -54,22 +56,21 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
         bitcoinj.close();
     }
 
-    public Optional<Wallet> importWallet(String mnemonic, long creationTime) throws UnreadableWalletException {
-        if (!walletRepository.findAll().isEmpty()) {
-            log.error("BTC wallet already exists. Currently we support only single wallet per currency");
-            return Optional.empty();
+    public Wallet importWallet(String mnemonic, long creationTime) {
+        if (!walletRepository.findAll().isEmpty())
+            logAndThrowIllegalOperationException("BTC wallet already exists. Currently we support only single wallet per currency");
+
+        if (creationTime > Instant.now().getEpochSecond())
+            logAndThrowIllegalOperationException("Creation time is set in the future. Are you trying to pass milli seconds?");
+
+        try {
+            DeterministicSeed deterministicSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
+            org.bitcoinj.wallet.Wallet wallet = fromSeed(networkParameters, deterministicSeed);
+            return restoreWalletSaveAndStart(wallet, ofEpochSecond(creationTime).toEpochMilli());
+        } catch (UnreadableWalletException e) {
+            log.error(e.getMessage());
+            throw new IllegalOperationException(e.getMessage());
         }
-
-        if (creationTime > Instant.now().getEpochSecond()) {
-            log.error("Creation time is set in the future. Are you trying to pass milli seconds?");
-            return Optional.empty();
-        }
-
-        DeterministicSeed deterministicSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
-        org.bitcoinj.wallet.Wallet wallet = fromSeed(networkParameters, deterministicSeed);
-
-        return Optional.of(restoreWalletSaveAndStart(wallet,
-                ofEpochSecond(creationTime).toEpochMilli()));
     }
 
     private Wallet restoreWalletSaveAndStart(org.bitcoinj.wallet.Wallet bitcoinjWallet, long createdAtMillis) {
@@ -86,19 +87,10 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
     }
 
     @Override
-    public Optional<Wallet> importWallet(ImportWalletRequest walletDescription) {
-        try {
-            String mnemonic = walletDescription.mnemonic;
-            long createdAt = walletDescription.createdAt;
-
-            if (mnemonic == null)
-                return Optional.empty();
-
-            return importWallet(mnemonic, createdAt);
-        } catch (UnreadableWalletException e) {
-            log.error(e.getMessage());
-            return Optional.empty();
-        }
+    public Wallet importWallet(ImportWalletRequest walletDescription) {
+        String mnemonic = requireNonNull(walletDescription.mnemonic);
+        long createdAt = walletDescription.createdAt;
+        return importWallet(mnemonic, createdAt);
     }
 
     private Optional<DeterministicSeed> readWalletFromDB() {
@@ -117,7 +109,7 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
 
     public Wallet generateWallet() {
         if (walletRepository.findOneByCurrency(BTC).isPresent())
-            throw new IllegalOperationException("BTC wallet already exists. Currently we support only single wallet per currency");
+            logAndThrowIllegalOperationException("BTC wallet already exists. Currently we support only single wallet per currency");
 
         org.bitcoinj.wallet.Wallet bitcoinjWallet = new org.bitcoinj.wallet.Wallet(networkParameters);
         String walletWords = walletWords(bitcoinjWallet);
@@ -131,10 +123,8 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
 
     @Override
     public String sendMoney(Wallet from, String toAddress, long amount) {
-        if (!acceptsCurrency(from.getCurrency())) {
-            String message = format("Wallet %s can provide only for vouchers in %s", from.getId(), from.getCurrency());
-            throw new IllegalOperationException(message);
-        }
+        if (!acceptsCurrency(from.getCurrency()))
+            logAndThrowIllegalOperationException(format("Wallet's %s currency (%s) doesn't match supported currency: BTC", from.getId(), from.getCurrency()));
 
         Address targetAddress = Address.fromBase58(networkParameters, toAddress);
         try {

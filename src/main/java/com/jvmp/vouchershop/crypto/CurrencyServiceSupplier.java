@@ -1,7 +1,5 @@
-package com.jvmp.vouchershop.wallet;
+package com.jvmp.vouchershop.crypto;
 
-import com.jvmp.vouchershop.crypto.CurrencyNotSupported;
-import com.jvmp.vouchershop.crypto.CurrencyService;
 import com.jvmp.vouchershop.exception.InvalidConfigurationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -12,8 +10,8 @@ import java.util.Set;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toSet;
 
-@RequiredArgsConstructor
 @Component
+@RequiredArgsConstructor
 public class CurrencyServiceSupplier {
 
     private final List<CurrencyService> registeredServices;

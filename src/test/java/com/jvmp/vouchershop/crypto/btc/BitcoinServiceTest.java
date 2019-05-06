@@ -7,24 +7,22 @@ import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.val;
 import org.bitcoinj.core.*;
 import org.bitcoinj.params.UnitTestParams;
-import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet.SendResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
+import static com.jvmp.vouchershop.crypto.btc.BitcoinService.BTC;
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
 import static com.jvmp.vouchershop.utils.TryUtils.expectingException;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -55,7 +53,7 @@ public class BitcoinServiceTest {
         Wallet wallet = randomWallet().withCurrency("BSV");
         String to = randomString();
         long amount = nextLong(1, Long.MAX_VALUE);
-        String expectedMessage = "Wallet " + wallet.toString() + " can provide only for vouchers in BTC";
+        String expectedMessage = "Wallet " + wallet.getId() + " can provide only for vouchers in BTC";
 
         Throwable throwable = expectingException(() -> bitcoinService.sendMoney(wallet, to, amount));
         assertEquals(IllegalOperationException.class, throwable.getClass());
@@ -90,37 +88,22 @@ public class BitcoinServiceTest {
     }
 
     @Test
-    public void importWallet() throws UnreadableWalletException {
+    public void importWallet() {
         long createdAt = 1546175793;
         Wallet testWallet = randomWallet()
                 .withCreatedAt(createdAt * 1_000);
 
-        ArgumentCaptor<Wallet> walletCaptor = ArgumentCaptor.forClass(Wallet.class);
-        when(walletRepository.save(walletCaptor.capture())).thenReturn(testWallet.withId(nextLong(1, Long.MAX_VALUE)));
+        when(walletRepository.save(any())).thenReturn(testWallet.withId(nextLong(1, Long.MAX_VALUE)));
 
-        Optional<Wallet> optionalWallet = bitcoinService.importWallet(testWallet.getMnemonic(), createdAt);
+        Wallet wallet = bitcoinService.importWallet(testWallet.getMnemonic(), createdAt);
 
-        assertTrue(optionalWallet.isPresent());
-
-        Wallet result = walletCaptor.getValue();
-        assertEquals(testWallet.getCreatedAt(), result.getCreatedAt());
-    }
-
-    @Test
-    public void generateWalletShouldFailForNotBTC() {
-        String expectedMessage = "Currency BSV is not supported.";
-
-        Throwable t = expectingException(() -> bitcoinService.generateWallet());
-
-        assertNotNull(t);
-        assertEquals(IllegalOperationException.class, t.getClass());
-        assertEquals(expectedMessage, t.getMessage());
+        assertEquals(testWallet.getCreatedAt(), wallet.getCreatedAt());
     }
 
     @Test
     public void generateWalletShouldFailIfOneAlreadyExists() {
         String expectedMessage = "BTC wallet already exists. Currently we support only single wallet per currency";
-        when(walletRepository.findAll()).thenReturn(singletonList(randomWallet()));
+        when(walletRepository.findOneByCurrency(BTC)).thenReturn(Optional.of(randomWallet()));
 
         Throwable t = expectingException(() -> bitcoinService.generateWallet());
 
@@ -133,7 +116,7 @@ public class BitcoinServiceTest {
     public void generateWalletShouldSucced() {
         val testWallet = randomWallet();
         when(walletRepository.save(any(Wallet.class))).thenReturn(testWallet.withId(nextLong(1, Long.MAX_VALUE)));
-        when(walletRepository.findAll()).thenReturn(emptyList());
+        when(walletRepository.findOneByCurrency(BTC)).thenReturn(Optional.empty());
 
         Wallet wallet = bitcoinService.generateWallet();
 
