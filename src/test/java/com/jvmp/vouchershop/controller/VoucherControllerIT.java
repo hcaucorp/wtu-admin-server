@@ -49,6 +49,7 @@ import static com.jvmp.vouchershop.crypto.bch.BitcoinCashService.BCH;
 import static com.jvmp.vouchershop.crypto.btc.BitcoinService.BTC;
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.Assert.*;
 
@@ -93,7 +94,7 @@ public class VoucherControllerIT {
     private BitcoinJAdapter bitcoinJAdapter;
     @Autowired
     private BitcoinCashJAdapter bitcoinCashJAdapter;
-    private Set<Voucher> testVouchers;
+    private List<Voucher> testVouchers;
 
     private String authorizationValue;
 
@@ -107,7 +108,7 @@ public class VoucherControllerIT {
     @Before
     public void setUpTest() throws Exception {
         base = new URL("http://localhost:" + port + "/api");
-        testVouchers = asSet(
+        testVouchers = asList(
                 voucherRepository.save(randomVoucher()),
                 voucherRepository.save(randomVoucher())
         );
@@ -144,7 +145,7 @@ public class VoucherControllerIT {
     @Test
     public void deleteVoucherBySku() {
         String sku = randomSku();
-        testVouchers = asSet(
+        testVouchers = asList(
                 voucherRepository.save(randomVoucher().withSku(sku)),
                 voucherRepository.save(randomVoucher().withSku(sku))
         );
@@ -242,10 +243,10 @@ public class VoucherControllerIT {
     @Test
     public void publishVouchersBySku() {
         String sku = randomSku();
-
+        voucherRepository.deleteAll();
         Voucher published = randomVoucher().withSku(sku).withPublished(true),
                 unpublished = randomVoucher().withSku(sku).withPublished(false);
-        testVouchers = asSet(published, unpublished);
+        testVouchers = voucherRepository.saveAll(asSet(published, unpublished));
 
         String url = base.toString() + format("/vouchers/%s/publish", sku);
         RequestEntity<?> requestEntity = RequestEntity
@@ -268,10 +269,10 @@ public class VoucherControllerIT {
     @Test
     public void unpublishVouchersBySku() {
         String sku = randomSku();
-        testVouchers = asSet(
-                voucherRepository.save(randomVoucher().withSku(sku).withPublished(false)),
-                voucherRepository.save(randomVoucher().withSku(sku).withPublished(true))
-        );
+        voucherRepository.deleteAll();
+        Voucher published = randomVoucher().withSku(sku).withPublished(true),
+                unpublished = randomVoucher().withSku(sku).withPublished(false);
+        testVouchers = voucherRepository.saveAll(asSet(published, unpublished));
 
         String url = base.toString() + format("/vouchers/%s/unpublish", sku);
         RequestEntity<?> requestEntity = RequestEntity
