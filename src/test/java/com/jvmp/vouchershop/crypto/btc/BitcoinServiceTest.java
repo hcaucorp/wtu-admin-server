@@ -20,6 +20,7 @@ import java.util.Optional;
 import static com.jvmp.vouchershop.crypto.btc.BitcoinService.BTC;
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
 import static com.jvmp.vouchershop.utils.TryUtils.expectingException;
+import static java.lang.String.format;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -53,7 +54,7 @@ public class BitcoinServiceTest {
         Wallet wallet = randomWallet().withCurrency("BSV");
         String to = randomString();
         long amount = nextLong(1, Long.MAX_VALUE);
-        String expectedMessage = "Wallet " + wallet.getId() + " can provide only for vouchers in BTC";
+        String expectedMessage = format("Wallet's %s currency (BSV) doesn't match supported currency: BTC", wallet.getId());
 
         Throwable throwable = expectingException(() -> bitcoinService.sendMoney(wallet, to, amount));
         assertEquals(IllegalOperationException.class, throwable.getClass());

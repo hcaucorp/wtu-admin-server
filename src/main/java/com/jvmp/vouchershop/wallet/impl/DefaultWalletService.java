@@ -7,7 +7,6 @@ import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bitcoinj.wallet.UnreadableWalletException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,7 +23,7 @@ public class DefaultWalletService implements WalletService {
     private final CurrencyServiceSupplier currencyServiceSupplier;
 
     @Override
-    public Wallet importWallet(ImportWalletRequest walletDescription) throws UnreadableWalletException {
+    public Wallet importWallet(ImportWalletRequest walletDescription) {
         return currencyServiceSupplier.findByCurrency(walletDescription.currency)
                 .importWallet(walletDescription);
     }

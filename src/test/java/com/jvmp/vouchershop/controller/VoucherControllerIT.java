@@ -86,14 +86,19 @@ public class VoucherControllerIT {
     private CurrencyServiceSupplier currencyServiceSupplier;
 
     private static final Set<AutoCloseable> closeUs = new HashSet<>();
+
     @Autowired
     private NetworkParameters networkParameters;
+
     @Autowired
     private Auth0Service auth0Service;
+
     @Autowired
     private BitcoinJAdapter bitcoinJAdapter;
+
     @Autowired
     private BitcoinCashJAdapter bitcoinCashJAdapter;
+
     private List<Voucher> testVouchers;
 
     private String authorizationValue;

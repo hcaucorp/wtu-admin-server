@@ -15,15 +15,22 @@ import org.bitcoinj.params.UnitTestParams;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -197,27 +204,110 @@ public class DefaultVoucherServiceTest {
 
     @Test
     public void publishVouchersBySku_noVoucherFound() {
-        fail();
+        String sku = randomSku();
+        when(voucherRepository.findByPublishedFalseAndSku(eq(sku))).thenReturn(emptyList());
+
+        subject.publishBySku(sku);
+
+        verify(voucherRepository, never()).saveAll(any());
     }
 
     @Test
-    public void publishVouchersBySku_shouldSuceedForMultipleVouchers() {
-        fail();
+    public void publishVouchersBySku_shouldSucceedForMultipleVouchers() {
+        int counter = nextInt(10, 20);
+
+        String sku = randomSku();
+        List<Voucher> vouchers = randomVouchers(counter).stream()
+                .map(voucher -> voucher
+                        .withSku(sku)
+                        .withPublished(false)
+                )
+                .collect(toList());
+
+        when(voucherRepository.findByPublishedFalseAndSku(eq(sku))).thenReturn(vouchers);
+
+        subject.publishBySku(sku);
+
+        verify(voucherRepository, times(1)).saveAll(captor.capture());
+
+        Set<Voucher> expected = vouchers.stream()
+                .map(voucher -> voucher.withPublished(true))
+                .collect(toSet());
+
+        Set<Voucher> actual = new HashSet<>(captor.getValue());
+
+        assertEquals(expected, actual);
     }
 
     @Test
     public void unPublishVouchersBySku_noSku() {
-        fail();
+        String sku = randomSku();
+        when(voucherRepository.findByPublishedTrueAndSku(eq(sku))).thenReturn(emptyList());
+
+        subject.unPublishBySku(sku);
+
+        verify(voucherRepository, never()).saveAll(captor.capture());
     }
 
+    @Captor
+    private ArgumentCaptor<List<Voucher>> captor;
 
     @Test
     public void unPublishVouchersBySku_shouldSucceedForMultipleVouchers() {
-        fail();
+        int counter = nextInt(10, 20);
+
+        String sku = randomSku();
+        List<Voucher> vouchers = randomVouchers(counter).stream()
+                .map(voucher -> voucher
+                        .withSku(sku)
+                        .withPublished(true)
+                )
+                .collect(toList());
+
+        when(voucherRepository.findByPublishedTrueAndSku(eq(sku))).thenReturn(vouchers);
+
+        subject.unPublishBySku(sku);
+
+        verify(voucherRepository, times(1)).saveAll(captor.capture());
+
+        Set<Voucher> expected = vouchers.stream()
+                .map(voucher -> voucher.withPublished(false))
+                .collect(toSet());
+        Set<Voucher> actual = new HashSet<>(captor.getValue());
+
+        assertEquals(expected, actual);
     }
 
     @Test
-    public void unPublishVouchersBySku_shouldNotUnpublishSoldVouchers() {
-        fail();
+    public void unPublishVouchersBySku_shouldNotUnPublishSoldVouchers() {
+
+        int allCount = nextInt(10, 20);
+        int soldCount = nextInt(1, allCount - 1);
+
+        String sku = randomSku();
+        List<Voucher> vouchers = randomVouchers(allCount).stream()
+                .map(voucher -> voucher
+                        .withSku(sku)
+                        .withPublished(true)
+                )
+                .collect(toList());
+
+        for (int i = 0; i < soldCount; i++) {
+            vouchers.get(i).setSold(true);
+        }
+
+        when(voucherRepository.findByPublishedTrueAndSku(eq(sku))).thenReturn(vouchers);
+
+        subject.unPublishBySku(sku);
+
+        verify(voucherRepository, times(1)).saveAll(captor.capture());
+
+        Set<Voucher> expected = vouchers.stream()
+                .filter(voucher -> !voucher.isSold())
+                .map(voucher -> voucher.withPublished(false))
+                .collect(toSet());
+        Set<Voucher> actual = new HashSet<>(captor.getValue());
+
+        assertEquals(expected, actual);
     }
 }
