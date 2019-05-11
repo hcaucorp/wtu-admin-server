@@ -87,7 +87,7 @@ public class VoucherController {
     }
 
     @PostMapping("/{sku}/unpublish")
-    public void unpublishVouchers(@PathVariable String sku) {
+    public void unPublishVouchers(@PathVariable String sku) {
         voucherService.unPublishBySku(sku);
     }
 }

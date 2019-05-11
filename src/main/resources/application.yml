@@ -84,6 +84,7 @@ logging:
   level:
     root: INFO
     org.bitcoinj: ERROR
+    cash.bitcoinj: ERROR
     com.auth0.spring.security.api: ERROR
 
 feign:
