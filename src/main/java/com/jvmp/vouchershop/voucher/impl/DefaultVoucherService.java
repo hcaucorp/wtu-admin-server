@@ -87,7 +87,7 @@ public class DefaultVoucherService implements VoucherService {
 
     @Override
     public void unPublishBySku(String sku) {
-        List<Voucher> vouchers = voucherRepository.findByPublishedTrueAndSku(sku)
+        List<Voucher> vouchers = voucherRepository.findByPublishedTrueAndSoldFalseAndSku(sku)
                 .stream()
                 .map(voucher -> voucher.withPublished(false))
                 .collect(toList());

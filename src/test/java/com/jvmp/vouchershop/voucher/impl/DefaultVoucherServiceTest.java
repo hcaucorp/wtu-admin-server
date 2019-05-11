@@ -242,7 +242,7 @@ public class DefaultVoucherServiceTest {
     @Test
     public void unPublishVouchersBySku_noSku() {
         String sku = randomSku();
-        when(voucherRepository.findByPublishedTrueAndSku(eq(sku))).thenReturn(emptyList());
+        when(voucherRepository.findByPublishedTrueAndSoldFalseAndSku(eq(sku))).thenReturn(emptyList());
 
         subject.unPublishBySku(sku);
 
@@ -264,46 +264,13 @@ public class DefaultVoucherServiceTest {
                 )
                 .collect(toList());
 
-        when(voucherRepository.findByPublishedTrueAndSku(eq(sku))).thenReturn(vouchers);
+        when(voucherRepository.findByPublishedTrueAndSoldFalseAndSku(eq(sku))).thenReturn(vouchers);
 
         subject.unPublishBySku(sku);
 
         verify(voucherRepository, times(1)).saveAll(captor.capture());
 
         Set<Voucher> expected = vouchers.stream()
-                .map(voucher -> voucher.withPublished(false))
-                .collect(toSet());
-        Set<Voucher> actual = new HashSet<>(captor.getValue());
-
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    public void unPublishVouchersBySku_shouldNotUnPublishSoldVouchers() {
-
-        int allCount = nextInt(10, 20);
-        int soldCount = nextInt(1, allCount - 1);
-
-        String sku = randomSku();
-        List<Voucher> vouchers = randomVouchers(allCount).stream()
-                .map(voucher -> voucher
-                        .withSku(sku)
-                        .withPublished(true)
-                )
-                .collect(toList());
-
-        for (int i = 0; i < soldCount; i++) {
-            vouchers.get(i).setSold(true);
-        }
-
-        when(voucherRepository.findByPublishedTrueAndSku(eq(sku))).thenReturn(vouchers);
-
-        subject.unPublishBySku(sku);
-
-        verify(voucherRepository, times(1)).saveAll(captor.capture());
-
-        Set<Voucher> expected = vouchers.stream()
-                .filter(voucher -> !voucher.isSold())
                 .map(voucher -> voucher.withPublished(false))
                 .collect(toSet());
         Set<Voucher> actual = new HashSet<>(captor.getValue());

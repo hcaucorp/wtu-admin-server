@@ -84,7 +84,7 @@ public class RandomUtils {
         return IntStream.range(0, howMany).mapToObj(i -> randomVoucher()).collect(Collectors.toSet());
     }
 
-    public static String randomVoucherCode() {
+    private static String randomVoucherCode() {
         return "wtu" + randomCurrency() + "-" + randomString();
     }
 
@@ -92,13 +92,13 @@ public class RandomUtils {
         return new Voucher()
                 .withAmount(nextLong(1_000, 2_000))
                 .withCode(randomVoucherCode())
-                .withId(nextLong(1, 1_000))
+//                .withId(nextLong(1, 1_000))
                 .withWalletId(nextLong(1, 1_000))
                 .withPublished(false)
                 .withSold(false)
                 .withRedeemed(false)
                 .withSku(randomSku())
-                .withCreatedAt(Instant.now().getEpochSecond())
+//                .withCreatedAt(Instant.now().getEpochSecond())
                 .withExpiresAt(LocalDateTime.now().plusYears(1).toInstant(ZoneOffset.UTC).getEpochSecond());
     }
 
