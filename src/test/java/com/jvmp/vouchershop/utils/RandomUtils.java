@@ -92,13 +92,11 @@ public class RandomUtils {
         return new Voucher()
                 .withAmount(nextLong(1_000, 2_000))
                 .withCode(randomVoucherCode())
-//                .withId(nextLong(1, 1_000))
                 .withWalletId(nextLong(1, 1_000))
                 .withPublished(false)
                 .withSold(false)
                 .withRedeemed(false)
                 .withSku(randomSku())
-//                .withCreatedAt(Instant.now().getEpochSecond())
                 .withExpiresAt(LocalDateTime.now().plusYears(1).toInstant(ZoneOffset.UTC).getEpochSecond());
     }
 
