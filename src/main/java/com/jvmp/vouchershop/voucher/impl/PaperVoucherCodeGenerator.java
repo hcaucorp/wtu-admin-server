@@ -30,7 +30,7 @@ public class PaperVoucherCodeGenerator implements VoucherCodeGenerator {
                 .orElseThrow(() -> new ResourceNotFoundException(format("Wallet with id %s not found", generationDetails.walletId)));
 
         return PATTERN
-                .replace(CURRENCY, wallet.getCurrency())
+                .replace(CURRENCY, wallet.getCurrency().toLowerCase())
                 .replace(UUID, uuid());
     }
 }
