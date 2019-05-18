@@ -102,11 +102,11 @@ public class RandomUtils {
 
     public static VoucherGenerationDetails randomVoucherGenerationSpec() {
         long id = nextLong(1_000, 2_000);
-        int vouchersCount = org.apache.commons.lang3.RandomUtils.nextInt(10, 1_000);
+        int vouchersCount = nextInt(10, 1_000);
 
         return new VoucherGenerationDetails()
                 .withCount(vouchersCount)
-                .withTotalAmount(vouchersCount * 5)
+                .withTotalAmount(vouchersCount * nextInt(600, 1000))
                 .withWalletId(id)
                 .withPriceCurrency("GBP")
                 .withPrice(nextLong(5, 10))

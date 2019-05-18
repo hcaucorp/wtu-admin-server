@@ -26,11 +26,14 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
+import static com.jvmp.vouchershop.utils.TryUtils.expectingException;
+import static com.jvmp.vouchershop.voucher.impl.DefaultVoucherService.DUST_AMOUNT;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -81,7 +84,8 @@ public class DefaultVoucherServiceTest {
     @Test
     public void generateVouchers() {
         Wallet wallet = randomWallet().withId(1L);
-        VoucherGenerationDetails spec = randomVoucherGenerationSpec().withWalletId(wallet.getId());
+        VoucherGenerationDetails spec = randomVoucherGenerationSpec()
+                .withWalletId(wallet.getId());
         when(walletService.findById(wallet.getId())).thenReturn(Optional.of(wallet));
 
         List<Voucher> vouchers = subject.generateVouchers(spec);
@@ -276,5 +280,21 @@ public class DefaultVoucherServiceTest {
         Set<Voucher> actual = new HashSet<>(captor.getValue());
 
         assertEquals(expected, actual);
+    }
+
+    @Test
+    public void voucherAmountMustBeGreaterThanDust() {
+        Wallet wallet = randomWallet().withId(1L);
+        VoucherGenerationDetails spec = randomVoucherGenerationSpec()
+                .withWalletId(wallet.getId())
+                .withCount(1)
+                .withTotalAmount(546);
+
+        when(walletService.findById(wallet.getId())).thenReturn(Optional.of(wallet));
+        Throwable t = expectingException(() -> subject.generateVouchers(spec));
+
+        assertNotNull(t);
+        assertEquals(IllegalOperationException.class, t.getClass());
+        assertEquals("Voucher value is too low. Must be greater than " + DUST_AMOUNT, t.getMessage());
     }
 }

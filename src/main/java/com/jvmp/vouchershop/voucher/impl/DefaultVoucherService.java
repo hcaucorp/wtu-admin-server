@@ -30,8 +30,9 @@ import static java.util.stream.Collectors.toList;
 @Component
 public class DefaultVoucherService implements VoucherService {
 
-    private final VoucherCodeGenerator voucherCodeGenerator;
+    public final static long DUST_AMOUNT = 546;
 
+    private final VoucherCodeGenerator voucherCodeGenerator;
     private final WalletService walletService;
     private final VoucherRepository voucherRepository;
     private final CurrencyServiceSupplier currencyServiceSupplier;
@@ -48,6 +49,9 @@ public class DefaultVoucherService implements VoucherService {
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet with id " + spec.walletId + " not found."));
 
         long amount = spec.totalAmount / spec.count;
+
+        if (amount <= DUST_AMOUNT)
+            throw new IllegalOperationException("Voucher value is too low. Must be greater than " + DUST_AMOUNT);
 
         return IntStream.range(0, spec.count)
                 .mapToObj(next -> new Voucher()
