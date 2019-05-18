@@ -85,7 +85,7 @@ public class RandomUtils {
     }
 
     private static String randomVoucherCode() {
-        return "wtu" + randomCurrency() + "-" + randomString();
+        return "wtu" + randomCurrency().toLowerCase() + "-" + randomString();
     }
 
     public static Voucher randomVoucher() {

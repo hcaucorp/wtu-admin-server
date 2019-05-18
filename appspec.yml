@@ -1,5 +1,0 @@
-version: 0.0
-os: linux
-files:
-  - source: ./server-0.1.0.jar
-    destination: /tmp

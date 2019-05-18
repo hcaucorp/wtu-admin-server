@@ -74,7 +74,7 @@ public class VoucherController {
             redemptionAttemptService.failed(request);
             throw e;
         } catch (Exception e) {
-            String message = "Redemption attempted but failed with exception: " + e.getMessage();
+            String message = format("Redemption attempted but failed with exception %s, message: %s", e.getClass().getName(), e.getMessage());
             log.error(message);
             notificationService.pushRedemptionNotification(message);
             throw new IllegalOperationException();
