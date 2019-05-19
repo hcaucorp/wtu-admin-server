@@ -27,6 +27,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
+import static com.jvmp.vouchershop.crypto.btc.BitcoinService.BTC;
 import static com.jvmp.vouchershop.utils.RandomUtils.randomWallet;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.*;
@@ -87,7 +88,7 @@ public class WalletControllerIT {
 
     @Test
     public void getAllWallets() {
-        Wallet testWallet = walletRepository.save(randomWallet(networkParameters));
+        Wallet testWallet = walletRepository.save(randomWallet(networkParameters).withCurrency(BTC));
 
         String url = base.toString() + "/wallets";
 

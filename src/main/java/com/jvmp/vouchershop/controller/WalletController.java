@@ -2,9 +2,9 @@ package com.jvmp.vouchershop.controller;
 
 import com.jvmp.vouchershop.crypto.CurrencyNotSupported;
 import com.jvmp.vouchershop.crypto.CurrencyServiceSupplier;
-import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
+import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +21,11 @@ import java.util.List;
 public class WalletController {
 
     private CurrencyServiceSupplier currencyServiceSupplier;
-    private WalletRepository walletRepository;
+    private WalletService walletService;
 
     @GetMapping
     public List<Wallet> getAllWallets() {
-        return walletRepository.findAll();
+        return walletService.findAll();
     }
 
     @PostMapping

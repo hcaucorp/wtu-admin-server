@@ -84,31 +84,29 @@ public class RandomUtils {
         return IntStream.range(0, howMany).mapToObj(i -> randomVoucher()).collect(Collectors.toSet());
     }
 
-    public static String randomVoucherCode() {
-        return "wtu" + randomCurrency() + "-" + randomString();
+    private static String randomVoucherCode() {
+        return "wtu" + randomCurrency().toLowerCase() + "-" + randomString();
     }
 
     public static Voucher randomVoucher() {
         return new Voucher()
                 .withAmount(nextLong(1_000, 2_000))
                 .withCode(randomVoucherCode())
-                .withId(nextLong(1, 1_000))
                 .withWalletId(nextLong(1, 1_000))
                 .withPublished(false)
                 .withSold(false)
                 .withRedeemed(false)
                 .withSku(randomSku())
-                .withCreatedAt(Instant.now().getEpochSecond())
                 .withExpiresAt(LocalDateTime.now().plusYears(1).toInstant(ZoneOffset.UTC).getEpochSecond());
     }
 
     public static VoucherGenerationDetails randomVoucherGenerationSpec() {
         long id = nextLong(1_000, 2_000);
-        int vouchersCount = org.apache.commons.lang3.RandomUtils.nextInt(10, 1_000);
+        int vouchersCount = nextInt(10, 1_000);
 
         return new VoucherGenerationDetails()
                 .withCount(vouchersCount)
-                .withTotalAmount(vouchersCount * 5)
+                .withTotalAmount(vouchersCount * nextInt(600, 1000))
                 .withWalletId(id)
                 .withPriceCurrency("GBP")
                 .withPrice(nextLong(5, 10))

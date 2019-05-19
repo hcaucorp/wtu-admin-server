@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("it")
 public class PaperVoucherGenerator {
 
-    private static final int voucherCount = 10_000;
+    private static final int voucherCount = 11_000;
     private static final String currency = BCH;
 
     @MockBean
@@ -49,6 +49,6 @@ public class PaperVoucherGenerator {
                 .apply(new VoucherGenerationDetails(voucherCount, 1L, 1L, 1L, "GBP", "sku")))
                 .collect(Collectors.joining(lineSeparator()));
 
-        Files.write(Paths.get("voucherCodes.csv"), fileContent.getBytes());
+        Files.write(Paths.get("PaperVouchesCodes.csv"), fileContent.getBytes());
     }
 }

@@ -54,7 +54,6 @@ public class ThymeleafEmailServiceTest {
         when(templateEngine.process(any(String.class), any(IContext.class))).thenReturn(randomString());
         when(javaMailSender.createMimeMessage()).thenReturn(new M3());
         when(qrCodeService.createQRCode(any())).thenReturn(qrCode);
-        when(qrCode.getBytes()).thenReturn("".getBytes());
         when(qrCode.toInputStreamSource()).thenReturn(new InMemoryResource(""));
         thymeleafEmailService = new ThymeleafEmailService(templateEngine, javaMailSender, mock(NotificationService.class), qrCodeService,
                 "", "", "");

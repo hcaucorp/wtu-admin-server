@@ -7,6 +7,7 @@ import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.security.TestSecurityConfig;
 import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
+import com.jvmp.vouchershop.wallet.WalletService;
 import org.bitcoinj.core.NetworkParameters;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +26,7 @@ import static com.jvmp.vouchershop.utils.RandomUtils.randomWallet;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,6 +51,9 @@ public class WalletControllerTest {
     private WalletRepository walletRepository;
 
     @MockBean
+    private WalletService walletService;
+
+    @MockBean
     private BitcoinJAdapter bitcoinJAdapter;
 
     @Autowired
@@ -64,6 +68,8 @@ public class WalletControllerTest {
     public void getAllWallets() throws Exception {
         mvc.perform(get(baseUrl + "/wallets"))
                 .andExpect(status().isOk());
+
+        verify(walletService, times(1)).findAll();
     }
 
     @Test
