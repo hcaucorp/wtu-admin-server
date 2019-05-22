@@ -30,7 +30,7 @@ import static java.util.stream.Collectors.toList;
 @Component
 public class DefaultVoucherService implements VoucherService {
 
-    public final static long DUST_AMOUNT = 546;
+    final static long DUST_AMOUNT = 546;
 
     private final VoucherCodeGenerator voucherCodeGenerator;
     private final WalletService walletService;

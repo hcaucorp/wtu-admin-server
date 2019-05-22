@@ -24,7 +24,7 @@ spring:
     username: postgres
     password: postgres
 
-server.port: 8080
+server.port: 5000
 
 logging:
   level:

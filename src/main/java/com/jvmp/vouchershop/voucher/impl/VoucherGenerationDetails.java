@@ -47,8 +47,8 @@ public class VoucherGenerationDetails implements Serializable {
     String priceCurrency;
 
     /**
-     * Stock Keeping Unit is a code-name which keeps the relationship between vouchers in database and vouchers in Shopify. Various "types" of vouchers can be
-     * created on both sides: Shopify and our server, but when a customer wants to buy one, Shopify will send SKU for us to recognize what "type" of voucher it
+     * Stock Keeping Unit is a code-name which keeps the relationship between vouchers in database and vouchers in Shopify. Various "batches" of vouchers can be
+     * created on both sides: Shopify and our server, but when a customer wants to buy one, Shopify will send SKU for us to recognize what "batch" of vouchers it
      * is. The number of vouchers "for sale" on Shopify (stock) should be exactly the same as stock available in our server's database.
      */
     @NotBlank

@@ -12,7 +12,7 @@ import static java.lang.String.format;
 @SuppressWarnings("FieldCanBeLocal")
 @Component
 @RequiredArgsConstructor
-public class PaperVoucherCodeGenerator implements VoucherCodeGenerator {
+public class DefaultVoucherCodeGenerator implements VoucherCodeGenerator {
 
     private final String PATTERN = "wtu{currency}-{uuid}";
     private final String CURRENCY = "{currency}";

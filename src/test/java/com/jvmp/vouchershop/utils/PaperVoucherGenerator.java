@@ -1,7 +1,7 @@
 package com.jvmp.vouchershop.utils;
 
 import com.jvmp.vouchershop.Application;
-import com.jvmp.vouchershop.voucher.impl.PaperVoucherCodeGenerator;
+import com.jvmp.vouchershop.voucher.impl.DefaultVoucherCodeGenerator;
 import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
 import com.jvmp.vouchershop.wallet.WalletService;
 import org.bitcoinj.params.TestNet3Params;
@@ -38,7 +38,7 @@ public class PaperVoucherGenerator {
     private WalletService walletService;
 
     @Autowired
-    private PaperVoucherCodeGenerator voucherCodeGenerator;
+    private DefaultVoucherCodeGenerator voucherCodeGenerator;
 
     @Test
     @Ignore("I know I shouldn't do this but it's really easy to run small program like this")
