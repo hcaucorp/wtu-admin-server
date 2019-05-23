@@ -108,7 +108,8 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
     }
 
     public Wallet generateWallet() {
-        if (walletRepository.findOneByCurrency(BTC).isPresent())
+        Optional<Wallet> wallet = walletRepository.findOneByCurrency(BTC);
+        if (wallet.isPresent())
             logAndThrowIllegalOperationException("BTC wallet already exists. Currently we support only single wallet per currency");
 
         org.bitcoinj.wallet.Wallet bitcoinjWallet = new org.bitcoinj.wallet.Wallet(networkParameters);

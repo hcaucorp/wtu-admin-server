@@ -6,6 +6,7 @@ import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.Wallet;
 import org.bitcoinj.core.Context;
 import org.bitcoinj.params.UnitTestParams;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,6 +39,11 @@ public class BitcoinServiceIT {
         Context btcContext = new Context(UnitTestParams.get());
         bitcoinService = new BitcoinService(walletRepository, btcContext.getParams(), bitcoinJAdapter,
                 notificationService);
+    }
+
+    @After
+    public void tearDown() {
+        walletRepository.deleteAll();
     }
 
     @Test
