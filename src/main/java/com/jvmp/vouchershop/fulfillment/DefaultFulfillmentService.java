@@ -16,6 +16,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
@@ -78,7 +80,11 @@ public class DefaultFulfillmentService implements FulfillmentService {
     @VisibleForTesting
     Fulfillment completeFulfillment(@Nonnull Fulfillment fulfillment) {
         Fulfillment result = fulfillmentRepository.save(fulfillment);
-        fulfillment.getVouchers().forEach(voucher -> voucherRepository.save(voucher.withSold(true)));
+        fulfillment.getVouchers().forEach(voucher -> voucherRepository.save(
+                voucher
+                        .withSold(true)
+                        .withExpiresAt(ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().getEpochSecond())
+        ));
         return result;
     }
 

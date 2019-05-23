@@ -9,9 +9,9 @@ import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class RedemptionAttemptServiceTest {
+public class EnumerationProtectionServiceTest {
 
-    private RedemptionAttemptService subject;
+    private EnumerationProtectionService subject;
 
     private int maxAttempts;
 
@@ -19,7 +19,7 @@ public class RedemptionAttemptServiceTest {
     public void setUp() {
         maxAttempts = nextInt(10, 20);
 
-        subject = new RedemptionAttemptService(nextInt(10, 20), "MILLISECONDS", maxAttempts);
+        subject = new EnumerationProtectionService(nextInt(10, 20), "MILLISECONDS", maxAttempts);
     }
 
     @Test

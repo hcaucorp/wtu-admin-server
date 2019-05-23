@@ -5,6 +5,7 @@ import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
 import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface VoucherService {
     List<Voucher> generateVouchers(VoucherGenerationDetails details);
@@ -30,4 +31,6 @@ public interface VoucherService {
     RedemptionResponse redeemVoucher(RedemptionRequest detail);
 
     void refund(String id);
+
+    Optional<Voucher> findByCode(String voucherCode);
 }

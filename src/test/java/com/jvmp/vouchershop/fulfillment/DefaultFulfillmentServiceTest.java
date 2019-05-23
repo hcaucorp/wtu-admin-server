@@ -19,6 +19,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -91,8 +93,7 @@ public class DefaultFulfillmentServiceTest {
         verify(voucherRepository, times(1)).save(eq(
                 voucher
                         .withSold(true)
-
-                // TODO add expires at calculation
+                        .withExpiresAt(ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().getEpochSecond())
         ));
     }
 

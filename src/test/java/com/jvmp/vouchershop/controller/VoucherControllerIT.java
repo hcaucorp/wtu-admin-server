@@ -14,6 +14,7 @@ import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.security.Auth0Service;
 import com.jvmp.vouchershop.system.DatabaseConfig;
 import com.jvmp.vouchershop.voucher.Voucher;
+import com.jvmp.vouchershop.voucher.VoucherInfoResponse;
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
 import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
 import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
@@ -295,5 +296,19 @@ public class VoucherControllerIT {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(expected, actual);
+    }
+
+    @Test
+    public void voucherInfoByCodeShouldBePublic() {
+        Voucher voucher = voucherRepository.save(randomValidVoucher());
+
+        String url = base.toString() + "/vouchers/" + voucher.getCode();
+
+        ResponseEntity<VoucherInfoResponse> response = template.getForEntity(url, VoucherInfoResponse.class);
+
+        VoucherInfoResponse expected = VoucherInfoResponse.from(voucher);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expected, response.getBody());
     }
 }

@@ -1,4 +1,7 @@
 ##### Backlog
+- replace cash.bitcoinj with forked lib from github
+- finish refund order
+- store tx hashes with redeemed vouchers
 - color QA WITH LOGO https://aboullaite.me/generate-qrcode-with-logo-image-using-zxing/
 - Refactor Fulfillment.orderId -> Fulfillment.orderName
 - [ ] Redemption- add time consuming hash as body

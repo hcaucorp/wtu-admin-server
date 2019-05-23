@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.repository.VoucherRepository;
-import com.jvmp.vouchershop.security.RedemptionAttemptService;
+import com.jvmp.vouchershop.security.EnumerationProtectionService;
 import com.jvmp.vouchershop.security.TestSecurityConfig;
 import com.jvmp.vouchershop.system.PropertyNames;
 import com.jvmp.vouchershop.voucher.Voucher;
@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static com.jvmp.vouchershop.controller.VoucherControllerTest.remoteHost;
@@ -37,6 +38,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -63,7 +65,7 @@ public class VoucherControllerEnumerationProtectionTest {
     public String coolDownUnit;
 
     @Autowired
-    private RedemptionAttemptService redemptionAttemptService;
+    private EnumerationProtectionService enumerationProtectionService;
 
     @Autowired
     private MockMvc mvc;
@@ -79,14 +81,25 @@ public class VoucherControllerEnumerationProtectionTest {
     }
 
     @Test
-    public void triggerIpBlacklisting() throws Exception {
+    public void triggerIpBlacklisting_byRedemption() throws Exception {
         Voucher notExistingVoucher = randomVoucher();
-        when(voucherRepository.findByCode(eq(notExistingVoucher.getCode()))).thenThrow(new VoucherNotFoundException(""));
+        when(voucherRepository.findByCode(eq(notExistingVoucher.getCode()))).thenReturn(Optional.empty());
         int attemptsAfterBlacklisted = nextInt(2, 5);
 
         requestRedemption(notExistingVoucher, maxAttempts + attemptsAfterBlacklisted);
 
-        assertTrue(redemptionAttemptService.isBlocked(testIp));
+        assertTrue(enumerationProtectionService.isBlocked(testIp));
+    }
+
+    @Test
+    public void triggerIpBlacklisting_byVoucherInfo() throws Exception {
+        Voucher notExistingVoucher = randomVoucher();
+        when(voucherRepository.findByCode(eq(notExistingVoucher.getCode()))).thenReturn(Optional.empty());
+        int attemptsAfterBlacklisted = nextInt(2, 5);
+
+        requestVoucherInfo(notExistingVoucher, maxAttempts + attemptsAfterBlacklisted);
+
+        assertTrue(enumerationProtectionService.isBlocked(testIp));
     }
 
     private void requestRedemption(Voucher v, int times) throws Exception {
@@ -96,7 +109,19 @@ public class VoucherControllerEnumerationProtectionTest {
         for (int i = 0; i < times; i++)
             mvc.perform(post(url, redemptionRequest)
                     .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .content(om.writeValueAsString(redemptionRequest)).with(remoteHost(testIp)))
+                    .content(om.writeValueAsString(redemptionRequest))
+                    .with(remoteHost(testIp)))
+                    .andExpect(status().isBadRequest());
+    }
+
+    private void requestVoucherInfo(Voucher v, int times) throws Exception {
+        RedemptionRequest redemptionRequest = new RedemptionRequest(randomBtcAddress(TestNet3Params.get()), v.getCode());
+        String url = baseUrl + "/vouchers/" + v.getCode();
+
+        for (int i = 0; i < times; i++)
+            mvc.perform(get(url, redemptionRequest)
+                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .with(remoteHost(testIp)))
                     .andExpect(status().isBadRequest());
     }
 
@@ -106,10 +131,10 @@ public class VoucherControllerEnumerationProtectionTest {
         when(voucherRepository.findByCode(eq(notExistingVoucher.getCode()))).thenThrow(new VoucherNotFoundException(""));
 
         requestRedemption(notExistingVoucher, maxAttempts + 1);
-        assertTrue(redemptionAttemptService.isBlocked(testIp));
+        assertTrue(enumerationProtectionService.isBlocked(testIp));
 
         Thread.sleep(Duration.of(coolDownTime, toChronoUnit(TimeUnit.valueOf(coolDownUnit))).toMillis() + 1);
-        assertFalse(redemptionAttemptService.isBlocked(testIp));
+        assertFalse(enumerationProtectionService.isBlocked(testIp));
     }
 
     private ChronoUnit toChronoUnit(TimeUnit timeUnit) {

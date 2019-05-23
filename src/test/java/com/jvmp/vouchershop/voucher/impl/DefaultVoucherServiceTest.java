@@ -297,4 +297,13 @@ public class DefaultVoucherServiceTest {
         assertEquals(IllegalOperationException.class, t.getClass());
         assertEquals("Voucher value is too low. Must be greater than " + DUST_AMOUNT, t.getMessage());
     }
+
+    @Test
+    public void findByCode() {
+        Voucher voucher = randomVoucher();
+
+        subject.findByCode(voucher.getCode());
+
+        verify(voucherRepository, times(1)).findByCode(eq(voucher.getCode()));
+    }
 }

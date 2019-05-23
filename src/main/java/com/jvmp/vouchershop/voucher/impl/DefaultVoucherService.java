@@ -18,6 +18,7 @@ import javax.annotation.Nonnull;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static com.jvmp.vouchershop.voucher.impl.VoucherValidations.checkIfRedeemable;
@@ -135,5 +136,10 @@ public class DefaultVoucherService implements VoucherService {
         checkIfRefundable(voucher);
 
         voucherRepository.delete(voucher);
+    }
+
+    @Override
+    public Optional<Voucher> findByCode(String voucherCode) {
+        return voucherRepository.findByCode(voucherCode);
     }
 }

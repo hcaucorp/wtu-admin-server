@@ -16,13 +16,13 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
-public class RedemptionAttemptService {
+public class EnumerationProtectionService {
 
     private final int maxAttempts;
 
     private LoadingCache<String, Integer> attemptsCache;
 
-    public RedemptionAttemptService(
+    public EnumerationProtectionService(
             @Value(PropertyNames.ENUMERATION_PROTECTION_COOL_DOWN_TIME) int coolDownTime,
             @Value(PropertyNames.ENUMERATION_PROTECTION_COOL_DOWN_UNIT) String coolDownUnit,
             @Value(PropertyNames.ENUMERATION_PROTECTION_MAX_ATTEMPTS) int maxAttempts

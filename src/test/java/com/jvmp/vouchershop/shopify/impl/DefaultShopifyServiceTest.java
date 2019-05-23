@@ -5,6 +5,7 @@ import com.jvmp.vouchershop.shopify.domain.FulfillmentItem;
 import com.jvmp.vouchershop.shopify.domain.FulfillmentResource;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -51,5 +52,13 @@ public class DefaultShopifyServiceTest {
         assertEquals("Order ID: " + orderNumber, item.getTrackingNumber());
         assertTrue(item.getTrackingUrls().isEmpty()); //TODO change to assertFalse after adding tracking url endpoint
         assertTrue(item.isNotifyCustomer());
+    }
+
+
+    @Test
+    @Ignore
+    public void refundOrder() {
+        // should get list of vouchers based on order id and fulfillment
+        // should delete vouchers
     }
 }

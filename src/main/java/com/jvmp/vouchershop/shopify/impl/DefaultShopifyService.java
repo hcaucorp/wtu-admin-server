@@ -4,6 +4,7 @@ import com.jvmp.vouchershop.shopify.ShopifyApiClient;
 import com.jvmp.vouchershop.shopify.ShopifyService;
 import com.jvmp.vouchershop.shopify.domain.FulfillmentItem;
 import com.jvmp.vouchershop.shopify.domain.FulfillmentResource;
+import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.shopify.domain.OrderList;
 
 import static com.jvmp.vouchershop.shopify.domain.FinancialStatus.paid;
@@ -48,6 +49,8 @@ class DefaultShopifyService implements ShopifyService {
 
     @Override
     public void refundOrder(String orderId) {
-        apiClient.getOrder(orderId);
+        Order order = apiClient.getOrder(orderId);
+
+        //todo 
     }
 }

@@ -3,9 +3,11 @@ package com.jvmp.vouchershop.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.notifications.NotificationService;
-import com.jvmp.vouchershop.security.RedemptionAttemptService;
+import com.jvmp.vouchershop.security.EnumerationProtectionService;
 import com.jvmp.vouchershop.security.TestSecurityConfig;
 import com.jvmp.vouchershop.utils.IAmATeapotException;
+import com.jvmp.vouchershop.voucher.Voucher;
+import com.jvmp.vouchershop.voucher.VoucherInfoResponse;
 import com.jvmp.vouchershop.voucher.VoucherNotFoundException;
 import com.jvmp.vouchershop.voucher.VoucherService;
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
@@ -21,6 +23,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+
+import java.util.Optional;
 
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
 import static java.util.Collections.singletonList;
@@ -46,7 +50,7 @@ public class VoucherControllerTest {
     private NotificationService notificationService;
 
     @MockBean
-    private RedemptionAttemptService redemptionAttemptService;
+    private EnumerationProtectionService enumerationProtectionService;
 
     @Autowired
     private MockMvc mvc;
@@ -135,7 +139,7 @@ public class VoucherControllerTest {
         RedemptionRequest request = randomRedemptionRequest();
         String ip = randomIp();
         when(voucherService.redeemVoucher(any())).thenThrow(new VoucherNotFoundException(""));
-        when(redemptionAttemptService.isBlocked(any())).thenReturn(true);
+        when(enumerationProtectionService.isBlocked(any())).thenReturn(true);
 
         mvc.perform(post(baseUrl + "/vouchers/redeem")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -148,12 +152,39 @@ public class VoucherControllerTest {
         String ip = randomIp();
         RedemptionRequest request = randomRedemptionRequest();
         when(voucherService.redeemVoucher(eq(request))).thenThrow(new VoucherNotFoundException(""));
-        when(redemptionAttemptService.isBlocked(eq(ip))).thenReturn(true);
+        when(enumerationProtectionService.isBlocked(eq(ip))).thenReturn(true);
 
         mvc.perform(post(baseUrl + "/vouchers/redeem")
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .header("X-Forwarder-For", ip + ", " + randomIp() + ", " + randomIp()) //clientIpAddress, proxy1, proxy2
                 .content(om.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void getVoucherInfo() throws Exception {
+        Voucher voucher = randomValidVoucher();
+
+        VoucherInfoResponse voucherInfoResponse = VoucherInfoResponse.from(voucher);
+
+        when(voucherService.findByCode(eq(voucher.getCode()))).thenReturn(Optional.of(voucher));
+
+        mvc.perform(get(baseUrl + "/vouchers/" + voucher.getCode())
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(content().json(om.writeValueAsString(voucherInfoResponse)));
+    }
+
+
+    @Test
+    public void getVoucherInfoUnsoldVoucher() throws Exception {
+        Voucher voucher = randomVoucher().withSold(false);
+
+        when(voucherService.findByCode(eq(voucher.getCode()))).thenReturn(Optional.of(voucher));
+
+        mvc.perform(get(baseUrl + "/vouchers/" + voucher.getCode())
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$").doesNotExist()); //security: important to not give away error details
     }
 }

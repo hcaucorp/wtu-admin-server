@@ -13,8 +13,8 @@ import org.bitcoinj.params.UnitTestParams;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
@@ -97,7 +97,13 @@ public class RandomUtils {
                 .withSold(false)
                 .withRedeemed(false)
                 .withSku(randomSku())
-                .withExpiresAt(LocalDateTime.now().plusYears(1).toInstant(ZoneOffset.UTC).getEpochSecond());
+                .withExpiresAt(ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().getEpochSecond());
+    }
+
+    public static Voucher randomValidVoucher() {
+        return randomVoucher()
+                .withSold(true)
+                .withRedeemed(false);
     }
 
     public static VoucherGenerationDetails randomVoucherGenerationSpec() {
