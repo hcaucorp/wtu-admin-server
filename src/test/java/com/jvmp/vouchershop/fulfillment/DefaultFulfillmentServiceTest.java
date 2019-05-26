@@ -93,7 +93,7 @@ public class DefaultFulfillmentServiceTest {
         verify(voucherRepository, times(1)).save(eq(
                 voucher
                         .withSold(true)
-                        .withExpiresAt(ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().getEpochSecond())
+                        .withExpiresAt(ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().toEpochMilli())
         ));
     }
 

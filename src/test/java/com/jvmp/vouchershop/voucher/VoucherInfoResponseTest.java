@@ -4,6 +4,8 @@ import com.jvmp.vouchershop.exception.IllegalOperationException;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
 import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucher;
@@ -14,7 +16,6 @@ public class VoucherInfoResponseTest {
 
     @Test
     public void calculateStatus_redeemed() {
-
         // simply when redeemed
         assertEquals("redeemed", from(randomVoucher().withRedeemed(true)).getStatus());
     }
@@ -24,7 +25,7 @@ public class VoucherInfoResponseTest {
         VoucherInfoResponse voucherInfoResponse = from(randomVoucher()
                 .withRedeemed(false)
                 .withSold(true)
-                .withExpiresAt(Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond())
+                .withExpiresAt(Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli())
         );
         // when sold, !redeemed, expired date
         assertEquals("expired", voucherInfoResponse.getStatus());
@@ -35,6 +36,21 @@ public class VoucherInfoResponseTest {
         VoucherInfoResponse voucherInfoResponse = from(randomVoucher().withRedeemed(false).withSold(true));
         // when sold, !redeemed, not expired
         assertEquals("valid", voucherInfoResponse.getStatus());
+    }
+
+    @Test
+    public void calculateStatus_valid_withLegacyExpiration_ZERO() {
+        Voucher voucher = randomVoucher()
+                .withRedeemed(false)
+                .withSold(true)
+                .withExpiresAt(0)
+                .withCreatedAt(Instant.now().toEpochMilli());
+        VoucherInfoResponse voucherInfoResponse = from(voucher);
+        // when sold, !redeemed, not expired
+        assertEquals("valid", voucherInfoResponse.getStatus());
+
+        String expected = "" + ZonedDateTime.ofInstant(Instant.ofEpochMilli(voucher.getCreatedAt()), ZoneOffset.UTC).plusYears(2).toInstant().toEpochMilli();
+        assertEquals(expected, voucherInfoResponse.getExpiresAt());
     }
 
     @Test(expected = IllegalOperationException.class)
@@ -49,7 +65,7 @@ public class VoucherInfoResponseTest {
         from(randomVoucher()
                 .withSold(false)
                 .withRedeemed(false)
-                .withExpiresAt(Instant.now().minus(1, ChronoUnit.DAYS).getEpochSecond())
+                .withExpiresAt(Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli())
         );
     }
 }

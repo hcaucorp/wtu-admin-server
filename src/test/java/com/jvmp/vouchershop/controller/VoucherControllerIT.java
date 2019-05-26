@@ -195,12 +195,22 @@ public class VoucherControllerIT {
     }
 
     @Test
-    public void redeemBchVoucher() {
+    public void redeemBchVoucher_toLegacyDestinationAddress() {
         redeemVoucher(BCH);
+    }
+
+    @Test
+    public void redeemBchVoucher_toCashDestinationAddress() {
+        redeemVoucher(BCH, "bchtest:qr9w720v7qaglutk9yv4nf27jhzem74tqykr3fjdqt");
+//        redeemVoucher(BCH, "bitcoincash:qr9w720v7qaglutk9yv4nf27jhzem74tqykr3fjdqt");
     }
 
 
     public void redeemVoucher(String currency) {
+        redeemVoucher(currency, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G");
+    }
+
+    public void redeemVoucher(String currency, String destinationAddress) {
         CurrencyService currencyService = currencyServiceSupplier.findByCurrency(currency);
         // receive address: myAUke4cumJb6fYvHAGvXVMzHbKTusrixG
         Wallet wallet = currencyService.importWallet(
@@ -227,7 +237,7 @@ public class VoucherControllerIT {
                 .header(HttpHeaders.AUTHORIZATION, authorizationValue)
                 .body(new RedemptionRequest()
                         .withVoucherCode(voucher.getCode())
-                        .withDestinationAddress("mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G"));
+                        .withDestinationAddress(destinationAddress));
 
         RedemptionResponse response =
                 template.postForEntity(url, requestEntity, RedemptionResponse.class).getBody();

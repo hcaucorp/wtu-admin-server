@@ -126,6 +126,12 @@
             <scope>compile</scope>
         </dependency>
 
+        <!--        <dependency>-->
+        <!--            <groupId>cash.bitcoinj</groupId>-->
+        <!--            <artifactId>bitcoinj-cash-core</artifactId>-->
+        <!--            <version>0.14-SNAPSHOT</version>-->
+        <!--        </dependency>-->
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>

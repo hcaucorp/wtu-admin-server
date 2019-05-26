@@ -31,7 +31,7 @@ public class RandomUtils {
     public static Fulfillment randomFulfillment() {
         return new Fulfillment()
                 .withOrderId(nextLong())
-                .withCompletedAt(Instant.now().getEpochSecond())
+                .withCompletedAt(Instant.now().toEpochMilli())
                 .withVouchers(randomVouchers(nextInt(3, 20)));
     }
 
@@ -57,6 +57,11 @@ public class RandomUtils {
     public static String randomBtcAddress(NetworkParameters params) {
         org.bitcoinj.wallet.Wallet wallet = new org.bitcoinj.wallet.Wallet(params);
         return wallet.currentReceiveAddress().toBase58();
+    }
+
+    public static String randomBchAddress(cash.bitcoinj.core.NetworkParameters params) {
+        cash.bitcoinj.wallet.Wallet wallet = new cash.bitcoinj.wallet.Wallet(params);
+        return wallet.currentReceiveAddress().toString();
     }
 
     public static String randomBtcAddress() {
@@ -97,7 +102,7 @@ public class RandomUtils {
                 .withSold(false)
                 .withRedeemed(false)
                 .withSku(randomSku())
-                .withExpiresAt(ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().getEpochSecond());
+                .withExpiresAt(ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().toEpochMilli());
     }
 
     public static Voucher randomValidVoucher() {

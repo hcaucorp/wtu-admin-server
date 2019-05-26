@@ -83,7 +83,7 @@ public class DefaultFulfillmentService implements FulfillmentService {
         fulfillment.getVouchers().forEach(voucher -> voucherRepository.save(
                 voucher
                         .withSold(true)
-                        .withExpiresAt(ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().getEpochSecond())
+                        .withExpiresAt(ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().toEpochMilli())
         ));
         return result;
     }

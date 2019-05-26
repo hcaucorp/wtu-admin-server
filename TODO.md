@@ -1,5 +1,6 @@
 ##### Backlog
 - replace cash.bitcoinj with forked lib from github
+- revise abuse of notification service usage, especially redemptions. Maybe hourly reports? By volume?
 - finish refund order
 - store tx hashes with redeemed vouchers
 - color QA WITH LOGO https://aboullaite.me/generate-qrcode-with-logo-image-using-zxing/
