@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.jvmp.vouchershop.shopify.domain.FinancialStatus.paid;
+import static com.jvmp.vouchershop.time.TimeStamp.clearTimeInformation;
 import static java.util.stream.Collectors.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -79,11 +80,14 @@ public class DefaultFulfillmentService implements FulfillmentService {
 
     @VisibleForTesting
     Fulfillment completeFulfillment(@Nonnull Fulfillment fulfillment) {
+        ZonedDateTime today = ZonedDateTime.now(ZoneOffset.UTC);
+
         Fulfillment result = fulfillmentRepository.save(fulfillment);
         fulfillment.getVouchers().forEach(voucher -> voucherRepository.save(
                 voucher
                         .withSold(true)
-                        .withExpiresAt(ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().toEpochMilli())
+                        // two years from now, drop time information
+                        .withExpiresAt(clearTimeInformation(today.plusYears(2).toInstant().toEpochMilli()))
         ));
         return result;
     }

@@ -1,7 +1,6 @@
 package com.jvmp.vouchershop.crypto.btc;
 
 import com.jvmp.vouchershop.exception.IllegalOperationException;
-import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.val;
@@ -35,9 +34,6 @@ public class BitcoinServiceTest {
     @Mock
     private BitcoinJAdapter bitcoinJAdapter;
 
-    @Mock
-    private NotificationService notificationService;
-
     private BitcoinService bitcoinService;
 
     private Context btcContext;
@@ -45,8 +41,7 @@ public class BitcoinServiceTest {
     @Before
     public void setUp() {
         btcContext = new Context(UnitTestParams.get());
-        bitcoinService = new BitcoinService(walletRepository, btcContext.getParams(), bitcoinJAdapter,
-                notificationService);
+        bitcoinService = new BitcoinService(walletRepository, btcContext.getParams(), bitcoinJAdapter);
     }
 
     @Test

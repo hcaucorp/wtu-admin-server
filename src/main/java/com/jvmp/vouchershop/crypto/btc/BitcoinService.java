@@ -2,7 +2,6 @@ package com.jvmp.vouchershop.crypto.btc;
 
 import com.jvmp.vouchershop.crypto.CurrencyService;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
-import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
@@ -38,7 +37,6 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
     private final WalletRepository walletRepository;
     private final NetworkParameters networkParameters;
     private final BitcoinJAdapter bitcoinj;
-    private final NotificationService notificationService;
 
     public static String walletWords(@Nonnull org.bitcoinj.wallet.Wallet bitcoinjWallet) {
         return String.join(" ", Optional.ofNullable(bitcoinjWallet.getKeyChainSeed().getMnemonicCode())
@@ -137,8 +135,8 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
 
             return sendResult.tx.getHashAsString();
         } catch (InsufficientMoneyException e) {
-            String message = format("Not enough funds %s wallet. Available %d, but requested %d", from.getId(), bitcoinj.getBalance(), amount);
-            notificationService.pushRedemptionNotification(message);
+            String message = format("Not enough funds %s wallet. Available %d, but requested %d. Exception message: %s",
+                    from.getId(), bitcoinj.getBalance(), amount, e.getMessage());
             throw new IllegalOperationException(message);
         }
     }

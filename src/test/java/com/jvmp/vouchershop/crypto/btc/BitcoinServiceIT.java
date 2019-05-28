@@ -1,7 +1,6 @@
 package com.jvmp.vouchershop.crypto.btc;
 
 import com.jvmp.vouchershop.Application;
-import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.Wallet;
 import org.bitcoinj.core.Context;
@@ -29,16 +28,12 @@ public class BitcoinServiceIT {
     @MockBean
     private BitcoinJAdapter bitcoinJAdapter;
 
-    @MockBean
-    private NotificationService notificationService;
-
     private BitcoinService bitcoinService;
 
     @Before
     public void setUp() {
         Context btcContext = new Context(UnitTestParams.get());
-        bitcoinService = new BitcoinService(walletRepository, btcContext.getParams(), bitcoinJAdapter,
-                notificationService);
+        bitcoinService = new BitcoinService(walletRepository, btcContext.getParams(), bitcoinJAdapter);
     }
 
     @After

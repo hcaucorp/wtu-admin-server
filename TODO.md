@@ -1,13 +1,11 @@
 ##### Backlog
-- replace cash.bitcoinj with forked lib from github
+- refactor Fulfillment.orderId to orderNumber:
 - revise abuse of notification service usage, especially redemptions. Maybe hourly reports? By volume?
 - finish refund order
 - store tx hashes with redeemed vouchers
 - color QA WITH LOGO https://aboullaite.me/generate-qrcode-with-logo-image-using-zxing/
 - Refactor Fulfillment.orderId -> Fulfillment.orderName
-- [ ] Redemption- add time consuming hash as body
 - [ ] UI - Create vouchers doesn't work after failing first time, have to refresh the page 
 - add liquibase framework integration and migrate fulfillments database (delete status column) see https://www.baeldung.com/liquibase-refactor-schema-of-java-app
 - We have to provide tracking url where customer can check if purchase has been delivered.
 - Button to re-trigger delivery to provided email (email partially masked)
-- turn back on expiration validation... in 2021?

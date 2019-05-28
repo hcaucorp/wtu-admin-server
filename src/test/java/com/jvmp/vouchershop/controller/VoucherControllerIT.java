@@ -191,30 +191,26 @@ public class VoucherControllerIT {
 
     @Test
     public void redeemBtcVoucher() {
-        redeemVoucher(BTC);
+        redeemVoucher(BTC, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G");
     }
 
     @Test
     public void redeemBchVoucher_toLegacyDestinationAddress() {
-        redeemVoucher(BCH);
+        redeemVoucher(BCH, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G");
     }
 
     @Test
     public void redeemBchVoucher_toCashDestinationAddress() {
-        redeemVoucher(BCH, "bchtest:qr9w720v7qaglutk9yv4nf27jhzem74tqykr3fjdqt");
-//        redeemVoucher(BCH, "bitcoincash:qr9w720v7qaglutk9yv4nf27jhzem74tqykr3fjdqt");
-    }
-
-
-    public void redeemVoucher(String currency) {
-        redeemVoucher(currency, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G");
+        redeemVoucher(BCH, "bchtest:qpkseg98hdrhhye8m3l5ssc6k3pp2u8qngsx2wm7y9");
     }
 
     public void redeemVoucher(String currency, String destinationAddress) {
         CurrencyService currencyService = currencyServiceSupplier.findByCurrency(currency);
         // receive address: myAUke4cumJb6fYvHAGvXVMzHbKTusrixG
+        // for bch: bchtest:qrqe9azt6mdt3r04sct7l7mm2d3znp7daqlzv4zrfp
         Wallet wallet = currencyService.importWallet(
-                new ImportWalletRequest(currency, "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary", 1546128000L));
+                new ImportWalletRequest(currency, "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary",
+                        1546128000L));
 
         if (currencyService instanceof BitcoinService)
             ((BitcoinService) currencyService).start();

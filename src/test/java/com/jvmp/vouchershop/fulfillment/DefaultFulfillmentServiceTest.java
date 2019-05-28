@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.jvmp.Collections.asSet;
+import static com.jvmp.vouchershop.time.TimeStamp.clearTimeInformation;
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.*;
@@ -54,6 +55,7 @@ public class DefaultFulfillmentServiceTest {
     public void setUp() {
         service = new DefaultFulfillmentService(fulfillmentRepository, voucherRepository, shopifyService, emailService);
     }
+
 
     @Test
     public void fulfillOrder() {
@@ -93,7 +95,7 @@ public class DefaultFulfillmentServiceTest {
         verify(voucherRepository, times(1)).save(eq(
                 voucher
                         .withSold(true)
-                        .withExpiresAt(ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().toEpochMilli())
+                        .withExpiresAt(clearTimeInformation(ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().toEpochMilli()))
         ));
     }
 

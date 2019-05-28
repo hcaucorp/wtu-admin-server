@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Google Inc.
+ * Copyright 2018 the bitcoinj-cash developers
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +13,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * This file has been modified by the bitcoinj-cash developers for the bitcoinj-cash project.
+ * The original file was from the bitcoinj project (https://github.com/bitcoinj/bitcoinj).
  */
 
 package cash.bitcoinj.params;
@@ -23,12 +27,13 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * Parameters for the old version 2 testnet. This is not useful to you - it exists only because some unit tests are
  * based on it.
+ *
+ *
  */
 public class TestNet2Params extends AbstractBitcoinNetParams {
     public static final int TESTNET_MAJORITY_WINDOW = 100;
     public static final int TESTNET_MAJORITY_REJECT_BLOCK_OUTDATED = 75;
     public static final int TESTNET_MAJORITY_ENFORCE_BLOCK_UPGRADE = 51;
-    private static TestNet2Params instance;
 
     public TestNet2Params() {
         super();
@@ -58,10 +63,12 @@ public class TestNet2Params extends AbstractBitcoinNetParams {
         majorityRejectBlockOutdated = TESTNET_MAJORITY_REJECT_BLOCK_OUTDATED;
         majorityWindow = TESTNET_MAJORITY_WINDOW;
 
+        cashAddrPrefix = "bchtest";
         // Nov, 13 hard fork
         daaUpdateHeight = 1188697;
     }
 
+    private static TestNet2Params instance;
     public static synchronized TestNet2Params get() {
         if (instance == null) {
             instance = new TestNet2Params();

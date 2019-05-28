@@ -2,6 +2,7 @@
  * Copyright 2011 Google Inc.
  * Copyright 2014 Giannis Dzegoutanis
  * Copyright 2015 Andreas Schildbach
+ * Copyright 2018 the bitcoinj-cash developers
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +15,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * This file has been modified by the bitcoinj-cash developers for the bitcoinj-cash project.
+ * The original file was from the bitcoinj project (https://github.com/bitcoinj/bitcoinj).
  */
 
 package cash.bitcoinj.core;
@@ -63,43 +67,6 @@ public class Address extends VersionedChecksummedBytes {
     }
 
     /**
-     * Construct an address from parameters and the hash160 form. Example:<p>
-     *
-     * <pre>new Address(MainNetParams.get(), Hex.decode("4a22c3c4cbb31e4d03b15550636762bda0baf85a"));</pre>
-     */
-    public Address(NetworkParameters params, byte[] hash160) {
-        super(params.getAddressHeader(), hash160);
-        checkArgument(hash160.length == 20, "Addresses are 160-bit hashes, so you must provide 20 bytes");
-        this.params = params;
-    }
-
-    /**
-     * @deprecated Use {@link #fromBase58(NetworkParameters, String)}
-     */
-    @Deprecated
-    public Address(@Nullable NetworkParameters params, String address) throws AddressFormatException {
-        super(address);
-        if (params != null) {
-            if (!isAcceptableVersion(params, version)) {
-                throw new WrongNetworkException(version, params.getAcceptableAddressCodes());
-            }
-            this.params = params;
-        } else {
-            NetworkParameters paramsFound = null;
-            for (NetworkParameters p : Networks.get()) {
-                if (isAcceptableVersion(p, version)) {
-                    paramsFound = p;
-                    break;
-                }
-            }
-            if (paramsFound == null)
-                throw new AddressFormatException("No network found for " + address);
-
-            this.params = paramsFound;
-        }
-    }
-
-    /**
      * Returns an Address that represents the given P2SH script hash.
      */
     public static Address fromP2SHHash(NetworkParameters params, byte[] hash160) {
@@ -131,36 +98,41 @@ public class Address extends VersionedChecksummedBytes {
     }
 
     /**
-     * Given an address, examines the version byte and attempts to find a matching NetworkParameters. If you aren't sure
-     * which network the address is intended for (eg, it was provided by a user), you can use this to decide if it is
-     * compatible with the current wallet.
+     * Construct an address from parameters and the hash160 form. Example:<p>
      *
-     * @return a NetworkParameters of the address
-     * @throws AddressFormatException if the string wasn't of a known version
+     * <pre>new Address(MainNetParams.get(), Hex.decode("4a22c3c4cbb31e4d03b15550636762bda0baf85a"));</pre>
      */
-    public static NetworkParameters getParametersFromAddress(String address) throws AddressFormatException {
-        try {
-            return Address.fromBase58(null, address).getParameters();
-        } catch (WrongNetworkException e) {
-            throw new RuntimeException(e);  // Cannot happen.
-        }
+    public Address(NetworkParameters params, byte[] hash160) {
+        super(params.getAddressHeader(), hash160);
+        checkArgument(hash160.length == 20, "Addresses are 160-bit hashes, so you must provide 20 bytes");
+        this.params = params;
     }
 
-    /**
-     * Check if a given address version is valid given the NetworkParameters.
-     */
-    private static boolean isAcceptableVersion(NetworkParameters params, int version) {
-        for (int v : params.getAcceptableAddressCodes()) {
-            if (version == v) {
-                return true;
+    /** @deprecated Use {@link #fromBase58(NetworkParameters, String)} */
+    @Deprecated
+    public Address(@Nullable NetworkParameters params, String address) throws AddressFormatException {
+        super(address);
+        if (params != null) {
+            if (!isAcceptableVersion(params, version)) {
+                throw new WrongNetworkException(version, params.getAcceptableAddressCodes());
             }
+            this.params = params;
+        } else {
+            NetworkParameters paramsFound = null;
+            for (NetworkParameters p : Networks.get()) {
+                if (isAcceptableVersion(p, version)) {
+                    paramsFound = p;
+                    break;
+                }
+            }
+            if (paramsFound == null)
+                throw new AddressFormatException("No network found for " + address);
+
+            this.params = paramsFound;
         }
-        return false;
     }
 
-    /**
-     * The (big endian) 20 byte hash that is the core of a Bitcoin address.
-     */
+    /** The (big endian) 20 byte hash that is the core of a Bitcoin address. */
     public byte[] getHash160() {
         return bytes;
     }
@@ -184,6 +156,33 @@ public class Address extends VersionedChecksummedBytes {
      */
     public NetworkParameters getParameters() {
         return params;
+    }
+
+    /**
+     * Given an address, examines the version byte and attempts to find a matching NetworkParameters. If you aren't sure
+     * which network the address is intended for (eg, it was provided by a user), you can use this to decide if it is
+     * compatible with the current wallet.
+     * @return a NetworkParameters of the address
+     * @throws AddressFormatException if the string wasn't of a known version
+     */
+    public static NetworkParameters getParametersFromAddress(String address) throws AddressFormatException {
+        try {
+            return Address.fromBase58(null, address).getParameters();
+        } catch (WrongNetworkException e) {
+            throw new RuntimeException(e);  // Cannot happen.
+        }
+    }
+
+    /**
+     * Check if a given address version is valid given the NetworkParameters.
+     */
+    public static boolean isAcceptableVersion(NetworkParameters params, int version) {
+        for (int v : params.getAcceptableAddressCodes()) {
+            if (version == v) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

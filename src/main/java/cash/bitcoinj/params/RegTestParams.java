@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Google Inc.
+ * Copyright 2018 the bitcoinj-cash developers
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,12 +13,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * This file has been modified by the bitcoinj-cash developers for the bitcoinj-cash project.
+ * The original file was from the bitcoinj project (https://github.com/bitcoinj/bitcoinj).
  */
 
 package cash.bitcoinj.params;
 
 import cash.bitcoinj.core.Block;
-import cash.bitcoinj.core.NetworkParameters;
 
 import java.math.BigInteger;
 
@@ -28,8 +31,6 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class RegTestParams extends TestNet2Params {
     private static final BigInteger MAX_TARGET = new BigInteger("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16);
-    private static Block genesis;
-    private static RegTestParams instance;
 
     public RegTestParams() {
         super();
@@ -39,7 +40,7 @@ public class RegTestParams extends TestNet2Params {
         maxTarget = MAX_TARGET;
         subsidyDecreaseBlockCount = 150;
         port = 18444;
-        id = NetworkParameters.ID_REGTEST;
+        id = ID_REGTEST;
 
         majorityEnforceBlockUpgrade = MainNetParams.MAINNET_MAJORITY_ENFORCE_BLOCK_UPGRADE;
         majorityRejectBlockOutdated = MainNetParams.MAINNET_MAJORITY_REJECT_BLOCK_OUTDATED;
@@ -49,19 +50,15 @@ public class RegTestParams extends TestNet2Params {
         uahfHeight = 0;
         // Nov, 13 hard fork
         daaUpdateHeight = 0;
-    }
-
-    public static synchronized RegTestParams get() {
-        if (instance == null) {
-            instance = new RegTestParams();
-        }
-        return instance;
+        cashAddrPrefix = "bchreg";
     }
 
     @Override
     public boolean allowEmptyPeerChain() {
         return true;
     }
+
+    private static Block genesis;
 
     @Override
     public Block getGenesisBlock() {
@@ -77,8 +74,17 @@ public class RegTestParams extends TestNet2Params {
         }
     }
 
+    private static RegTestParams instance;
+
+    public static synchronized RegTestParams get() {
+        if (instance == null) {
+            instance = new RegTestParams();
+        }
+        return instance;
+    }
+
     @Override
     public String getPaymentProtocolId() {
-        return NetworkParameters.PAYMENT_PROTOCOL_ID_REGTEST;
+        return PAYMENT_PROTOCOL_ID_REGTEST;
     }
 }

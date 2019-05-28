@@ -1,5 +1,7 @@
 package com.jvmp.vouchershop.utils;
 
+import com.jvmp.vouchershop.crypto.bch.BitcoinCashService;
+import com.jvmp.vouchershop.crypto.btc.BitcoinService;
 import com.jvmp.vouchershop.fulfillment.Fulfillment;
 import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;
@@ -21,7 +23,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.jvmp.vouchershop.crypto.btc.BitcoinService.walletWords;
+import static com.jvmp.vouchershop.time.TimeStamp.clearTimeInformation;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
 
@@ -43,7 +45,18 @@ public class RandomUtils {
                 .withAddress(wallet.currentReceiveAddress().toBase58())
                 .withCreatedAt(Instant.now().toEpochMilli())
                 .withCurrency(randomCurrency())
-                .withMnemonic(walletWords(wallet));
+                .withMnemonic(BitcoinService.walletWords(wallet));
+    }
+
+    public static Wallet randomWallet(cash.bitcoinj.core.NetworkParameters params) {
+        cash.bitcoinj.wallet.Wallet wallet = new cash.bitcoinj.wallet.Wallet(params);
+
+        return new Wallet()
+                .withId(nextLong())
+                .withAddress(wallet.currentReceiveAddress().toBase58())
+                .withCreatedAt(Instant.now().toEpochMilli())
+                .withCurrency(randomCurrency())
+                .withMnemonic(BitcoinCashService.walletWords(wallet));
     }
 
     public static String randomCurrency() {
@@ -57,11 +70,6 @@ public class RandomUtils {
     public static String randomBtcAddress(NetworkParameters params) {
         org.bitcoinj.wallet.Wallet wallet = new org.bitcoinj.wallet.Wallet(params);
         return wallet.currentReceiveAddress().toBase58();
-    }
-
-    public static String randomBchAddress(cash.bitcoinj.core.NetworkParameters params) {
-        cash.bitcoinj.wallet.Wallet wallet = new cash.bitcoinj.wallet.Wallet(params);
-        return wallet.currentReceiveAddress().toString();
     }
 
     public static String randomBtcAddress() {
@@ -102,7 +110,7 @@ public class RandomUtils {
                 .withSold(false)
                 .withRedeemed(false)
                 .withSku(randomSku())
-                .withExpiresAt(ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().toEpochMilli());
+                .withExpiresAt(clearTimeInformation(ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().toEpochMilli()));
     }
 
     public static Voucher randomValidVoucher() {

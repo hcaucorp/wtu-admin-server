@@ -6,7 +6,6 @@ import cash.bitcoinj.wallet.SendRequest;
 import cash.bitcoinj.wallet.UnreadableWalletException;
 import com.jvmp.vouchershop.crypto.CurrencyService;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
-import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
@@ -39,9 +38,10 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
     private final NetworkParameters networkParameters;
 
     private final BitcoinCashJAdapter bitcoinj;
-    private final NotificationService notificationService;
 
-    private static String walletWords(@Nonnull cash.bitcoinj.wallet.Wallet bitcoinjWallet) {
+    private final CashAddressFactory addressFactory = new CashAddressFactory();
+
+    public static String walletWords(@Nonnull cash.bitcoinj.wallet.Wallet bitcoinjWallet) {
         return String.join(" ", Optional.ofNullable(bitcoinjWallet.getKeyChainSeed().getMnemonicCode())
                 .orElse(emptyList()));
     }
@@ -76,10 +76,11 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
 
     private Wallet restoreWalletSaveAndStart(cash.bitcoinj.wallet.Wallet bitcoinjWallet, long createdAtMillis) {
         bitcoinj.restoreWalletFromSeed(bitcoinjWallet.getKeyChainSeed());
+        CashAddress receivingAddress = addressFactory.getFromBase58(networkParameters, bitcoinjWallet.currentReceiveAddress().toString());
 
         Wallet wallet = new Wallet()
                 .withBalance(bitcoinj.getBalance())
-                .withAddress(bitcoinjWallet.currentReceiveAddress().toString())
+                .withAddress(receivingAddress.toString())
                 .withCreatedAt(createdAtMillis)
                 .withCurrency(BCH)
                 .withMnemonic(walletWords(bitcoinjWallet));
@@ -123,12 +124,40 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
         return restoreWalletSaveAndStart(cashjWallet, Instant.ofEpochSecond(creationTime).toEpochMilli());
     }
 
+    CashAddress readAddress(NetworkParameters params, String input) {
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+            return addressFactory.getFromFormattedAddress(params, input);
+        } catch (AddressFormatException e) {
+            stringBuilder
+                    .append("Input: ")
+                    .append(input)
+                    .append("could not be decoded from cash address format. Exception: ")
+                    .append(e.getClass().getSimpleName())
+                    .append(e.getMessage());
+        }
+
+        try {
+            return addressFactory.getFromBase58(params, input);
+        } catch (AddressFormatException e) {
+            stringBuilder
+                    .append("Input: ")
+                    .append(input)
+                    .append("could not be decoded from Base58 address format. Exception: ")
+                    .append(e.getClass().getSimpleName())
+                    .append(e.getMessage());
+            log.error(stringBuilder.toString());
+
+            throw e;
+        }
+    }
+
     @Override
     public String sendMoney(Wallet from, String toAddress, long amount) {
         if (!acceptsCurrency(from.getCurrency()))
-            logAndThrowIllegalOperationException(format("Wallet %s can provide only for vouchers in %s", from.getId(), from.getCurrency()));
+            logAndThrowIllegalOperationException(format("Wallet %s doesn't work with %s", from.getId(), from.getCurrency()));
 
-        Address targetAddress = Address.fromBase58(networkParameters, toAddress);
+        Address targetAddress = readAddress(networkParameters, toAddress);
         try {
             //using eco fees
             SendRequest sendRequest = SendRequest.to(targetAddress, Coin.valueOf(amount));
@@ -138,8 +167,14 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
 
             return sendResult.tx.getHashAsString();
         } catch (InsufficientMoneyException e) {
-            String message = format("Not enough funds %s wallet. Available %d, but requested %d", from.getId(), bitcoinj.getBalance(), amount);
-            notificationService.pushRedemptionNotification(message);
+            String message = format("Not enough funds %s wallet. Available %d, but requested %,8f. Exception message: %s",
+                    from.getId(), bitcoinj.getBalance(), (double) amount / 10_000_000, e.getMessage());
+
+            if (log.isInfoEnabled()) {
+                // re-convert to cash address because it may still be in Base58 in DB
+                CashAddress receivingAddress = readAddress(networkParameters, from.getAddress());
+                log.info("Current receiving address: {}", receivingAddress);
+            }
             throw new IllegalOperationException(message);
         }
     }

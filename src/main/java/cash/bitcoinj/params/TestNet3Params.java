@@ -1,6 +1,7 @@
 /*
  * Copyright 2013 Google Inc.
  * Copyright 2014 Andreas Schildbach
+ * Copyright 2018 the bitcoinj-cash developers
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +14,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * This file has been modified by the bitcoinj-cash developers for the bitcoinj-cash project.
+ * The original file was from the bitcoinj project (https://github.com/bitcoinj/bitcoinj).
  */
 
 package cash.bitcoinj.params;
@@ -29,10 +33,6 @@ import static com.google.common.base.Preconditions.checkState;
  * and testing of applications and new Bitcoin versions.
  */
 public class TestNet3Params extends AbstractBitcoinNetParams {
-    // February 16th 2012
-    private static final Date testnetDiffDate = new Date(1329264000000L);
-    private static TestNet3Params instance;
-
     public TestNet3Params() {
         super();
         id = ID_TESTNET;
@@ -58,10 +58,8 @@ public class TestNet3Params extends AbstractBitcoinNetParams {
         dnsSeeds = new String[]{
                 "testnet-seed.bitcoinabc.org",
                 "testnet-seed-abc.bitcoinforks.org",
-                "testnet-seed.bitcoinunlimited.info",
                 "testnet-seed.bitprim.org",
-                "testnet-seed.deadalnix.me",
-                "testnet-seeder.criptolayer.net"
+                "testnet-seed.deadalnix.me"
         };
         addrSeeds = null;
         bip32HeaderPub = 0x043587CF;
@@ -75,8 +73,10 @@ public class TestNet3Params extends AbstractBitcoinNetParams {
         uahfHeight = 1155876;
         // Nov, 13 hard fork
         daaUpdateHeight = 1188697;
+        cashAddrPrefix = "bchtest";
     }
 
+    private static TestNet3Params instance;
     public static synchronized TestNet3Params get() {
         if (instance == null) {
             instance = new TestNet3Params();
@@ -84,13 +84,16 @@ public class TestNet3Params extends AbstractBitcoinNetParams {
         return instance;
     }
 
-    public static boolean isValidTestnetDateBlock(Block block) {
-        return block.getTime().after(testnetDiffDate);
-    }
-
     @Override
     public String getPaymentProtocolId() {
         return PAYMENT_PROTOCOL_ID_TESTNET;
+    }
+
+    // February 16th 2012
+    private static final Date testnetDiffDate = new Date(1329264000000L);
+
+    public static boolean isValidTestnetDateBlock(Block block) {
+        return block.getTime().after(testnetDiffDate);
     }
 
 }
