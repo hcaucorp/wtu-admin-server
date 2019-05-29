@@ -16,5 +16,13 @@ public interface VoucherRepository extends JpaRepository<Voucher, Long> {
 
     List<Voucher> findByPublishedTrueAndSoldFalseAndSku(String sku);
 
+    List<Voucher> findByRedeemedFalse();
+
+    List<Voucher> findByRedeemedTrue();
+
+    List<Voucher> findByRedeemedFalseAndSku(String sku);
+
+    List<Voucher> findByRedeemedTrueAndSku(String sku);
+
     Optional<Voucher> findByCode(String code);
 }

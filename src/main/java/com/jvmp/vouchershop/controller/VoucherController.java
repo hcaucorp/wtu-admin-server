@@ -41,8 +41,10 @@ public class VoucherController {
     private HttpServletRequest request;
 
     @GetMapping
-    public List<Voucher> getAllVouchers() {
-        return voucherService.findAll();
+    public List<Voucher> getAllVouchers(
+            @RequestParam(required = false, defaultValue = "false") boolean showRedeemed,
+            @RequestParam(required = false) String sku) {
+        return voucherService.findBy(showRedeemed, sku);
     }
 
     @DeleteMapping("/{sku}")

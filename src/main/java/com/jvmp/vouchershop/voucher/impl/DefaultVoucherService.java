@@ -107,8 +107,6 @@ public class DefaultVoucherService implements VoucherService {
 
     @Override
     public synchronized RedemptionResponse redeemVoucher(@Nonnull RedemptionRequest detail) {
-        Objects.requireNonNull(detail, "voucher redemption details");
-
         Voucher voucher = voucherRepository.findByCode(detail.getVoucherCode())
                 .orElseThrow(() -> new VoucherNotFoundException("Voucher " + detail.getVoucherCode() + " not found."));
 
@@ -141,5 +139,17 @@ public class DefaultVoucherService implements VoucherService {
     @Override
     public Optional<Voucher> findByCode(String voucherCode) {
         return voucherRepository.findByCode(voucherCode);
+    }
+
+    @Override
+    public List<Voucher> findBy(boolean showRedeemed, String sku) {
+
+        if (showRedeemed) {
+            if (sku == null) return voucherRepository.findByRedeemedTrue();
+            else return voucherRepository.findByRedeemedTrueAndSku(sku);
+        } else {
+            if (sku == null) return voucherRepository.findByRedeemedFalse();
+            else return voucherRepository.findByRedeemedFalseAndSku(sku);
+        }
     }
 }
