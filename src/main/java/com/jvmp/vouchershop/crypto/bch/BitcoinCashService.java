@@ -162,13 +162,14 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
             //using eco fees
             SendRequest sendRequest = SendRequest.to(targetAddress, Coin.valueOf(amount));
             sendRequest.feePerKb = Transaction.REFERENCE_DEFAULT_MIN_TX_FEE;
+            sendRequest.setUseForkId(true);
 
             cash.bitcoinj.wallet.Wallet.SendResult sendResult = bitcoinj.sendCoins(sendRequest);
 
             return sendResult.tx.getHashAsString();
         } catch (InsufficientMoneyException e) {
-            String message = format("Not enough funds %s wallet. Available %d, but requested %,8f. Exception message: %s",
-                    from.getId(), bitcoinj.getBalance(), (double) amount / 10_000_000, e.getMessage());
+            String message = format("Not enough funds on wallet #%s. Available %.8f, but requested %.8f. Exception message: %s",
+                    from.getId(), (double) bitcoinj.getBalance() / 10_000_000, (double) amount / 10_000_000, e.getMessage());
 
             if (log.isInfoEnabled()) {
                 // re-convert to cash address because it may still be in Base58 in DB

@@ -1,5 +1,6 @@
 ##### Backlog
-- refactor Fulfillment.orderId to orderNumber:
+- implement "wallet groups"
+- start bitcoinj and bitcoin-cash-j after server is up
 - revise abuse of notification service usage, especially redemptions. Maybe hourly reports? By volume?
 - finish refund order
 - store tx hashes with redeemed vouchers

@@ -135,8 +135,9 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
 
             return sendResult.tx.getHashAsString();
         } catch (InsufficientMoneyException e) {
-            String message = format("Not enough funds %s wallet. Available %d, but requested %d. Exception message: %s",
-                    from.getId(), bitcoinj.getBalance(), amount, e.getMessage());
+            String message = format("Not enough funds on wallet #%s. Available %.8f, but requested %.8f. Exception message: %s",
+                    from.getId(), (double) bitcoinj.getBalance() / 10_000_000, (double) amount / 10_000_000, e.getMessage());
+
             throw new IllegalOperationException(message);
         }
     }

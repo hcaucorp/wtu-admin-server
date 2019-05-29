@@ -23,10 +23,7 @@ import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.Context;
 import org.bitcoinj.core.NetworkParameters;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import static com.jvmp.Collections.asSet;
 import static com.jvmp.vouchershop.crypto.bch.BitcoinCashService.BCH;
@@ -51,6 +49,7 @@ import static com.jvmp.vouchershop.crypto.btc.BitcoinService.BTC;
 import static com.jvmp.vouchershop.utils.RandomUtils.*;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.Assert.*;
 
@@ -69,25 +68,18 @@ import static org.junit.Assert.*;
 })
 public class VoucherControllerIT {
 
+    private static final Set<AutoCloseable> closeUs = new HashSet<>();
     @LocalServerPort
     private int port;
-
     private URL base;
-
     @Autowired
     private TestRestTemplate template;
-
     @Autowired
     private VoucherRepository voucherRepository;
-
     @Autowired
     private WalletRepository walletRepository;
-
     @Autowired
     private CurrencyServiceSupplier currencyServiceSupplier;
-
-    private static final Set<AutoCloseable> closeUs = new HashSet<>();
-
     @Autowired
     private NetworkParameters networkParameters;
 
@@ -200,17 +192,55 @@ public class VoucherControllerIT {
     }
 
     @Test
-    public void redeemBchVoucher_toCashDestinationAddress() {
-        redeemVoucher(BCH, "bchtest:qpkseg98hdrhhye8m3l5ssc6k3pp2u8qngsx2wm7y9");
+    @Ignore
+    public void redeemMultipleVouchersUsingOneCoinInTheSameBlock_BTC() {
+        redeemMultipleVouchersUsingOneCoinInTheSameBlock(BTC, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G");
     }
 
-    public void redeemVoucher(String currency, String destinationAddress) {
-        CurrencyService currencyService = currencyServiceSupplier.findByCurrency(currency);
+    @Test
+    @Ignore
+    public void redeemMultipleVouchersUsingOneCoinInTheSameBlock_BCH() {
+        redeemMultipleVouchersUsingOneCoinInTheSameBlock(BCH, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G");
+    }
+
+    public void redeemMultipleVouchersUsingOneCoinInTheSameBlock(String currency, String destinationAddress) {
+        CurrencyService currencyService = startCurrencyService(currency);
+
         // receive address: myAUke4cumJb6fYvHAGvXVMzHbKTusrixG
-        // for bch: bchtest:qrqe9azt6mdt3r04sct7l7mm2d3znp7daqlzv4zrfp
-        Wallet wallet = currencyService.importWallet(
-                new ImportWalletRequest(currency, "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary",
-                        1546128000L));
+        // in cash address: bchtest:qrqe9azt6mdt3r04sct7l7mm2d3znp7daqlzv4zrfp
+        Wallet wallet = currencyService.importWallet(new ImportWalletRequest(
+                currency,
+                "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary",
+                1546128000L));
+
+        List<Voucher> vouchers = IntStream.range(0, 10).mapToObj(i -> voucherRepository.save(randomVoucher()
+                .withWalletId(wallet.getId())
+                .withSold(true)
+                .withPublished(true)
+                .withRedeemed(false)))
+                .collect(toList());
+
+        for (int i = 0; i < vouchers.size(); i++) {
+
+            Voucher voucher = vouchers.get(i);
+            ResponseEntity<RedemptionResponse> responseEntity = requestRedemption(voucher, destinationAddress);
+            assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+
+            RedemptionResponse response = responseEntity.getBody();
+            assertNotNull(response);
+            assertNotNull(response.getTransactionId());
+            assertFalse(response.getTrackingUrls().isEmpty());
+
+            Optional<Voucher> byId = voucherRepository.findById(voucher.getId());
+            assertTrue(byId.isPresent());
+            assertTrue(byId.get().isRedeemed());
+
+            log.info("Redeemed transaction no. {} of {}", i, vouchers.size());
+        }
+    }
+
+    private CurrencyService startCurrencyService(String currency) {
+        CurrencyService currencyService = currencyServiceSupplier.findByCurrency(currency);
 
         if (currencyService instanceof BitcoinService)
             ((BitcoinService) currencyService).start();
@@ -220,14 +250,11 @@ public class VoucherControllerIT {
 
         log.debug("Service should be running now.");
 
-        Voucher voucher = voucherRepository.save(randomVoucher()
-                .withWalletId(wallet.getId())
-                .withSold(true)
-                .withPublished(true)
-                .withRedeemed(false));
+        return currencyService;
+    }
 
+    private ResponseEntity<RedemptionResponse> requestRedemption(Voucher voucher, String destinationAddress) {
         String url = base.toString() + "/vouchers/redeem";
-
         RequestEntity<?> requestEntity = RequestEntity
                 .post(URI.create(url))
                 .header(HttpHeaders.AUTHORIZATION, authorizationValue)
@@ -235,21 +262,36 @@ public class VoucherControllerIT {
                         .withVoucherCode(voucher.getCode())
                         .withDestinationAddress(destinationAddress));
 
-        RedemptionResponse response =
-                template.postForEntity(url, requestEntity, RedemptionResponse.class).getBody();
+        return template.postForEntity(url, requestEntity, RedemptionResponse.class);
+    }
 
+    public void redeemVoucher(String currency, String destinationAddress) {
+        CurrencyService currencyService = startCurrencyService(currency);
+
+        // receive address: myAUke4cumJb6fYvHAGvXVMzHbKTusrixG
+        // for bch: bchtest:qrqe9azt6mdt3r04sct7l7mm2d3znp7daqlzv4zrfp
+        Wallet wallet = currencyService.importWallet(new ImportWalletRequest(
+                currency,
+                "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary",
+                1546128000L));
+
+        Voucher voucher = voucherRepository.save(randomVoucher()
+                .withWalletId(wallet.getId())
+                .withSold(true)
+                .withPublished(true)
+                .withRedeemed(false));
+
+        ResponseEntity<RedemptionResponse> responseEntity = requestRedemption(voucher, destinationAddress);
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+
+        RedemptionResponse response = responseEntity.getBody();
         assertNotNull(response);
         assertNotNull(response.getTransactionId());
         assertFalse(response.getTrackingUrls().isEmpty());
 
         Optional<Voucher> byId = voucherRepository.findById(voucher.getId());
-
         assertTrue(byId.isPresent());
         assertTrue(byId.get().isRedeemed());
-    }
-
-    private static class VoucherList extends ParameterizedTypeReference<List<Voucher>> {
-        //
     }
 
     @Test
@@ -316,5 +358,9 @@ public class VoucherControllerIT {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(expected, response.getBody());
+    }
+
+    private static class VoucherList extends ParameterizedTypeReference<List<Voucher>> {
+        //
     }
 }
