@@ -38,7 +38,7 @@ public class VoucherInfoResponse {
                 "Prevent this from happening in a layer higher to prevent enumeration attack based on response time");
     }
 
-    //temporary walk-around for legacy value for old vouchers :(
+    // temporary walk-around for legacy value for old vouchers :(
     // should be simply voucher.getExpiresAt()
     private static long calculateExpiresAt(@Nonnull Voucher voucher) {
         return voucher.getExpiresAt() > 0 ?

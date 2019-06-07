@@ -1,16 +1,17 @@
-package com.jvmp.vouchershop.notifications;
-
+package com.jvmp.vouchershop.notifications.impl;
 
 import com.jvmp.vouchershop.system.PropertyNames;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sns.SnsClient;
 
 @Configuration
+@Profile("!local")
 public class AwsConfig {
 
     @Value(PropertyNames.AWS_SNS_ACCESS_KEY_ID)

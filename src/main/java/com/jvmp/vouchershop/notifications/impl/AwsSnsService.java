@@ -1,15 +1,18 @@
-package com.jvmp.vouchershop.notifications;
+package com.jvmp.vouchershop.notifications.impl;
 
+import com.jvmp.vouchershop.notifications.NotificationService;
 import com.jvmp.vouchershop.system.PropertyNames;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.PublishRequest;
 
 @RequiredArgsConstructor
 @Component
-class AwsSnsService implements NotificationService {
+@Profile("!local")
+public class AwsSnsService implements NotificationService {
 
     @Value(PropertyNames.AWS_SNS_TOPIC_ORDERS)
     private String ordersTopic;

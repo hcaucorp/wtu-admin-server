@@ -7,6 +7,7 @@ import lombok.experimental.Wither;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import javax.annotation.MatchesPattern;
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -22,12 +23,15 @@ import java.io.Serializable;
 @EntityListeners(AuditingEntityListener.class)
 public class Voucher implements Serializable {
 
+    public static final String CODE_PATTERN = "^wtu[a-z]{3}-[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$";
+
     @Column(nullable = false, updatable = false)
     @Positive
     private long amount;
 
     @Column(nullable = false, updatable = false, unique = true)
     @NotBlank
+    @MatchesPattern(CODE_PATTERN)
     private String code;
 
     @Id

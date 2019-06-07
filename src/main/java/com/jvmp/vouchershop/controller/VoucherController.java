@@ -69,17 +69,17 @@ public class VoucherController {
 
         try {
             RedemptionResponse response = voucherService.redeemVoucher(detail);
-            notificationService.pushRedemptionNotification("Redeemed " + detail.getVoucherCode());
+            notificationService.pushRedemptionNotification("Redeemed " + detail.getVoucherCode() + " to " + detail.getDestinationAddress() + ". TxId: " + response.getTransactionId());
             enumerationProtectionService.succeeded(request);
             return response;
         } catch (VoucherNotFoundException e) {
-            String message = format("Tried to redeem absent voucher: %s to a wallet: %s", detail.getVoucherCode(), detail.getDestinationAddress());
+            String message = format("Tried to redeem absent voucher: %s to a wallet address: %s", detail.getVoucherCode(), detail.getDestinationAddress());
             log.warn(message);
             notificationService.pushRedemptionNotification(message);
             enumerationProtectionService.failed(request);
             throw e;
         } catch (Exception e) {
-            String message = format("Failed redemption with exception %s, message: %s", e.getClass().getSimpleName(), e.getMessage());
+            String message = format("Failed redemption (%s) with exception %s, message: %s", detail.toString(), e.getClass().getSimpleName(), e.getMessage());
             log.error(message);
             notificationService.pushRedemptionNotification(message);
             throw new IllegalOperationException();

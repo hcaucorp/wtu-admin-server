@@ -23,7 +23,7 @@ es:
       enumeration-protection:
         cool-down-time: 24
         cool-down-unit: HOURS
-        max-attempts: 10
+        max-attempts: 30
     notification:
       # topic with results of user actions
       orders-topic-arn: arn:aws:sns:eu-west-2:367570967874:orders
