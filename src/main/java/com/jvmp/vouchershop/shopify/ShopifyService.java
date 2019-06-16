@@ -9,6 +9,4 @@ public interface ShopifyService {
     OrderList findUnfulfilledOrders();
 
     int unfulfilledOrdersCount();
-
-    void refundOrder(String orderId);
 }

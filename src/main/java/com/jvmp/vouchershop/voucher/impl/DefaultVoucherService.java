@@ -4,6 +4,7 @@ import com.jvmp.vouchershop.crypto.CurrencyServiceSupplier;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.VoucherRepository;
+import com.jvmp.vouchershop.system.PropertyNames;
 import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.voucher.VoucherCodeGenerator;
 import com.jvmp.vouchershop.voucher.VoucherNotFoundException;
@@ -12,6 +13,8 @@ import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bitcoinj.core.NetworkParameters;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
@@ -19,17 +22,22 @@ import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.jvmp.vouchershop.voucher.impl.VoucherValidations.checkIfRedeemable;
 import static com.jvmp.vouchershop.voucher.impl.VoucherValidations.checkIfRefundable;
 import static java.lang.String.format;
+import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class DefaultVoucherService implements VoucherService {
+
+    @Value(PropertyNames.BITCOIN_NETWORK)
+    private String networkType;
 
     final static long DUST_AMOUNT = 546;
 
@@ -121,7 +129,23 @@ public class DefaultVoucherService implements VoucherService {
 
         voucherRepository.save(voucher.withRedeemed(true));
 
-        return RedemptionUtils.fromTxHash(transactionHash);
+        return fromTxHash(wallet.getCurrency(), transactionHash);
+    }
+
+    private RedemptionResponse fromTxHash(String currency, String txHash) {
+        String networkId = null;
+        if ("BTC".equals(currency) && "mainnet".equals(networkType)) networkId = NetworkParameters.ID_MAINNET;
+        if ("BTC".equals(currency) && "testnet".equals(networkType)) networkId = NetworkParameters.ID_TESTNET;
+        if ("BCH".equals(currency) && "mainnet".equals(networkType))
+            networkId = cash.bitcoinj.core.NetworkParameters.ID_MAINNET;
+        if ("BCH".equals(currency) && "testnet".equals(networkType))
+            networkId = cash.bitcoinj.core.NetworkParameters.ID_TESTNET;
+
+        return new RedemptionResponse(
+                RedemptionUtils.blockExploresByNetworkId.getOrDefault(networkId, emptySet())
+                        .stream()
+                        .map(url -> String.format(url, txHash))
+                        .collect(Collectors.toList()), txHash);
     }
 
     @Override

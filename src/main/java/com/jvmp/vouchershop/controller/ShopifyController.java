@@ -21,6 +21,10 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * Went away from Shopify so this will not be used any more
+ */
+@Deprecated
 @RequestMapping("/api")
 @RestController
 @RequiredArgsConstructor
@@ -74,11 +78,5 @@ public class ShopifyController {
     public void fulfillUnfulfilledOrders() {
         OrderList unfulfilledOrders = shopifyService.findUnfulfilledOrders();
         unfulfilledOrders.getOrders().forEach(order -> shopifyService.markOrderFulfilled(order.getId()));
-    }
-
-    @PostMapping("/shopify/orders/{orderId}/refund")
-    public ResponseEntity<?> refundOrder(@PathVariable String orderId) {
-        shopifyService.refundOrder(orderId);
-        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

@@ -1,10 +1,11 @@
 ##### Backlog
+- remove Shopify integration
 - implement "wallet groups"
 - start bitcoinj and bitcoin-cash-j after server is up
 - revise abuse of notification service usage, especially redemptions. Maybe hourly reports? By volume?
-- finish refund order
+- remove finish refund order feature
 - store tx hashes with redeemed vouchers
-- color QA WITH LOGO https://aboullaite.me/generate-qrcode-with-logo-image-using-zxing/
+- color QR WITH LOGO https://aboullaite.me/generate-qrcode-with-logo-image-using-zxing/
 - Refactor Fulfillment.orderId -> Fulfillment.orderName
 - [ ] UI - Create vouchers doesn't work after failing first time, have to refresh the page 
 - add liquibase framework integration and migrate fulfillments database (delete status column) see https://www.baeldung.com/liquibase-refactor-schema-of-java-app
