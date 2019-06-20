@@ -25,7 +25,7 @@ public class DefaultVoucherCodeGenerator implements VoucherCodeGenerator {
     }
 
     @Override
-    public String apply(VoucherGenerationDetails generationDetails) {
+    public String apply(VoucherGenerationSpec generationDetails) {
         Wallet wallet = walletService.findById(generationDetails.walletId)
                 .orElseThrow(() -> new ResourceNotFoundException(format("Wallet with id %s not found", generationDetails.walletId)));
 

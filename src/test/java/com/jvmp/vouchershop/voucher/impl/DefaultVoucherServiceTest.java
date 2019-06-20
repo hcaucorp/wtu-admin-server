@@ -67,7 +67,7 @@ public class DefaultVoucherServiceTest {
 
     @Test(expected = IllegalOperationException.class)
     public void generateVouchersWithIndivisibleInput() {
-        VoucherGenerationDetails spec = randomVoucherGenerationSpec()
+        VoucherGenerationSpec spec = randomVoucherGenerationSpec()
                 .withCount(10)
                 .withTotalAmount(99);
 
@@ -76,7 +76,7 @@ public class DefaultVoucherServiceTest {
 
     @Test(expected = ResourceNotFoundException.class)
     public void generateVouchersButWalletDoesntExist() {
-        VoucherGenerationDetails spec = randomVoucherGenerationSpec();
+        VoucherGenerationSpec spec = randomVoucherGenerationSpec();
 
         subject.generateVouchers(spec);
     }
@@ -84,7 +84,7 @@ public class DefaultVoucherServiceTest {
     @Test
     public void generateVouchers() {
         Wallet wallet = randomWallet().withId(1L);
-        VoucherGenerationDetails spec = randomVoucherGenerationSpec()
+        VoucherGenerationSpec spec = randomVoucherGenerationSpec()
                 .withWalletId(wallet.getId());
         when(walletService.findById(wallet.getId())).thenReturn(Optional.of(wallet));
 
@@ -285,7 +285,7 @@ public class DefaultVoucherServiceTest {
     @Test
     public void voucherAmountMustBeGreaterThanDust() {
         Wallet wallet = randomWallet().withId(1L);
-        VoucherGenerationDetails spec = randomVoucherGenerationSpec()
+        VoucherGenerationSpec spec = randomVoucherGenerationSpec()
                 .withWalletId(wallet.getId())
                 .withCount(1)
                 .withTotalAmount(546);

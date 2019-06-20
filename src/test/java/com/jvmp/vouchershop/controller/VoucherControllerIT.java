@@ -17,7 +17,7 @@ import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.voucher.VoucherInfoResponse;
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
 import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
-import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
+import com.jvmp.vouchershop.voucher.impl.VoucherGenerationSpec;
 import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.extern.slf4j.Slf4j;
@@ -169,7 +169,7 @@ public class VoucherControllerIT {
 
         String url = base.toString() + "/vouchers";
 
-        RequestEntity<VoucherGenerationDetails> requestEntity = RequestEntity
+        RequestEntity<VoucherGenerationSpec> requestEntity = RequestEntity
                 .post(URI.create(url))
                 .header(HttpHeaders.AUTHORIZATION, authorizationValue)
                 .body(randomVoucherGenerationSpec()

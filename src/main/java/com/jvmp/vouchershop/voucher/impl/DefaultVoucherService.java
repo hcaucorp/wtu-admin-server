@@ -47,7 +47,7 @@ public class DefaultVoucherService implements VoucherService {
     private final CurrencyServiceSupplier currencyServiceSupplier;
 
     @Override
-    public List<Voucher> generateVouchers(VoucherGenerationDetails spec) {
+    public List<Voucher> generateVouchers(VoucherGenerationSpec spec) {
         if (spec.totalAmount % spec.count != 0) {
             String message = format("Total amount must be divisible by count because all vouchers must be identical. Current " +
                     "specification is incorrect: can't split amount of: %s into %s equal pieces.", spec.totalAmount, spec.count);

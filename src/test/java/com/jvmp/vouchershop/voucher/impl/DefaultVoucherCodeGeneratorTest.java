@@ -38,7 +38,7 @@ public class DefaultVoucherCodeGeneratorTest {
 
     @Test
     public void testGenerationFormat() {
-        VoucherGenerationDetails spec = randomVoucherGenerationSpec();
+        VoucherGenerationSpec spec = randomVoucherGenerationSpec();
         Wallet wallet = randomWallet(btcContext.getParams())
                 .withCurrency(BTC);
 

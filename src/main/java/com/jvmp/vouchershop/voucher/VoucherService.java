@@ -2,13 +2,13 @@ package com.jvmp.vouchershop.voucher;
 
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
 import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
-import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
+import com.jvmp.vouchershop.voucher.impl.VoucherGenerationSpec;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface VoucherService {
-    List<Voucher> generateVouchers(VoucherGenerationDetails details);
+    List<Voucher> generateVouchers(VoucherGenerationSpec details);
 
     List<Voucher> findAll();
 

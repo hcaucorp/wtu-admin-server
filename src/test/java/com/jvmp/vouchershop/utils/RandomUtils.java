@@ -6,7 +6,7 @@ import com.jvmp.vouchershop.fulfillment.Fulfillment;
 import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
-import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
+import com.jvmp.vouchershop.voucher.impl.VoucherGenerationSpec;
 import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -119,11 +119,11 @@ public class RandomUtils {
                 .withRedeemed(false);
     }
 
-    public static VoucherGenerationDetails randomVoucherGenerationSpec() {
+    public static VoucherGenerationSpec randomVoucherGenerationSpec() {
         long id = nextLong(1_000, 2_000);
         int vouchersCount = nextInt(10, 1_000);
 
-        return new VoucherGenerationDetails()
+        return new VoucherGenerationSpec()
                 .withCount(vouchersCount)
                 .withTotalAmount(vouchersCount * nextInt(600, 1000))
                 .withWalletId(id)

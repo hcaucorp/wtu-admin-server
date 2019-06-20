@@ -9,7 +9,7 @@ import com.jvmp.vouchershop.voucher.VoucherNotFoundException;
 import com.jvmp.vouchershop.voucher.VoucherService;
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
 import com.jvmp.vouchershop.voucher.impl.RedemptionResponse;
-import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
+import com.jvmp.vouchershop.voucher.impl.VoucherGenerationSpec;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ public class VoucherController {
     }
 
     @PostMapping
-    public ResponseEntity<?> generateVouchers(@RequestBody @Valid VoucherGenerationDetails details) {
+    public ResponseEntity<?> generateVouchers(@RequestBody @Valid VoucherGenerationSpec details) {
         voucherService.save(voucherService.generateVouchers(details));
 
         return ResponseEntity

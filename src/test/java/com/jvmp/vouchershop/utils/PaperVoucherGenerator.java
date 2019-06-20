@@ -2,7 +2,7 @@ package com.jvmp.vouchershop.utils;
 
 import com.jvmp.vouchershop.Application;
 import com.jvmp.vouchershop.voucher.impl.DefaultVoucherCodeGenerator;
-import com.jvmp.vouchershop.voucher.impl.VoucherGenerationDetails;
+import com.jvmp.vouchershop.voucher.impl.VoucherGenerationSpec;
 import com.jvmp.vouchershop.wallet.WalletService;
 import org.bitcoinj.params.TestNet3Params;
 import org.junit.Ignore;
@@ -46,7 +46,7 @@ public class PaperVoucherGenerator {
         when(walletService.findById(any())).thenReturn(Optional.of(randomWallet(TestNet3Params.get()).withCurrency(currency)));
 
         String fileContent = "Voucher code\n" + IntStream.range(0, voucherCount).mapToObj(value -> voucherCodeGenerator
-                .apply(new VoucherGenerationDetails(voucherCount, 1L, 1L, 1L, "GBP", "sku")))
+                .apply(new VoucherGenerationSpec(voucherCount, 1L, 1L, 1L, "GBP", "sku", null)))
                 .collect(Collectors.joining(lineSeparator()));
 
         Files.write(Paths.get("PaperVouchesCodes.csv"), fileContent.getBytes());
