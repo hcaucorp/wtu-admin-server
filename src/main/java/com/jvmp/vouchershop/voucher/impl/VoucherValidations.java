@@ -13,26 +13,16 @@ class VoucherValidations {
     static void checkIfRedeemable(@Nonnull Voucher voucher) {
         Objects.requireNonNull(voucher, "voucher");
 
-        // TODO enable this check after deploying "publish/unpublish" features and publishing vouchers on production
-//        if (!voucher.isPublished())
-//            logAndThrowIllegalOperation("Attempting to redeem unpublished voucher" + voucher.getCode());
+        if (!voucher.isPublished())
+            logAndThrowIllegalOperation("Attempting to redeem unpublished voucher" + voucher.getCode());
 
-        if (!voucher.isSold())
-            logAndThrowIllegalOperation("Attempting to redeem not sold voucher " + voucher.getCode());
-
-        if (voucher.isRedeemed())
-            logAndThrowIllegalOperation("Attempting to redeem already redeemed voucher " + voucher.getCode());
-
-    }
-
-    static void checkIfRefundable(@Nonnull Voucher voucher) {
-        Objects.requireNonNull(voucher, "voucher");
-
-        if (!voucher.isSold())
-            logAndThrowIllegalOperation("Attempting to redeem not sold voucher " + voucher.getCode());
+//        this behaviour is no deprecated, promotional voucher are never sold and have to be redeemable too
+//        if (!voucher.isSold())
+//            logAndThrowIllegalOperation("Attempting to redeem not sold voucher " + voucher.getCode());
 
         if (voucher.isRedeemed())
             logAndThrowIllegalOperation("Attempting to redeem already redeemed voucher " + voucher.getCode());
+
     }
 
     private static void logAndThrowIllegalOperation(String message) {

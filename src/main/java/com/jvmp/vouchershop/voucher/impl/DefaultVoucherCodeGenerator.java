@@ -5,12 +5,10 @@ import com.jvmp.vouchershop.voucher.VoucherCodeGenerator;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import static java.lang.String.format;
 
 @SuppressWarnings("FieldCanBeLocal")
-@Component
 @RequiredArgsConstructor
 public class DefaultVoucherCodeGenerator implements VoucherCodeGenerator {
 

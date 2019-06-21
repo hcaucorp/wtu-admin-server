@@ -26,7 +26,7 @@ public class RedemptionUtils {
                     "https://www.blockchain.com/bch/tx/%s"
             ))
             .put(cash.bitcoinj.core.NetworkParameters.ID_TESTNET, asSet(
-                    "https://www.blockchain.com/bchtest/tx/%s"
+                    "https://blockexplorer.one/bitcoin-cash/testnet/tx/%s"
             ))
             .build();
 }

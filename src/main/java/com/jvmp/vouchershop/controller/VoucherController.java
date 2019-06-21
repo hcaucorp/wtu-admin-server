@@ -104,7 +104,7 @@ public class VoucherController {
         Optional<Voucher> optionalVoucher = voucherService.findByCode(voucherCode);
 
         return optionalVoucher
-                .filter(Voucher::isSold) // must be sold to return any info about it
+                .filter(Voucher::isPublished) // must be published to return any info about it
                 .map(VoucherInfoResponse::from)
                 .map(response -> ResponseEntity
                         .status(HttpStatus.OK)

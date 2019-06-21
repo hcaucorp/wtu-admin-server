@@ -30,8 +30,6 @@ public interface VoucherService {
      */
     RedemptionResponse redeemVoucher(RedemptionRequest detail);
 
-    void refund(String id);
-
     Optional<Voucher> findByCode(String voucherCode);
 
     List<Voucher> findBy(boolean showRedeemed, String sku);

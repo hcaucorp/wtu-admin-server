@@ -27,7 +27,7 @@ public class VoucherInfoResponse {
 
         if (voucher.isRedeemed()) return "redeemed";
 
-        if (voucher.isSold()) {
+        if (voucher.isPublished()) {
 
             if (Instant.ofEpochMilli(calculateExpiresAt(voucher)).isBefore(now())) return "expired";
 

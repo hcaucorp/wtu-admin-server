@@ -18,15 +18,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
-import javax.validation.constraints.NotBlank;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.jvmp.vouchershop.voucher.impl.VoucherValidations.checkIfRedeemable;
-import static com.jvmp.vouchershop.voucher.impl.VoucherValidations.checkIfRefundable;
 import static java.lang.String.format;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toList;
@@ -41,7 +38,6 @@ public class DefaultVoucherService implements VoucherService {
 
     final static long DUST_AMOUNT = 546;
 
-    private final VoucherCodeGenerator voucherCodeGenerator;
     private final WalletService walletService;
     private final VoucherRepository voucherRepository;
     private final CurrencyServiceSupplier currencyServiceSupplier;
@@ -61,6 +57,8 @@ public class DefaultVoucherService implements VoucherService {
 
         if (amount <= DUST_AMOUNT)
             throw new IllegalOperationException("Voucher value is too low. Must be greater than " + DUST_AMOUNT);
+
+        VoucherCodeGenerator voucherCodeGenerator = new FromSpecCodeGenerator(spec);
 
         return IntStream.range(0, spec.count)
                 .mapToObj(next -> new Voucher()
@@ -146,18 +144,6 @@ public class DefaultVoucherService implements VoucherService {
                         .stream()
                         .map(url -> String.format(url, txHash))
                         .collect(Collectors.toList()), txHash);
-    }
-
-    @Override
-    public void refund(@NotBlank String code) {
-        Objects.requireNonNull(code);
-
-        Voucher voucher = voucherRepository.findByCode(code)
-                .orElseThrow(() -> new VoucherNotFoundException("Voucher " + code + " not found."));
-
-        checkIfRefundable(voucher);
-
-        voucherRepository.delete(voucher);
     }
 
     @Override

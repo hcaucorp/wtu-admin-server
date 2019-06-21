@@ -161,18 +161,4 @@ public class ShopifyControllerIT {
         assertEquals(HttpStatus.OK, statusCode);
         verify(shopifyService, times(1)).markOrderFulfilled(order.getId());
     }
-
-    @Test
-    public void refundVoucher_aka_delete() {
-        Order order = randomOrder();
-        String url = base.toString() + "/shopify/orders/" + order.getId() + "/refund";
-
-        RequestEntity<Void> requestEntity = RequestEntity
-                .post(URI.create(url))
-                .header(HttpHeaders.AUTHORIZATION, authorizationValue)
-                .build();
-
-        ResponseEntity<String> responseEntity = template.exchange(url, HttpMethod.POST, requestEntity, String.class);
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-    }
 }

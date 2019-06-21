@@ -123,13 +123,18 @@ public class RandomUtils {
         long id = nextLong(1_000, 2_000);
         int vouchersCount = nextInt(10, 1_000);
 
+        String voucherCodes = IntStream.range(0, vouchersCount)
+                .mapToObj(i -> randomVoucherCode())
+                .collect(Collectors.joining("\n"));
+
         return new VoucherGenerationSpec()
                 .withCount(vouchersCount)
                 .withTotalAmount(vouchersCount * nextInt(600, 1000))
                 .withWalletId(id)
                 .withPriceCurrency("GBP")
                 .withPrice(nextLong(5, 10))
-                .withSku(randomSku());
+                .withSku(randomSku())
+                .withVoucherCodes(voucherCodes);
     }
 
     public static RedemptionRequest randomRedemptionRequest() {

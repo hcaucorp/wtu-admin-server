@@ -18,6 +18,7 @@ public class VoucherGenerationSpec implements Serializable {
     /**
      * Number of vouchers to generate
      */
+    @Positive
     int count;
 
     /**
@@ -56,5 +57,6 @@ public class VoucherGenerationSpec implements Serializable {
     /**
      * List of voucher codes if not meant to be generated. Separated by commas and/or white spaces
      */
+    @NotBlank
     String voucherCodes;
 }

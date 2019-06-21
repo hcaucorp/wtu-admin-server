@@ -6,7 +6,6 @@ import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.voucher.Voucher;
-import com.jvmp.vouchershop.voucher.VoucherCodeGenerator;
 import com.jvmp.vouchershop.voucher.VoucherNotFoundException;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
@@ -32,8 +31,7 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.RandomUtils.nextInt;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -52,9 +50,6 @@ public class DefaultVoucherServiceTest {
     @Mock
     private CurrencyService currencyService;
 
-    @Mock
-    private VoucherCodeGenerator voucherCodeGenerator;
-
     private DefaultVoucherService subject;
 
     @Before
@@ -62,7 +57,7 @@ public class DefaultVoucherServiceTest {
         Context btcContext = new Context(UnitTestParams.get());
         Context.propagate(btcContext);
         when(currencyServiceSupplier.findByCurrency(any())).thenReturn(currencyService);
-        subject = new DefaultVoucherService(voucherCodeGenerator, walletService, voucherRepository, currencyServiceSupplier);
+        subject = new DefaultVoucherService(walletService, voucherRepository, currencyServiceSupplier);
     }
 
     @Test(expected = IllegalOperationException.class)
@@ -84,13 +79,22 @@ public class DefaultVoucherServiceTest {
     @Test
     public void generateVouchers() {
         Wallet wallet = randomWallet().withId(1L);
+        Voucher v1 = randomVoucher(),
+                v2 = randomVoucher();
         VoucherGenerationSpec spec = randomVoucherGenerationSpec()
-                .withWalletId(wallet.getId());
+                .withWalletId(wallet.getId())
+                .withVoucherCodes(v1.getCode() + " " + v2.getCode())
+                .withCount(2)
+                .withTotalAmount(100_000);
+
         when(walletService.findById(wallet.getId())).thenReturn(Optional.of(wallet));
 
         List<Voucher> vouchers = subject.generateVouchers(spec);
+        Set<String> generatedCodes = vouchers.stream().map(Voucher::getCode).collect(toSet());
 
-        assertEquals(spec.getCount(), vouchers.size());
+        assertEquals(2, vouchers.size());
+        assertTrue(generatedCodes.contains(v1.getCode()));
+        assertTrue(generatedCodes.contains(v2.getCode()));
     }
 
     @Test(expected = VoucherNotFoundException.class)
@@ -153,36 +157,6 @@ public class DefaultVoucherServiceTest {
 
         verify(currencyService, times(1)).sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()));
         verify(voucherRepository, times(1)).save(eq(voucher.withRedeemed(true)));
-    }
-
-    @Test
-    public void refund_happyEnding() {
-        Voucher voucher = randomVoucher()
-                .withSold(true)
-                .withPublished(true)
-                .withRedeemed(false);
-
-        when(voucherRepository.findByCode(eq(voucher.getCode()))).thenReturn(Optional.of(voucher));
-
-        subject.refund(voucher.getCode());
-    }
-
-    @Test(expected = VoucherNotFoundException.class)
-    public void refund_NotFound() {
-        Voucher voucher = randomVoucher();
-        when(voucherRepository.findByCode(any())).thenReturn(Optional.empty());
-
-        subject.refund(voucher.getCode());
-    }
-
-    @Test(expected = IllegalOperationException.class)
-    public void refund_NotRefundable() {
-        Voucher voucher = randomVoucher()
-                .withRedeemed(true);
-
-        when(voucherRepository.findByCode(eq(voucher.getCode()))).thenReturn(Optional.of(voucher));
-
-        subject.refund(voucher.getCode());
     }
 
     @Test
