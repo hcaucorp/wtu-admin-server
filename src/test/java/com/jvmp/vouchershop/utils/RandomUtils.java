@@ -115,6 +115,7 @@ public class RandomUtils {
 
     public static Voucher randomValidVoucher() {
         return randomVoucher()
+                .withPublished(true)
                 .withSold(true)
                 .withRedeemed(false);
     }

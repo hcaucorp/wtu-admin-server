@@ -96,9 +96,7 @@ public class VoucherControllerStressTest {
         authorizationValue = "Bearer " + auth0Service.getToken().accessToken;
         destinationAddress = "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G";
 
-        voucher = voucherRepository.save(randomVoucher()
-                .withSold(true)
-                .withRedeemed(false));
+        voucher = voucherRepository.save(randomValidVoucher());
 
         wallet = randomWallet(TestNet3Params.get());
         when(walletService.findById(any())).thenReturn(Optional.of(wallet));

@@ -8,6 +8,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
+import static com.jvmp.vouchershop.utils.RandomUtils.randomValidVoucher;
 import static com.jvmp.vouchershop.utils.RandomUtils.randomVoucher;
 import static com.jvmp.vouchershop.voucher.VoucherInfoResponse.from;
 import static org.junit.Assert.assertEquals;
@@ -22,9 +23,7 @@ public class VoucherInfoResponseTest {
 
     @Test
     public void calculateStatus_expired() {
-        VoucherInfoResponse voucherInfoResponse = from(randomVoucher()
-                .withRedeemed(false)
-                .withSold(true)
+        VoucherInfoResponse voucherInfoResponse = from(randomValidVoucher()
                 .withExpiresAt(Instant.now().minus(1, ChronoUnit.DAYS).toEpochMilli())
         );
         // when sold, !redeemed, expired date
@@ -33,16 +32,14 @@ public class VoucherInfoResponseTest {
 
     @Test
     public void calculateStatus_valid() {
-        VoucherInfoResponse voucherInfoResponse = from(randomVoucher().withRedeemed(false).withSold(true));
+        VoucherInfoResponse voucherInfoResponse = from(randomValidVoucher());
         // when sold, !redeemed, not expired
         assertEquals("valid", voucherInfoResponse.getStatus());
     }
 
     @Test
     public void calculateStatus_valid_withLegacyExpiration_ZERO() {
-        Voucher voucher = randomVoucher()
-                .withRedeemed(false)
-                .withSold(true)
+        Voucher voucher = randomValidVoucher()
                 .withExpiresAt(0)
                 .withCreatedAt(Instant.now().toEpochMilli());
         VoucherInfoResponse voucherInfoResponse = from(voucher);

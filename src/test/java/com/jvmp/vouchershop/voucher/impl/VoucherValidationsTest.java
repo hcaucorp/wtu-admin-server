@@ -9,13 +9,6 @@ import static com.jvmp.vouchershop.voucher.impl.VoucherValidations.checkIfRedeem
 public class VoucherValidationsTest {
 
     @Test(expected = IllegalOperationException.class)
-    public void checkIfRedeemable_notSoldYet() {
-        checkIfRedeemable(randomVoucher()
-                .withPublished(true)
-        );
-    }
-
-    @Test(expected = IllegalOperationException.class)
     public void checkVoucher_notPublished() {
         checkIfRedeemable(randomVoucher());
     }
