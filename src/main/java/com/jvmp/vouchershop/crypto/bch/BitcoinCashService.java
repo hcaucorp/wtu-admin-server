@@ -50,6 +50,7 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
     public void start() {
         readWalletFromDB()
                 .ifPresent(bitcoinj::restoreWalletFromSeed);
+        bitcoinj.getBalance(); //force service start
     }
 
     @PreDestroy
