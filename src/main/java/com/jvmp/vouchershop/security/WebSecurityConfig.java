@@ -44,7 +44,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .forRS256(apiAudience, issuer)
                 .configure(http)
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/vouchers/redeem", "/api/shopify/webhook/fulfill").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/vouchers/redeem").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/health", "/api/vouchers/{voucherCode}").permitAll()
                 .anyRequest().authenticated();
     }

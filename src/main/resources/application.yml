@@ -1,12 +1,3 @@
-# Shopify API access
-shopify:
-  api-url: https://wallet-top-up.myshopify.com
-  api-key: bee9d4b0e98978fd3ec5e7625ef2838e
-  api-password: 50387a70e75f66fc2330062edc38b7f2
-  secret: 4aa1c538138e6dcb09f6d4d92ba4087c14415079c26fb6fb8a51bc6e6dca5ca3
-  # see this for location ids: https://wallet-top-up.myshopify.com/admin/products/inventory?location_id=18633130084&query=
-  location-id: 18633130084
-
 # JWT configuration by Auth0
 auth0:
   issuer: https://wallettopup.auth0.com/
@@ -19,6 +10,8 @@ bitcoinj:
 
 es:
   coffeebyt:
+    bitcoinj:
+      auto-start: false
     security:
       enumeration-protection:
         cool-down-time: 24
@@ -92,7 +85,7 @@ feign:
     enabled: true
   client:
     config:
-      shopify:
+      auth0:
         connectTimeout: 5000
         readTimeout: 5000
         loggerLevel: full

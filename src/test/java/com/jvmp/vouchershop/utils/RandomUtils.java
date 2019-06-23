@@ -3,7 +3,6 @@ package com.jvmp.vouchershop.utils;
 import com.jvmp.vouchershop.crypto.bch.BitcoinCashService;
 import com.jvmp.vouchershop.crypto.btc.BitcoinService;
 import com.jvmp.vouchershop.fulfillment.Fulfillment;
-import com.jvmp.vouchershop.shopify.domain.Order;
 import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.voucher.impl.RedemptionRequest;
 import com.jvmp.vouchershop.voucher.impl.VoucherGenerationSpec;
@@ -13,11 +12,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.params.UnitTestParams;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -74,15 +71,6 @@ public class RandomUtils {
 
     public static String randomBtcAddress() {
         return randomBtcAddress(UnitTestParams.get());
-    }
-
-    public static Order randomOrder() {
-        return new Order()
-                .withId(nextLong())
-                .withOrderNumber(nextLong(1, Long.MAX_VALUE))
-                .withName(randomString())
-                .withTotalPrice(BigDecimal.valueOf(nextLong(1, Long.MAX_VALUE)))
-                .withCreatedAt(new Date());
     }
 
     public static String randomString() {

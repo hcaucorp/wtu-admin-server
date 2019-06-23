@@ -3,6 +3,7 @@ package com.jvmp.vouchershop.crypto.btc;
 import com.jvmp.vouchershop.crypto.CurrencyService;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.repository.WalletRepository;
+import com.jvmp.vouchershop.system.PropertyNames;
 import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet.SendResult;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
@@ -34,6 +36,9 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
 
     public final static String BTC = "BTC";
 
+    @Value(PropertyNames.BITCOINJ_AUTOSTART)
+    private boolean autoStart;
+
     private final WalletRepository walletRepository;
     private final NetworkParameters networkParameters;
     private final BitcoinJAdapter bitcoinj;
@@ -47,7 +52,8 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
     public void start() {
         readWalletFromDB()
                 .ifPresent(bitcoinj::restoreWalletFromSeed);
-//        bitcoinj.getBalance(); //force service start
+        if (autoStart)
+            bitcoinj.getBalance(); //force service start
     }
 
     @PreDestroy

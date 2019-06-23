@@ -7,11 +7,13 @@ import cash.bitcoinj.wallet.UnreadableWalletException;
 import com.jvmp.vouchershop.crypto.CurrencyService;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.repository.WalletRepository;
+import com.jvmp.vouchershop.system.PropertyNames;
 import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
@@ -29,6 +31,9 @@ import static java.util.Collections.emptyList;
 @Component
 @RequiredArgsConstructor
 public class BitcoinCashService implements CurrencyService, AutoCloseable {
+
+    @Value(PropertyNames.BITCOINJ_AUTOSTART)
+    private boolean autoStart;
 
     public final static String BCH = "BCH";
 
@@ -50,7 +55,8 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
     public void start() {
         readWalletFromDB()
                 .ifPresent(bitcoinj::restoreWalletFromSeed);
-//        bitcoinj.getBalance(); //force service start
+        if (autoStart)
+            bitcoinj.getBalance(); //force service start
     }
 
     @PreDestroy
