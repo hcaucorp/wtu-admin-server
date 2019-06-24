@@ -5,10 +5,7 @@ import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.system.PropertyNames;
-import com.jvmp.vouchershop.voucher.Voucher;
-import com.jvmp.vouchershop.voucher.VoucherCodeGenerator;
-import com.jvmp.vouchershop.voucher.VoucherNotFoundException;
-import com.jvmp.vouchershop.voucher.VoucherService;
+import com.jvmp.vouchershop.voucher.*;
 import com.jvmp.vouchershop.wallet.Wallet;
 import com.jvmp.vouchershop.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +20,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.jvmp.vouchershop.voucher.impl.VoucherValidations.checkIfRedeemable;
 import static java.lang.String.format;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toList;
@@ -41,6 +37,8 @@ public class DefaultVoucherService implements VoucherService {
     private final WalletService walletService;
     private final VoucherRepository voucherRepository;
     private final CurrencyServiceSupplier currencyServiceSupplier;
+    private final List<RedemptionValidator> redemptionValidators;
+    private final List<RedemptionListener> redemptionListeners;
 
     @Override
     public List<Voucher> generateVouchers(VoucherGenerationSpec spec) {
@@ -86,8 +84,6 @@ public class DefaultVoucherService implements VoucherService {
 
     @Override
     public void publishBySku(String sku) {
-        //TODO check if required balance is present on corresponding wallet
-
         List<Voucher> vouchers = voucherRepository.findByPublishedFalseAndSku(sku)
                 .stream()
                 .map(voucher -> voucher.withPublished(true))
@@ -116,7 +112,8 @@ public class DefaultVoucherService implements VoucherService {
         Voucher voucher = voucherRepository.findByCode(detail.getVoucherCode())
                 .orElseThrow(() -> new VoucherNotFoundException("Voucher " + detail.getVoucherCode() + " not found."));
 
-        checkIfRedeemable(voucher);
+        // run all validations
+        redemptionValidators.forEach(validator -> validator.validate(detail));
 
         Wallet wallet = walletService.findById(voucher.getWalletId())
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet " + voucher.getWalletId() + " not found."));
@@ -126,6 +123,9 @@ public class DefaultVoucherService implements VoucherService {
                 .sendMoney(wallet, detail.getDestinationAddress(), voucher.getAmount());
 
         voucherRepository.save(voucher.withRedeemed(true));
+
+        // notify all listeners
+        redemptionListeners.forEach(listener -> listener.redeemed(detail));
 
         return fromTxHash(wallet.getCurrency(), transactionHash);
     }
