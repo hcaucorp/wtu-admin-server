@@ -6,7 +6,7 @@ import com.jvmp.vouchershop.wallet.Wallet;
 /**
  * Responsible for money related actions like sending, getting balances
  */
-public interface CurrencyService extends AutoCloseable {
+public interface CurrencyService {
 
     Wallet importWallet(ImportWalletRequest walletDescription);
 

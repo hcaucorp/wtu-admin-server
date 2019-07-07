@@ -26,7 +26,7 @@ public class ShouldBeRedeemable implements RedemptionValidator {
         Objects.requireNonNull(voucher, "voucher");
 
         if (!voucher.isPublished())
-            logAndThrowIllegalOperationException("Attempting to redeem unpublished voucher" + voucher.getCode());
+            logAndThrowIllegalOperationException("Attempting to redeem unpublished voucher " + voucher.getCode());
 
         if (voucher.isRedeemed())
             logAndThrowIllegalOperationException("Attempting to redeem already redeemed voucher " + voucher.getCode());

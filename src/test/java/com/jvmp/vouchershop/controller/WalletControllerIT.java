@@ -114,7 +114,7 @@ public class WalletControllerIT {
                 .put(URI.create(url))
                 .header(HttpHeaders.AUTHORIZATION, authorizationValue)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ImportWalletRequest("BTC", mnemonic, createdAt));
+                .body(new ImportWalletRequest(BTC, mnemonic, createdAt));
 
         ResponseEntity<String> response = template.exchange(url, HttpMethod.PUT, requestEntity, String.class);
 

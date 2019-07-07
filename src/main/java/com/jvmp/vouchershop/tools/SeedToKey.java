@@ -1,4 +1,4 @@
-package es.coffebyt.tools;
+package com.jvmp.vouchershop.tools;
 
 import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.NetworkParameters;

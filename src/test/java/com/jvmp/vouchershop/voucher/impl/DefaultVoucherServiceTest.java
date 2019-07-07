@@ -5,6 +5,8 @@ import com.jvmp.vouchershop.crypto.CurrencyServiceSupplier;
 import com.jvmp.vouchershop.exception.IllegalOperationException;
 import com.jvmp.vouchershop.exception.ResourceNotFoundException;
 import com.jvmp.vouchershop.repository.VoucherRepository;
+import com.jvmp.vouchershop.voucher.RedemptionListener;
+import com.jvmp.vouchershop.voucher.RedemptionValidator;
 import com.jvmp.vouchershop.voucher.Voucher;
 import com.jvmp.vouchershop.voucher.VoucherNotFoundException;
 import com.jvmp.vouchershop.wallet.Wallet;
@@ -16,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -48,8 +51,15 @@ public class DefaultVoucherServiceTest {
     private CurrencyServiceSupplier currencyServiceSupplier;
 
     @Mock
+    private List<RedemptionValidator> redemptionValidators;
+
+    @Mock
+    private List<RedemptionListener> redemptionListeners;
+
+    @Mock
     private CurrencyService currencyService;
 
+    @InjectMocks
     private DefaultVoucherService subject;
 
     @Before
@@ -57,7 +67,6 @@ public class DefaultVoucherServiceTest {
         Context btcContext = new Context(UnitTestParams.get());
         Context.propagate(btcContext);
         when(currencyServiceSupplier.findByCurrency(any())).thenReturn(currencyService);
-        subject = new DefaultVoucherService(walletService, voucherRepository, currencyServiceSupplier);
     }
 
     @Test(expected = IllegalOperationException.class)

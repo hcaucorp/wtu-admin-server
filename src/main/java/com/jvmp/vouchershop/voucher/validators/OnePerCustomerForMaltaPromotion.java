@@ -1,5 +1,6 @@
 package com.jvmp.vouchershop.voucher.validators;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.jvmp.vouchershop.exception.Thrower;
 import com.jvmp.vouchershop.repository.VoucherRepository;
 import com.jvmp.vouchershop.voucher.RedemptionListener;
@@ -17,7 +18,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @RequiredArgsConstructor
 public class OnePerCustomerForMaltaPromotion implements RedemptionValidator, RedemptionListener {
 
-    private final static String MALTA_VOUCHER_SKU = "AI_AND_BC_SUMMIT_WINTER_EDITION_PROMOTIONAL_VOUCHER";
+    final static String MALTA_VOUCHER_SKU = "AI_AND_BC_SUMMIT_WINTER_EDITION_PROMOTIONAL_VOUCHER";
 
     private final Set<String> customersCache = new CopyOnWriteArraySet<>();
 
@@ -37,5 +38,15 @@ public class OnePerCustomerForMaltaPromotion implements RedemptionValidator, Red
     @Override
     public void redeemed(RedemptionRequest redemptionRequest) {
         customersCache.add(redemptionRequest.getDestinationAddress());
+    }
+
+    @VisibleForTesting
+    void cachePut(String address) {
+        customersCache.add(address);
+    }
+
+    @VisibleForTesting
+    boolean cacheContains(String address) {
+        return customersCache.contains(address);
     }
 }

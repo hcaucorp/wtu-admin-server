@@ -62,7 +62,7 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
     }
 
     public Wallet importWallet(String mnemonic, long creationTime) {
-        if (!walletRepository.findAll().isEmpty())
+        if (walletRepository.findOneByCurrency(BTC).isPresent())
             logAndThrowIllegalOperationException("BTC wallet already exists. Currently we support only single wallet per currency");
 
         if (creationTime > Instant.now().getEpochSecond())

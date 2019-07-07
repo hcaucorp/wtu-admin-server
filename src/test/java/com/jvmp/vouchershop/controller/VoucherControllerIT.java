@@ -23,7 +23,10 @@ import com.jvmp.vouchershop.wallet.Wallet;
 import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.Context;
 import org.bitcoinj.core.NetworkParameters;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -69,17 +72,24 @@ import static org.junit.Assert.*;
 public class VoucherControllerIT {
 
     private static final Set<AutoCloseable> closeUs = new HashSet<>();
+
     @LocalServerPort
     private int port;
+
     private URL base;
+
     @Autowired
     private TestRestTemplate template;
+
     @Autowired
     private VoucherRepository voucherRepository;
+
     @Autowired
     private WalletRepository walletRepository;
+
     @Autowired
     private CurrencyServiceSupplier currencyServiceSupplier;
+
     @Autowired
     private NetworkParameters networkParameters;
 
@@ -189,18 +199,6 @@ public class VoucherControllerIT {
     @Test
     public void redeemBchVoucher_toLegacyDestinationAddress() {
         redeemVoucher(BCH, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G");
-    }
-
-    @Test
-    @Ignore
-    public void redeemMultipleVouchersUsingOneCoinInTheSameBlock_BTC() {
-        redeemMultipleVouchersUsingOneCoinInTheSameBlock(BTC, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G");
-    }
-
-    @Test
-    @Ignore
-    public void redeemMultipleVouchersUsingOneCoinInTheSameBlock_BCH() {
-        redeemMultipleVouchersUsingOneCoinInTheSameBlock(BCH, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G");
     }
 
     public void redeemMultipleVouchersUsingOneCoinInTheSameBlock(String currency, String destinationAddress) {
