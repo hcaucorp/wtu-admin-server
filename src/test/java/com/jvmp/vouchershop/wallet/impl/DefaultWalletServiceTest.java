@@ -5,7 +5,6 @@ import com.jvmp.vouchershop.crypto.CurrencyServiceSupplier;
 import com.jvmp.vouchershop.repository.WalletRepository;
 import com.jvmp.vouchershop.wallet.ImportWalletRequest;
 import com.jvmp.vouchershop.wallet.Wallet;
-import org.bitcoinj.wallet.UnreadableWalletException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +43,7 @@ public class DefaultWalletServiceTest {
     }
 
     @Test
-    public void importWallet() throws UnreadableWalletException {
+    public void importWallet() {
         ImportWalletRequest importDescription = new ImportWalletRequest(BTC, randomString(), 1L);
         subject.importWallet(importDescription);
 
