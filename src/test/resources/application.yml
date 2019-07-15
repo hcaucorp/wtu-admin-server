@@ -25,17 +25,8 @@ es:
       redemptions-topic-arn: "redemptions"
       access-key-id: "foo"
       secret-key-id: "bar"
-    mail:
-      from-email: "shop@wallettopup.co.uk"
-      from-name: "Wallet Top Up Delivery Bot"
-      templates:
-        deliver-vouchers: "email-deliver-vouchers.html"
 
 spring:
-  # Greenmail
-  mail:
-    host: localhost
-    port: 3025
   datasource:
     url: jdbc:h2:mem:myDb;DB_CLOSE_DELAY=-1
   jpa:

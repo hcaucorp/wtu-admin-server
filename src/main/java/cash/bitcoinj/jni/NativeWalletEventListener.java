@@ -30,6 +30,7 @@ import java.util.List;
  * this class using JNI on the native side, thus several instances of this can point to different actual
  * native implementations.
  */
+@SuppressWarnings("ALL")
 public class NativeWalletEventListener implements WalletEventListener {
     public long ptr;
 

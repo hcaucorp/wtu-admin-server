@@ -92,6 +92,7 @@ import static com.google.common.base.Preconditions.*;
  * this class so round-tripping preserves state. Unless you're working with old software or doing unusual things, you
  * can usually ignore the compressed/uncompressed distinction.</p>
  */
+@SuppressWarnings("ALL")
 public class ECKey implements EncryptableItem {
     /**
      * Sorts oldest keys first, newest last.

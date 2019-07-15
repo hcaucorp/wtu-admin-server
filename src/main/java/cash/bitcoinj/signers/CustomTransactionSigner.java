@@ -38,6 +38,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * some local API or something else.
  * </p>
  */
+@SuppressWarnings("ALL")
 public abstract class CustomTransactionSigner extends StatelessTransactionSigner {
     private static final Logger log = LoggerFactory.getLogger(CustomTransactionSigner.class);
 

@@ -51,6 +51,7 @@ import static com.google.common.base.Preconditions.checkState;
  * "connection" translates roughly into the server-client relationship. See the javadocs for specific functions for more
  * details.</p>
  */
+@SuppressWarnings("ALL")
 public class PaymentChannelClient implements IPaymentChannelClient {
     /**
      * <p>The default maximum amount of time for which we will accept the server locking up our funds for the multisig

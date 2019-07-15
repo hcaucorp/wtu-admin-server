@@ -36,6 +36,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  * <p>Instances of this class are not safe for use by multiple threads.</p>
  */
+@SuppressWarnings("ALL")
 public class PeerAddress extends ChildMessage {
 
     static final int MESSAGE_SIZE = 30;

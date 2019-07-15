@@ -97,6 +97,7 @@ import static com.google.common.base.Preconditions.*;
  * {@link Wallet#autosaveToFile(java.io.File, long, java.util.concurrent.TimeUnit, WalletFiles.Listener)}
  * for more information about this.</p>
  */
+@SuppressWarnings("ALL")
 public class Wallet extends BaseTaggableObject
         implements NewBestBlockListener, TransactionReceivedInBlockListener, PeerFilterProvider, KeyBag, TransactionBag, ReorganizeListener {
     private static final Logger log = LoggerFactory.getLogger(Wallet.class);

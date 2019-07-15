@@ -24,11 +24,6 @@ es:
       # IAM sns-access-user
       access-key-id: AKIAITMQC6R6A773KPNQ
       secret-key-id: na4eftnibgdw4GXj9+cnDyGTYYY60MG8adIpYttM
-    mail:
-      from-email: shop@wallettopup.co.uk
-      from-name: Wallet Top Up Delivery Bot
-      templates:
-        deliver-vouchers: "email-deliver-vouchers.html"
 
 # Spring Reference https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 spring:
@@ -68,6 +63,10 @@ management:
     enabled-by-default: false
   endpoint:
     health:
+      enabled: true
+    metrics:
+      enabled: true
+    prometheus:
       enabled: true
 
 server:
