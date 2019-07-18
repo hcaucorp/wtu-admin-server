@@ -21,7 +21,6 @@ es:
         cool-down-unit: "MILLISECONDS"
         max-attempts: 10
     notification:
-      orders-topic-arn: "orders"
       redemptions-topic-arn: "redemptions"
       access-key-id: "foo"
       secret-key-id: "bar"

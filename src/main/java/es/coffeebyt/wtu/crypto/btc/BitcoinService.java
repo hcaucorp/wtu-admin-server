@@ -79,7 +79,8 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
     }
 
     private Wallet restoreWalletSaveAndStart(org.bitcoinj.wallet.Wallet bitcoinjWallet, long createdAtMillis) {
-        bitcoinj.restoreWalletFromSeed(bitcoinjWallet.getKeyChainSeed());
+        // TODO if file storage not found then restore wallet
+//        bitcoinj.restoreWalletFromSeed(bitcoinjWallet.getKeyChainSeed());
 
         Wallet wallet = new Wallet()
                 .withBalance(bitcoinj.getBalance())

@@ -13,6 +13,7 @@ import es.coffeebyt.wtu.voucher.VoucherNotFoundException;
 import es.coffeebyt.wtu.voucher.VoucherService;
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 import es.coffeebyt.wtu.voucher.impl.RedemptionResponse;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,10 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.util.Optional;
 
+import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_FAILURE;
+import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_SUCCESS;
 import static java.util.Collections.singletonList;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -57,6 +61,9 @@ public class VoucherControllerTest {
 
     @MockBean
     private VoucherService voucherService;
+
+    @Autowired
+    private MeterRegistry meterRegistry;
 
     @Test
     public void getAllVouchers() throws Exception {
@@ -97,7 +104,7 @@ public class VoucherControllerTest {
                 .andExpect(jsonPath("$.trackingUrls[0]").value(response.getTrackingUrls().get(0)))
                 .andExpect(jsonPath("$.transactionId").value(response.getTransactionId()));
 
-        verify(notificationService, times(1)).pushRedemptionNotification(any());
+        assertEquals(1.0, meterRegistry.counter(COUNTER_REDEMPTION_SUCCESS).count(), 0);
     }
 
     static RequestPostProcessor remoteHost(final String remoteHost) {
@@ -117,7 +124,7 @@ public class VoucherControllerTest {
                 .content(om.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
 
-        verify(notificationService, times(1)).pushRedemptionNotification(any());
+        assertEquals(1.0, meterRegistry.counter(COUNTER_REDEMPTION_FAILURE).count(), 0);
     }
 
     @Test
@@ -131,7 +138,7 @@ public class VoucherControllerTest {
                 .content(om.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
 
-        verify(notificationService, times(1)).pushRedemptionNotification(any());
+        assertEquals(1.0, meterRegistry.counter(COUNTER_REDEMPTION_FAILURE).count(), 0);
     }
 
     @Test

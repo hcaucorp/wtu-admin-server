@@ -76,8 +76,7 @@ public class EnumerationProtectionService {
         String ip = getClientIP(request);
 
         if (isBlocked(ip)) {
-            failed(request);
-            throw new IllegalOperationException();
+            throw new IllegalOperationException("IP is blocked: " + ip);
         }
     }
 }

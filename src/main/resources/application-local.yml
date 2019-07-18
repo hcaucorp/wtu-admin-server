@@ -23,8 +23,13 @@ logging:
     root: INFO
     org.bitcoinj: INFO
     cash.bitcoinj: INFO
+    es:
+      coffeebyt:
+        wtu:
+          notifications:
+            impl: DEBUG
 
 es:
   coffeebyt:
     bitcoinj:
-      auto-start: true
+      auto-start: false

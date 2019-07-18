@@ -10,6 +10,7 @@ import es.coffeebyt.wtu.voucher.VoucherService;
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 import es.coffeebyt.wtu.voucher.impl.RedemptionResponse;
 import es.coffeebyt.wtu.voucher.impl.VoucherGenerationSpec;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
+import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_FAILURE;
+import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_SUCCESS;
 import static java.lang.String.format;
 
 @RequestMapping("/api/vouchers")
@@ -36,6 +39,7 @@ public class VoucherController {
     private final NotificationService notificationService;
     private final VoucherService voucherService;
     private final EnumerationProtectionService enumerationProtectionService;
+    private final MeterRegistry meterRegistry;
 
     @Autowired
     private HttpServletRequest request;
@@ -65,24 +69,41 @@ public class VoucherController {
     @PostMapping("/redeem")
     public RedemptionResponse redeemVoucher(@RequestBody @Valid RedemptionRequest detail) {
 
-        enumerationProtectionService.checkIfBlocked(request);
-
+        boolean success = true;
+        String message;
         try {
+            // can we proceed?
+            enumerationProtectionService.checkIfBlocked(request);
+
+            // try to redeem
             RedemptionResponse response = voucherService.redeemVoucher(detail);
-            notificationService.pushRedemptionNotification("Redeemed " + detail.getVoucherCode() + " to " + detail.getDestinationAddress() + ". TxId: " + response.getTransactionId());
-            enumerationProtectionService.succeeded(request);
+
+            // log is for us in case we have to check transactions?
+            log.info("Redeemed voucher: {} to address: {} in tx: {}", detail.getVoucherCode(), detail.getDestinationAddress(), response.getTransactionId());
+
+            // whitelist current IP
+
             return response;
         } catch (VoucherNotFoundException e) {
-            String message = format("Tried to redeem absent voucher: %s to a wallet address: %s", detail.getVoucherCode(), detail.getDestinationAddress());
+
+            message = format("Tried to redeem absent voucher: %s to a wallet address: %s", detail.getVoucherCode(), detail.getDestinationAddress());
             log.warn(message);
-            notificationService.pushRedemptionNotification(message);
-            enumerationProtectionService.failed(request);
+
+            success = false;
             throw e;
         } catch (Exception e) {
-            String message = format("Failed redemption (%s) with exception %s, message: %s", detail.toString(), e.getClass().getSimpleName(), e.getMessage());
+            message = format("Failed redemption (%s) with exception %s, message: %s", detail.toString(), e.getClass().getSimpleName(), e.getMessage());
             log.error(message);
-            notificationService.pushRedemptionNotification(message);
+            success = false;
             throw new IllegalOperationException();
+        } finally {
+            if (success) {
+                enumerationProtectionService.succeeded(request);
+                meterRegistry.counter(COUNTER_REDEMPTION_SUCCESS).increment();
+            } else {
+                enumerationProtectionService.failed(request);
+                meterRegistry.counter(COUNTER_REDEMPTION_FAILURE).increment();
+            }
         }
     }
 

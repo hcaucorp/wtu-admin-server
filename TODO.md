@@ -1,4 +1,5 @@
 ##### Backlog
+- remove orders-topic-arn from AWS "arn:aws:sns:eu-west-2:367570967874:orders"
 - add "one per customer" feature restriction
 - implement "wallet groups"
 - store tx hashes with redeemed vouchers

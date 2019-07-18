@@ -19,7 +19,6 @@ es:
         max-attempts: 30
     notification:
       # topic with results of user actions
-      orders-topic-arn: arn:aws:sns:eu-west-2:367570967874:orders
       redemptions-topic-arn: arn:aws:sns:eu-west-2:367570967874:redemptions
       # IAM sns-access-user
       access-key-id: AKIAITMQC6R6A773KPNQ
@@ -59,15 +58,18 @@ spring:
 management:
   endpoints:
     web:
+      exposure:
+        include: metrics,health
       base-path: /api
     enabled-by-default: false
   endpoint:
-    health:
-      enabled: true
-    metrics:
-      enabled: true
-    prometheus:
-      enabled: true
+    health.enabled: true
+    metrics.enabled: true
+
+#    export:
+#      graphite:
+#        host: graphite.example.com
+#        port: 9004
 
 server:
   port: 5000
