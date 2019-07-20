@@ -11,7 +11,7 @@ bitcoinj:
 es:
   coffeebyt:
     bitcoinj:
-      auto-start: false
+      auto-start: true
     security:
       enumeration-protection:
         cool-down-time: 24
