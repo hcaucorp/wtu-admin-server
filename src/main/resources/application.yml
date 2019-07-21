@@ -11,7 +11,8 @@ bitcoinj:
 es:
   coffeebyt:
     bitcoinj:
-      auto-start: true
+      # enable this only if restoring wallets from file
+      auto-start: false
     security:
       enumeration-protection:
         cool-down-time: 24

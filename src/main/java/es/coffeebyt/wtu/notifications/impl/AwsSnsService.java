@@ -43,7 +43,7 @@ public class AwsSnsService implements NotificationService {
         snsClient.publish(publishRequest);
     }
 
-    @Scheduled(cron = "0 * 1 * * ?")
+    @Scheduled(cron = "0 0 1 * * ?")
     public void pushNotification() {
         Counter successCounter = meterRegistry.counter(COUNTER_REDEMPTION_SUCCESS);
         Counter failedCounter = meterRegistry.counter(COUNTER_REDEMPTION_FAILURE);
