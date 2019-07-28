@@ -1,19 +1,22 @@
 package es.coffeebyt.wtu.controller;
 
+import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_FAILURE;
+import static java.util.Collections.singletonList;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.coffeebyt.wtu.Application;
-import es.coffeebyt.wtu.notifications.NotificationService;
-import es.coffeebyt.wtu.security.EnumerationProtectionService;
-import es.coffeebyt.wtu.security.TestSecurityConfig;
-import es.coffeebyt.wtu.utils.IAmATeapotException;
-import es.coffeebyt.wtu.utils.RandomUtils;
-import es.coffeebyt.wtu.voucher.Voucher;
-import es.coffeebyt.wtu.voucher.VoucherInfoResponse;
-import es.coffeebyt.wtu.voucher.VoucherNotFoundException;
-import es.coffeebyt.wtu.voucher.VoucherService;
-import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
-import es.coffeebyt.wtu.voucher.impl.RedemptionResponse;
-import io.micrometer.core.instrument.MeterRegistry;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,19 +31,24 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.util.Optional;
 
-import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_FAILURE;
-import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_SUCCESS;
-import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import es.coffeebyt.wtu.Application;
+import es.coffeebyt.wtu.notifications.NotificationService;
+import es.coffeebyt.wtu.security.EnumerationProtectionService;
+import es.coffeebyt.wtu.security.TestSecurityConfig;
+import es.coffeebyt.wtu.utils.IAmATeapotException;
+import es.coffeebyt.wtu.utils.RandomUtils;
+import es.coffeebyt.wtu.voucher.Voucher;
+import es.coffeebyt.wtu.voucher.VoucherInfoResponse;
+import es.coffeebyt.wtu.voucher.VoucherNotFoundException;
+import es.coffeebyt.wtu.voucher.VoucherService;
+import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
+import es.coffeebyt.wtu.voucher.impl.RedemptionResponse;
+import es.coffeebyt.wtu.voucher.listeners.RedemptionSuccessCounter;
+import io.micrometer.core.instrument.MeterRegistry;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
-        Application.class, TestSecurityConfig.class
+        Application.class, TestSecurityConfig.class, RedemptionSuccessCounter.class
 })
 @AutoConfigureMockMvc
 @ActiveProfiles("unit-test")
@@ -103,8 +111,6 @@ public class VoucherControllerTest {
                 .andExpect(content().json(om.writeValueAsString(response)))
                 .andExpect(jsonPath("$.trackingUrls[0]").value(response.getTrackingUrls().get(0)))
                 .andExpect(jsonPath("$.transactionId").value(response.getTransactionId()));
-
-        assertEquals(1.0, meterRegistry.counter(COUNTER_REDEMPTION_SUCCESS).count(), 0);
     }
 
     static RequestPostProcessor remoteHost(final String remoteHost) {
@@ -116,6 +122,8 @@ public class VoucherControllerTest {
 
     @Test
     public void redeemVoucher_notFound() throws Exception {
+        double currentCount = meterRegistry.counter(COUNTER_REDEMPTION_FAILURE).count();
+
         RedemptionRequest request = RandomUtils.randomRedemptionRequest();
         when(voucherService.redeemVoucher(any())).thenThrow(new VoucherNotFoundException(RandomUtils.randomString()));
 
@@ -124,11 +132,12 @@ public class VoucherControllerTest {
                 .content(om.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
 
-        assertEquals(1.0, meterRegistry.counter(COUNTER_REDEMPTION_FAILURE).count(), 0);
+        assertEquals(currentCount + 1, meterRegistry.counter(COUNTER_REDEMPTION_FAILURE).count(), 0);
     }
 
     @Test
     public void redeemVoucher_totalDisaster() throws Exception {
+        double currentCount = meterRegistry.counter(COUNTER_REDEMPTION_FAILURE).count();
 
         RedemptionRequest request = RandomUtils.randomRedemptionRequest();
         when(voucherService.redeemVoucher(any())).thenThrow(new IAmATeapotException());
@@ -138,7 +147,7 @@ public class VoucherControllerTest {
                 .content(om.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
 
-        assertEquals(1.0, meterRegistry.counter(COUNTER_REDEMPTION_FAILURE).count(), 0);
+        assertEquals(currentCount + 1, meterRegistry.counter(COUNTER_REDEMPTION_FAILURE).count(), 0);
     }
 
     @Test
@@ -181,7 +190,6 @@ public class VoucherControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(om.writeValueAsString(voucherInfoResponse)));
     }
-
 
     @Test
     public void getVoucherInfoUnsoldVoucher() throws Exception {

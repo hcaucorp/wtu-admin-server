@@ -1,13 +1,13 @@
 package es.coffeebyt.wtu.crypto.bch;
 
-import cash.bitcoinj.core.Context;
-import cash.bitcoinj.core.Sha256Hash;
-import cash.bitcoinj.core.Transaction;
-import cash.bitcoinj.params.MainNetParams;
-import cash.bitcoinj.params.UnitTestParams;
-import es.coffeebyt.wtu.repository.WalletRepository;
-import es.coffeebyt.wtu.utils.RandomUtils;
-import es.coffeebyt.wtu.wallet.Wallet;
+import static es.coffeebyt.wtu.Collections.asSet;
+import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
+import static org.apache.commons.lang3.RandomUtils.nextLong;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,13 +17,14 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Set;
 
-import static es.coffeebyt.wtu.Collections.asSet;
-import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
-import static org.apache.commons.lang3.RandomUtils.nextLong;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import cash.bitcoinj.core.Context;
+import cash.bitcoinj.core.Sha256Hash;
+import cash.bitcoinj.core.Transaction;
+import cash.bitcoinj.params.MainNetParams;
+import cash.bitcoinj.params.UnitTestParams;
+import es.coffeebyt.wtu.repository.WalletRepository;
+import es.coffeebyt.wtu.utils.RandomUtils;
+import es.coffeebyt.wtu.wallet.Wallet;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BitcoinCashServiceTest {
@@ -32,7 +33,7 @@ public class BitcoinCashServiceTest {
     private WalletRepository walletRepository;
 
     @Mock
-    private BitcoinCashJAdapter bitcoinCashJAdapter;
+    private BitcoinCashJFacade bitcoinCashJFacade;
 
     private BitcoinCashService subject;
 
@@ -41,7 +42,7 @@ public class BitcoinCashServiceTest {
     @Before
     public void setUp() {
         context = new Context(UnitTestParams.get());
-        subject = new BitcoinCashService(walletRepository, context.getParams(), bitcoinCashJAdapter);
+        subject = new BitcoinCashService(walletRepository, context.getParams(), bitcoinCashJFacade);
     }
 
     @Test
@@ -57,7 +58,7 @@ public class BitcoinCashServiceTest {
         ReflectionTestUtils.setField(tx, "hash", hash);
         cash.bitcoinj.wallet.Wallet.SendResult sendResult = new cash.bitcoinj.wallet.Wallet.SendResult();
         sendResult.tx = tx;
-        when(bitcoinCashJAdapter.sendCoins(any())).thenReturn(sendResult);
+        when(bitcoinCashJFacade.sendCoins(any())).thenReturn(sendResult);
         //wtf pretty long setup
 
         String result = subject.sendMoney(wallet, to, amount);

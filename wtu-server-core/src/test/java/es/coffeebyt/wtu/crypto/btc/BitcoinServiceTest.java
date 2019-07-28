@@ -1,11 +1,20 @@
 package es.coffeebyt.wtu.crypto.btc;
 
-import es.coffeebyt.wtu.exception.IllegalOperationException;
-import es.coffeebyt.wtu.repository.WalletRepository;
-import es.coffeebyt.wtu.utils.RandomUtils;
-import es.coffeebyt.wtu.wallet.Wallet;
-import lombok.val;
-import org.bitcoinj.core.*;
+import static es.coffeebyt.wtu.utils.TryUtils.expectingException;
+import static java.lang.String.format;
+import static org.apache.commons.lang3.RandomUtils.nextLong;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.Context;
+import org.bitcoinj.core.InsufficientMoneyException;
+import org.bitcoinj.core.Sha256Hash;
+import org.bitcoinj.core.Transaction;
 import org.bitcoinj.params.UnitTestParams;
 import org.bitcoinj.wallet.Wallet.SendResult;
 import org.junit.Before;
@@ -17,12 +26,11 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
-import static es.coffeebyt.wtu.utils.TryUtils.expectingException;
-import static java.lang.String.format;
-import static org.apache.commons.lang3.RandomUtils.nextLong;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
+import es.coffeebyt.wtu.exception.IllegalOperationException;
+import es.coffeebyt.wtu.repository.WalletRepository;
+import es.coffeebyt.wtu.utils.RandomUtils;
+import es.coffeebyt.wtu.wallet.Wallet;
+import lombok.val;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BitcoinServiceTest {
@@ -72,14 +80,14 @@ public class BitcoinServiceTest {
         long amount = nextLong(1, 1_000);
         Transaction tx = new Transaction(btcContext.getParams());
         Sha256Hash hash = Sha256Hash.of(RandomUtils.randomString().getBytes());
-        ReflectionTestUtils.setField(tx, "hash", hash);
+        ReflectionTestUtils.setField(tx, "cachedTxId", hash);
         SendResult sendResult = new SendResult();
         sendResult.tx = tx;
         when(bitcoinJFacade.sendCoins(any())).thenReturn(sendResult);
         //wtf pretty long setup
 
         String result = bitcoinService.sendMoney(wallet, to, amount);
-        assertEquals(tx.getHashAsString(), result);
+        assertEquals(tx.getTxId().toString(), result);
     }
 
     @Test

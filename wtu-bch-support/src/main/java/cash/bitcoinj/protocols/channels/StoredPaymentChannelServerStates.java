@@ -16,25 +16,42 @@
 
 package cash.bitcoinj.protocols.channels;
 
-import cash.bitcoinj.core.*;
-import cash.bitcoinj.utils.Threading;
-import cash.bitcoinj.wallet.Wallet;
-import cash.bitcoinj.wallet.WalletExtension;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.protobuf.ByteString;
-import net.jcip.annotations.GuardedBy;
+
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import javax.annotation.concurrent.GuardedBy;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.google.common.base.Preconditions.*;
+import cash.bitcoinj.core.Coin;
+import cash.bitcoinj.core.ECKey;
+import cash.bitcoinj.core.InsufficientMoneyException;
+import cash.bitcoinj.core.NetworkParameters;
+import cash.bitcoinj.core.Sha256Hash;
+import cash.bitcoinj.core.TransactionBroadcaster;
+import cash.bitcoinj.core.TransactionOutput;
+import cash.bitcoinj.core.Utils;
+import cash.bitcoinj.core.VerificationException;
+import cash.bitcoinj.utils.Threading;
+import cash.bitcoinj.wallet.Wallet;
+import cash.bitcoinj.wallet.WalletExtension;
 
 /**
  * Keeps track of a set of {@link StoredServerChannel}s and expires them 2 hours before their refund transactions

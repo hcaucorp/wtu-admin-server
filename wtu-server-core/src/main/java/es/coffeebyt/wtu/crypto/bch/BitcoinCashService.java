@@ -51,7 +51,7 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
     @Qualifier("BitcoinCashNetworkProperties")
     private final NetworkParameters networkParameters;
 
-    private final BitcoinCashJAdapter bitcoinj;
+    private final BitcoinCashJFacade bitcoinj;
 
     private final CashAddressFactory addressFactory = new CashAddressFactory();
 
@@ -64,8 +64,10 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
     public void start() {
         readWalletFromDB()
                 .ifPresent(bitcoinj::restoreWalletFromSeed);
-        if (autoStart)
-            bitcoinj.getBalance(); //force service start
+
+        if (autoStart) {
+            bitcoinj.startSilently(); //force service start
+        }
     }
 
     @PreDestroy

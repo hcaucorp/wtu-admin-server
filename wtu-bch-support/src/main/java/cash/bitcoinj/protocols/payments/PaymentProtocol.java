@@ -17,10 +17,6 @@
 
 package cash.bitcoinj.protocols.payments;
 
-import cash.bitcoin.protocols.payments.Protos;
-import cash.bitcoinj.core.*;
-import cash.bitcoinj.crypto.X509Utils;
-import cash.bitcoinj.script.ScriptBuilder;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -28,12 +24,40 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
-import java.security.*;
+import java.security.GeneralSecurityException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.cert.CertPath;
+import java.security.cert.CertPathValidator;
+import java.security.cert.CertPathValidatorException;
 import java.security.cert.Certificate;
-import java.security.cert.*;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.CertificateParsingException;
+import java.security.cert.PKIXCertPathValidatorResult;
+import java.security.cert.PKIXParameters;
+import java.security.cert.TrustAnchor;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+
+import cash.bitcoin.protocols.payments.Protos;
+import cash.bitcoinj.core.Address;
+import cash.bitcoinj.core.Coin;
+import cash.bitcoinj.core.NetworkParameters;
+import cash.bitcoinj.core.Transaction;
+import cash.bitcoinj.core.Utils;
+import cash.bitcoinj.crypto.X509Utils;
+import cash.bitcoinj.script.ScriptBuilder;
 
 /**
  * <p>Utility methods and constants for working with <a href="https://github.com/bitcoin/bips/blob/master/bip-0070.mediawiki">

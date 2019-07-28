@@ -6,12 +6,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import es.coffeebyt.wtu.exception.IllegalOperationException;
-import es.coffeebyt.wtu.repository.VoucherRepository;
-import es.coffeebyt.wtu.utils.RandomUtils;
-import es.coffeebyt.wtu.voucher.Voucher;
-import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +14,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Optional;
+
+import es.coffeebyt.wtu.exception.MaltaCardException;
+import es.coffeebyt.wtu.repository.VoucherRepository;
+import es.coffeebyt.wtu.utils.RandomUtils;
+import es.coffeebyt.wtu.voucher.Voucher;
+import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OnePerCustomerForMaltaPromotionTest {
@@ -45,8 +45,8 @@ public class OnePerCustomerForMaltaPromotionTest {
 
         Throwable throwable = expectingException(() -> subject.validate(redemptionRequest));
 
-        assertEquals(IllegalOperationException.class, throwable.getClass());
-        assertEquals("You've already used one voucher! AI and Blockchain Summit promotional gift cards are one per customer :(", throwable.getMessage());
+        assertEquals(MaltaCardException.class, throwable.getClass());
+        assertEquals("You've already used one voucher! AI and BC Summit promotional gift cards are limited to one per customer \uD83D\uDE07", throwable.getMessage());
     }
 
     @Test

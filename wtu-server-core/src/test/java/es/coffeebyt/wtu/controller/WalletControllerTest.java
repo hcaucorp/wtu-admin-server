@@ -1,14 +1,22 @@
 package es.coffeebyt.wtu.controller;
 
+import static java.util.Collections.emptyList;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.coffeebyt.wtu.Application;
-import es.coffeebyt.wtu.crypto.btc.BitcoinJFacade;
-import es.coffeebyt.wtu.repository.WalletRepository;
-import es.coffeebyt.wtu.security.TestSecurityConfig;
-import es.coffeebyt.wtu.utils.RandomUtils;
-import es.coffeebyt.wtu.wallet.ImportWalletRequest;
-import es.coffeebyt.wtu.wallet.Wallet;
-import es.coffeebyt.wtu.wallet.WalletService;
+
 import org.bitcoinj.core.NetworkParameters;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,13 +31,14 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static java.util.Collections.emptyList;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.number.OrderingComparison.greaterThan;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import es.coffeebyt.wtu.Application;
+import es.coffeebyt.wtu.crypto.btc.BitcoinJFacade;
+import es.coffeebyt.wtu.repository.WalletRepository;
+import es.coffeebyt.wtu.security.TestSecurityConfig;
+import es.coffeebyt.wtu.utils.RandomUtils;
+import es.coffeebyt.wtu.wallet.ImportWalletRequest;
+import es.coffeebyt.wtu.wallet.Wallet;
+import es.coffeebyt.wtu.wallet.WalletService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {

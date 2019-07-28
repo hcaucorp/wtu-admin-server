@@ -16,29 +16,43 @@
 
 package cash.bitcoinj.protocols.channels;
 
-import cash.bitcoinj.core.*;
-import cash.bitcoinj.utils.Threading;
-import cash.bitcoinj.wallet.Wallet;
-import cash.bitcoinj.wallet.WalletExtension;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.protobuf.ByteString;
-import net.jcip.annotations.GuardedBy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import javax.annotation.concurrent.GuardedBy;
+
+import java.util.Date;
+import java.util.Locale;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import cash.bitcoinj.core.Coin;
+import cash.bitcoinj.core.ECKey;
+import cash.bitcoinj.core.NetworkParameters;
+import cash.bitcoinj.core.Sha256Hash;
+import cash.bitcoinj.core.Transaction;
+import cash.bitcoinj.core.TransactionBroadcaster;
+import cash.bitcoinj.core.TransactionConfidence;
+import cash.bitcoinj.core.Utils;
+import cash.bitcoinj.utils.Threading;
+import cash.bitcoinj.wallet.Wallet;
+import cash.bitcoinj.wallet.WalletExtension;
 
 /**
  * This class maintains a set of {@link StoredClientChannel}s, automatically (re)broadcasting the contract transaction

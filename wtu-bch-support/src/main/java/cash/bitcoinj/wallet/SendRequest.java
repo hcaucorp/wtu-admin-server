@@ -17,19 +17,28 @@
 
 package cash.bitcoinj.wallet;
 
-import cash.bitcoinj.core.*;
-import cash.bitcoinj.script.Script;
-import cash.bitcoinj.script.ScriptBuilder;
-import cash.bitcoinj.utils.ExchangeRate;
-import cash.bitcoinj.wallet.Wallet.MissingSigsMode;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.MoreObjects;
+
 import org.spongycastle.crypto.params.KeyParameter;
 
 import java.math.BigInteger;
 import java.util.Date;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import cash.bitcoin.protocols.payments.Protos;
+import cash.bitcoinj.core.Address;
+import cash.bitcoinj.core.Coin;
+import cash.bitcoinj.core.Context;
+import cash.bitcoinj.core.ECKey;
+import cash.bitcoinj.core.NetworkParameters;
+import cash.bitcoinj.core.Transaction;
+import cash.bitcoinj.core.TransactionOutput;
+import cash.bitcoinj.script.Script;
+import cash.bitcoinj.script.ScriptBuilder;
+import cash.bitcoinj.utils.ExchangeRate;
+import cash.bitcoinj.wallet.Wallet.MissingSigsMode;
 
 /**
  * A SendRequest gives the wallet information about precisely how to send money to a recipient or set of recipients.

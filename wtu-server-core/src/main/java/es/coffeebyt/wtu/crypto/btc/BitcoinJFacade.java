@@ -1,14 +1,16 @@
 package es.coffeebyt.wtu.crypto.btc;
 
 import com.google.common.util.concurrent.Service;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.kits.WalletAppKit;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.Wallet;
 import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @SuppressWarnings("UnstableApiUsage")
 @Slf4j
@@ -27,7 +29,7 @@ public class BitcoinJFacade implements AutoCloseable {
         bitcoinj.restoreWalletFromSeed(seed);
     }
 
-    private void startSilently() {
+    void startSilently() {
         if (bitcoinj.state() != Service.State.NEW) return;
 
         bitcoinj.startAsync();

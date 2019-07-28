@@ -17,11 +17,10 @@
 
 package cash.bitcoinj.net.discovery;
 
-import cash.bitcoinj.core.NetworkParameters;
-import cash.bitcoinj.core.VersionMessage;
-import cash.bitcoinj.utils.ContextPropagatingThreadFactory;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.collect.Lists;
-import com.squareup.okhttp.OkHttpClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,9 +28,17 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import cash.bitcoinj.core.NetworkParameters;
+import cash.bitcoinj.core.VersionMessage;
+import cash.bitcoinj.utils.ContextPropagatingThreadFactory;
+import okhttp3.OkHttpClient;
 
 /**
  * MultiplexingDiscovery queries multiple PeerDiscovery objects, shuffles their responses and then returns the results,

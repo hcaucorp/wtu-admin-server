@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,7 +67,6 @@ import cash.bitcoinj.store.BlockStoreException;
 import cash.bitcoinj.utils.ListenerRegistration;
 import cash.bitcoinj.utils.Threading;
 import cash.bitcoinj.wallet.Wallet;
-import net.jcip.annotations.GuardedBy;
 
 /**
  * <p>A Peer handles the high level communication with a Bitcoin node, extending a {@link PeerSocketHandler} which

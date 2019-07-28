@@ -1,10 +1,10 @@
 package es.coffeebyt.wtu.voucher.listeners;
 
-import es.coffeebyt.wtu.exception.IllegalOperationException;
-import es.coffeebyt.wtu.repository.VoucherRepository;
-import es.coffeebyt.wtu.utils.RandomUtils;
-import es.coffeebyt.wtu.voucher.Voucher;
-import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
+import static es.coffeebyt.wtu.utils.TryUtils.expectingException;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -13,10 +13,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Optional;
 
-import static es.coffeebyt.wtu.utils.TryUtils.expectingException;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import es.coffeebyt.wtu.exception.IllegalOperationException;
+import es.coffeebyt.wtu.repository.VoucherRepository;
+import es.coffeebyt.wtu.utils.RandomUtils;
+import es.coffeebyt.wtu.voucher.Voucher;
+import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ShouldBeRedeemableTest {

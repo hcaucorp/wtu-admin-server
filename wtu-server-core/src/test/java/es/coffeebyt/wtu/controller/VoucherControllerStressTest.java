@@ -1,20 +1,15 @@
 package es.coffeebyt.wtu.controller;
 
-import es.coffeebyt.wtu.Application;
-import es.coffeebyt.wtu.crypto.CurrencyService;
-import es.coffeebyt.wtu.crypto.CurrencyServiceSupplier;
-import es.coffeebyt.wtu.crypto.btc.BitcoinJConfig;
-import es.coffeebyt.wtu.notifications.NotificationService;
-import es.coffeebyt.wtu.repository.VoucherRepository;
-import es.coffeebyt.wtu.security.Auth0Service;
-import es.coffeebyt.wtu.system.DatabaseConfig;
-import es.coffeebyt.wtu.utils.RandomUtils;
-import es.coffeebyt.wtu.voucher.Voucher;
-import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
-import es.coffeebyt.wtu.voucher.impl.RedemptionResponse;
-import es.coffeebyt.wtu.wallet.Wallet;
-import es.coffeebyt.wtu.wallet.WalletService;
-import lombok.extern.slf4j.Slf4j;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.bitcoinj.params.TestNet3Params;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,9 +35,21 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import es.coffeebyt.wtu.Application;
+import es.coffeebyt.wtu.crypto.CurrencyService;
+import es.coffeebyt.wtu.crypto.CurrencyServiceSupplier;
+import es.coffeebyt.wtu.crypto.btc.BitcoinJConfig;
+import es.coffeebyt.wtu.notifications.NotificationService;
+import es.coffeebyt.wtu.repository.VoucherRepository;
+import es.coffeebyt.wtu.security.Auth0Service;
+import es.coffeebyt.wtu.system.DatabaseConfig;
+import es.coffeebyt.wtu.utils.RandomUtils;
+import es.coffeebyt.wtu.voucher.Voucher;
+import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
+import es.coffeebyt.wtu.voucher.impl.RedemptionResponse;
+import es.coffeebyt.wtu.wallet.Wallet;
+import es.coffeebyt.wtu.wallet.WalletService;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RunWith(SpringRunner.class)

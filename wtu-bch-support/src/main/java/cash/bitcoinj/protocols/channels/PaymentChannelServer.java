@@ -29,6 +29,7 @@ import com.google.protobuf.ByteString;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
@@ -44,7 +45,6 @@ import cash.bitcoinj.core.Utils;
 import cash.bitcoinj.core.VerificationException;
 import cash.bitcoinj.utils.Threading;
 import cash.bitcoinj.wallet.Wallet;
-import net.jcip.annotations.GuardedBy;
 
 /**
  * <p>A handler class which handles most of the complexity of creating a payment channel connection by providing a

@@ -16,10 +16,14 @@
 
 package cash.bitcoinj.wallet;
 
-import cash.bitcoinj.core.*;
-
 import java.util.HashSet;
 import java.util.List;
+
+import cash.bitcoinj.core.Coin;
+import cash.bitcoinj.core.Transaction;
+import cash.bitcoinj.core.TransactionInput;
+import cash.bitcoinj.core.TransactionOutPoint;
+import cash.bitcoinj.core.TransactionOutput;
 
 /**
  * A filtering coin selector delegates to another coin selector, but won't select outputs spent by the given transactions.

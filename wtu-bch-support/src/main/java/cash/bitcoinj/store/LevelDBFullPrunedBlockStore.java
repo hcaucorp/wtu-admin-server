@@ -16,11 +16,20 @@
 
 package cash.bitcoinj.store;
 
-import cash.bitcoinj.core.*;
-import cash.bitcoinj.script.Script;
+import static org.fusesource.leveldbjni.JniDBFactory.bytes;
+import static org.fusesource.leveldbjni.JniDBFactory.factory;
+
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import org.iq80.leveldb.*;
+
+import org.fusesource.leveldbjni.internal.NativeDB;
+import org.iq80.leveldb.DB;
+import org.iq80.leveldb.DBException;
+import org.iq80.leveldb.DBIterator;
+import org.iq80.leveldb.Options;
+import org.iq80.leveldb.ReadOptions;
+import org.iq80.leveldb.Snapshot;
+import org.iq80.leveldb.WriteBatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,10 +38,29 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static org.fusesource.leveldbjni.JniDBFactory.*;
+import cash.bitcoinj.core.Address;
+import cash.bitcoinj.core.AddressFormatException;
+import cash.bitcoinj.core.NetworkParameters;
+import cash.bitcoinj.core.ScriptException;
+import cash.bitcoinj.core.Sha256Hash;
+import cash.bitcoinj.core.StoredBlock;
+import cash.bitcoinj.core.StoredUndoableBlock;
+import cash.bitcoinj.core.Transaction;
+import cash.bitcoinj.core.TransactionOutputChanges;
+import cash.bitcoinj.core.UTXO;
+import cash.bitcoinj.core.UTXOProviderException;
+import cash.bitcoinj.core.VerificationException;
+import cash.bitcoinj.script.Script;
 
 /**
  * <p>
@@ -594,7 +622,7 @@ public class LevelDBFullPrunedBlockStore implements FullPrunedBlockStore {
             if (instrument)
                 endMethod("getTransactionOutput");
             return txout;
-        } catch (DBException e) {
+        } catch (NativeDB.DBException e) {
             log.error("Exception in getTransactionOutput.", e);
             if (instrument)
                 endMethod("getTransactionOutput");

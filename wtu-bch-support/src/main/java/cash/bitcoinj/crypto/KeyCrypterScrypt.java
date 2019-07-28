@@ -17,14 +17,13 @@
 
 package cash.bitcoinj.crypto;
 
-import cash.bitcoinj.core.Utils;
-import cash.bitcoinj.wallet.Protos;
-import cash.bitcoinj.wallet.Protos.ScryptParameters;
-import cash.bitcoinj.wallet.Protos.Wallet.EncryptionType;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Stopwatch;
 import com.google.protobuf.ByteString;
 import com.lambdaworks.crypto.SCrypt;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.crypto.BufferedBlockCipher;
@@ -37,7 +36,10 @@ import org.spongycastle.crypto.params.ParametersWithIV;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import cash.bitcoinj.core.Utils;
+import cash.bitcoinj.wallet.Protos;
+import cash.bitcoinj.wallet.Protos.ScryptParameters;
+import cash.bitcoinj.wallet.Protos.Wallet.EncryptionType;
 
 /**
  * <p>This class encrypts and decrypts byte arrays and strings using scrypt as the

@@ -35,6 +35,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         ddl-auto: create
+  banner.location:
 
 feign:
   okhttp:

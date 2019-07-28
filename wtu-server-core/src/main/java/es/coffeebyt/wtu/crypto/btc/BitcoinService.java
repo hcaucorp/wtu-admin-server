@@ -4,6 +4,7 @@ import static java.lang.String.format;
 import static java.time.Instant.ofEpochSecond;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
+import static org.bitcoinj.script.Script.ScriptType.P2PKH;
 import static org.bitcoinj.wallet.Wallet.fromSeed;
 
 import org.bitcoinj.core.Address;
@@ -11,7 +12,9 @@ import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
+import org.bitcoinj.script.Script;
 import org.bitcoinj.wallet.DeterministicSeed;
+import org.bitcoinj.wallet.KeyChainGroup;
 import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet.SendResult;
@@ -58,8 +61,10 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
     public void start() {
         readWalletFromDB()
                 .ifPresent(bitcoinj::restoreWalletFromSeed);
-        if (autoStart)
-            bitcoinj.getBalance(); //force service start
+
+        if (autoStart) {
+            bitcoinj.startSilently(); //force service start
+        }
     }
 
     @PreDestroy
@@ -76,7 +81,7 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
 
         try {
             DeterministicSeed deterministicSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
-            org.bitcoinj.wallet.Wallet wallet = fromSeed(networkParameters, deterministicSeed);
+            org.bitcoinj.wallet.Wallet wallet = fromSeed(networkParameters, deterministicSeed, P2PKH);
             return restoreWalletSaveAndStart(wallet, ofEpochSecond(creationTime).toEpochMilli());
         } catch (UnreadableWalletException e) {
             log.error(e.getMessage());
@@ -124,7 +129,10 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
         if (wallet.isPresent())
             Thrower.logAndThrowIllegalOperationException("BTC wallet already exists. Currently we support only single wallet per currency");
 
-        org.bitcoinj.wallet.Wallet bitcoinjWallet = new org.bitcoinj.wallet.Wallet(networkParameters);
+        org.bitcoinj.wallet.Wallet bitcoinjWallet = new org.bitcoinj.wallet.Wallet(
+                networkParameters,
+                KeyChainGroup.builder(networkParameters).fromRandom(Script.ScriptType.P2PKH).build()
+        );
         String walletWords = walletWords(bitcoinjWallet);
         long creationTime = bitcoinjWallet.getKeyChainSeed().getCreationTimeSeconds();
 
@@ -147,7 +155,7 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
 
             SendResult sendResult = bitcoinj.sendCoins(sendRequest);
 
-            return sendResult.tx.getHashAsString();
+            return sendResult.tx.getTxId().toString();
         } catch (InsufficientMoneyException e) {
             String message = format("Not enough funds on wallet #%s. Available %.8f, but requested %.8f. Exception message: %s",
                     from.getId(), (double) bitcoinj.getBalance() / 10_000_000, (double) amount / 10_000_000, e.getMessage());

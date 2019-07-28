@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class BitcoinCashJAdapter implements AutoCloseable {
+public class BitcoinCashJFacade implements AutoCloseable {
 
     @Qualifier("BitcoinCashWalletAppKit")
     private final WalletAppKit bitcoinj;

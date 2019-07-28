@@ -17,18 +17,16 @@
 
 package cash.bitcoinj.net.discovery;
 
-import cash.bitcoin.crawler.PeerSeedProtos;
-import cash.bitcoinj.core.*;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -37,7 +35,16 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import cash.bitcoin.crawler.PeerSeedProtos;
+import cash.bitcoinj.core.ECKey;
+import cash.bitcoinj.core.NetworkParameters;
+import cash.bitcoinj.core.Sha256Hash;
+import cash.bitcoinj.core.Utils;
+import cash.bitcoinj.core.VersionMessage;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * A class that knows how to read signed sets of seeds over HTTP, using a simple protobuf based protocol. See the

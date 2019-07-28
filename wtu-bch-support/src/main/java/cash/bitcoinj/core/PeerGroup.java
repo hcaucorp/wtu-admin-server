@@ -40,13 +40,13 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Runnables;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.common.util.concurrent.Uninterruptibles;
-import com.squareup.okhttp.OkHttpClient;
 import com.subgraph.orchid.TorClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 
 import java.io.IOException;
 import java.net.Inet6Address;
@@ -111,7 +111,7 @@ import cash.bitcoinj.wallet.Wallet;
 import cash.bitcoinj.wallet.listeners.KeyChainEventListener;
 import cash.bitcoinj.wallet.listeners.ScriptsChangeEventListener;
 import cash.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
-import net.jcip.annotations.GuardedBy;
+import okhttp3.OkHttpClient;
 
 /**
  * <p>Runs a set of connections to the P2P network, brings up connections to replace disconnected nodes and manages
@@ -519,11 +519,11 @@ public class PeerGroup implements TransactionBroadcaster {
                 return result;
             }
         });
-        backoffMap = new HashMap<PeerAddress, ExponentialBackoff>();
-        peers = new CopyOnWriteArrayList<Peer>();
-        pendingPeers = new CopyOnWriteArrayList<Peer>();
+        backoffMap = new HashMap<>();
+        peers = new CopyOnWriteArrayList<>();
+        pendingPeers = new CopyOnWriteArrayList<>();
         channels = connectionManager;
-        peerDiscoverers = new CopyOnWriteArraySet<PeerDiscovery>();
+        peerDiscoverers = new CopyOnWriteArraySet<>();
         runningBroadcasts = Collections.synchronizedSet(new HashSet<TransactionBroadcast>());
         bloomFilterMerger = new FilterMerger(DEFAULT_BLOOM_FILTER_FP_RATE);
         vMinRequiredProtocolVersion = params.getProtocolVersionNum(NetworkParameters.ProtocolVersion.BLOOM_FILTER);
@@ -582,8 +582,9 @@ public class PeerGroup implements TransactionBroadcaster {
             HttpDiscovery.Details[] httpSeeds = params.getHttpSeeds();
             if (httpSeeds.length > 0) {
                 // Use HTTP discovery when Tor is active and there is a Cartographer seed, for a much needed speed boost.
-                OkHttpClient httpClient = new OkHttpClient();
-                httpClient.setSocketFactory(torClient.getSocketFactory());
+                OkHttpClient httpClient = new OkHttpClient.Builder()
+                        .socketFactory(torClient.getSocketFactory())
+                        .build();
                 List<PeerDiscovery> discoveries = Lists.newArrayList();
                 for (HttpDiscovery.Details httpSeed : httpSeeds)
                     discoveries.add(new HttpDiscovery(params, httpSeed, httpClient));

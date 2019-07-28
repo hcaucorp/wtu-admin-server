@@ -2,7 +2,9 @@
 /.bch
 /.idea
 /target
-/bitcoinj-cash
+wtu-server-core/.bch
+wtu-server-core/.btc
+
 .DS_Store
 
 *.iml

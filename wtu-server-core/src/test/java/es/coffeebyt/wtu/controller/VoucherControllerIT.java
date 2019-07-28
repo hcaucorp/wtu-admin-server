@@ -1,10 +1,50 @@
 package es.coffeebyt.wtu.controller;
 
-import es.coffeebyt.wtu.Collections;
+import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
+import static es.coffeebyt.wtu.crypto.btc.BitcoinService.BTC;
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import org.bitcoinj.core.Context;
+import org.bitcoinj.core.NetworkParameters;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import java.net.URI;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.IntStream;
+
 import es.coffeebyt.wtu.Application;
+import es.coffeebyt.wtu.Collections;
 import es.coffeebyt.wtu.crypto.CurrencyService;
 import es.coffeebyt.wtu.crypto.CurrencyServiceSupplier;
-import es.coffeebyt.wtu.crypto.bch.BitcoinCashJAdapter;
+import es.coffeebyt.wtu.crypto.bch.BitcoinCashJFacade;
 import es.coffeebyt.wtu.crypto.bch.BitcoinCashService;
 import es.coffeebyt.wtu.crypto.btc.BitcoinJConfig;
 import es.coffeebyt.wtu.crypto.btc.BitcoinJFacade;
@@ -23,38 +63,6 @@ import es.coffeebyt.wtu.voucher.impl.VoucherGenerationSpec;
 import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
 import lombok.extern.slf4j.Slf4j;
-import org.bitcoinj.core.Context;
-import org.bitcoinj.core.NetworkParameters;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import java.net.URI;
-import java.net.URL;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.IntStream;
-
-import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
-import static es.coffeebyt.wtu.crypto.btc.BitcoinService.BTC;
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static org.junit.Assert.*;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -100,7 +108,7 @@ public class VoucherControllerIT {
     private BitcoinJFacade bitcoinJFacade;
 
     @Autowired
-    private BitcoinCashJAdapter bitcoinCashJAdapter;
+    private BitcoinCashJFacade bitcoinCashJFacade;
 
     private List<Voucher> testVouchers;
 
@@ -129,7 +137,7 @@ public class VoucherControllerIT {
         walletRepository.deleteAll();
         voucherRepository.deleteAll();
         closeUs.add(bitcoinJFacade);
-        closeUs.add(bitcoinCashJAdapter);
+        closeUs.add(bitcoinCashJFacade);
     }
 
     @Test

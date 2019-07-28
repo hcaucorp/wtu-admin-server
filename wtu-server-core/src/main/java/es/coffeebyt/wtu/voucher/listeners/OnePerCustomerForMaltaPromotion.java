@@ -1,5 +1,12 @@
 package es.coffeebyt.wtu.voucher.listeners;
 
+import com.google.common.annotations.VisibleForTesting;
+
+import org.springframework.stereotype.Component;
+
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
 import es.coffeebyt.wtu.exception.MaltaCardException;
 import es.coffeebyt.wtu.exception.Thrower;
 import es.coffeebyt.wtu.repository.VoucherRepository;
@@ -10,18 +17,11 @@ import es.coffeebyt.wtu.voucher.VoucherNotFoundException;
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 import lombok.RequiredArgsConstructor;
 
-import com.google.common.annotations.VisibleForTesting;
-
-import org.springframework.stereotype.Component;
-
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
-
 @Component
 @RequiredArgsConstructor
 public class OnePerCustomerForMaltaPromotion implements RedemptionValidator, RedemptionListener {
 
-    final static String MALTA_VOUCHER_SKU = "AI_AND_BC_SUMMIT_WINTER_EDITION_PROMOTIONAL_VOUCHER";
+    public final static String MALTA_VOUCHER_SKU = "AI_AND_BC_SUMMIT_WINTER_EDITION_PROMOTIONAL_VOUCHER";
 
     private final Set<String> customersCache = new CopyOnWriteArraySet<>();
 

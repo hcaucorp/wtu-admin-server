@@ -1,28 +1,35 @@
 package es.coffeebyt.wtu.voucher.impl;
 
-import es.coffeebyt.wtu.crypto.CurrencyServiceSupplier;
-import es.coffeebyt.wtu.exception.IllegalOperationException;
-import es.coffeebyt.wtu.exception.ResourceNotFoundException;
-import es.coffeebyt.wtu.repository.VoucherRepository;
-import es.coffeebyt.wtu.system.PropertyNames;
-import es.coffeebyt.wtu.voucher.*;
-import es.coffeebyt.wtu.wallet.Wallet;
-import es.coffeebyt.wtu.wallet.WalletService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static java.lang.String.format;
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toList;
+
 import org.bitcoinj.core.NetworkParameters;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static java.lang.String.format;
-import static java.util.Collections.emptySet;
-import static java.util.stream.Collectors.toList;
+import es.coffeebyt.wtu.crypto.CurrencyServiceSupplier;
+import es.coffeebyt.wtu.exception.IllegalOperationException;
+import es.coffeebyt.wtu.exception.ResourceNotFoundException;
+import es.coffeebyt.wtu.repository.VoucherRepository;
+import es.coffeebyt.wtu.system.PropertyNames;
+import es.coffeebyt.wtu.voucher.RedemptionListener;
+import es.coffeebyt.wtu.voucher.RedemptionValidator;
+import es.coffeebyt.wtu.voucher.Voucher;
+import es.coffeebyt.wtu.voucher.VoucherCodeGenerator;
+import es.coffeebyt.wtu.voucher.VoucherNotFoundException;
+import es.coffeebyt.wtu.voucher.VoucherService;
+import es.coffeebyt.wtu.wallet.Wallet;
+import es.coffeebyt.wtu.wallet.WalletService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor

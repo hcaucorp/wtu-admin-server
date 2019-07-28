@@ -1,11 +1,11 @@
 package es.coffeebyt.wtu.voucher;
 
+import java.util.List;
+import java.util.Optional;
+
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 import es.coffeebyt.wtu.voucher.impl.RedemptionResponse;
 import es.coffeebyt.wtu.voucher.impl.VoucherGenerationSpec;
-
-import java.util.List;
-import java.util.Optional;
 
 public interface VoucherService {
     List<Voucher> generateVouchers(VoucherGenerationSpec details);
