@@ -1,0 +1,101 @@
+# JWT configuration by Auth0
+auth0:
+  issuer: https://wallettopup.auth0.com/
+  apiAudience: https://wallettopup.auth0.com/api/v2/
+
+# testnet/regtest/mainnet
+#bitcoinj:
+#  network:
+#    type: mainnet
+
+es:
+  coffeebyt:
+    bitcoinj:
+      # enable this only if restoring wallets from file
+      auto-start: false
+      network:
+        type: mainnet
+    jlibra:
+      network:
+        address:
+        port:
+    security:
+      enumeration-protection:
+        cool-down-time: 24
+        cool-down-unit: HOURS
+        max-attempts: 30
+    notification:
+      # topic with results of user actions
+      redemptions-topic-arn: arn:aws:sns:eu-west-2:367570967874:redemptions
+      # IAM sns-access-user
+      access-key-id: AKIAITMQC6R6A773KPNQ
+      secret-key-id: na4eftnibgdw4GXj9+cnDyGTYYY60MG8adIpYttM
+
+# Spring Reference https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+spring:
+  mail:
+    # Amazon SES Service
+    host: email-smtp.eu-west-1.amazonaws.com
+    port: 25
+    # SMTP credentials for IAM user: ses-smtp-user.20190218-204939
+    username: AKIAIFVDVEAXQGTMW2XA
+    password: BFZ3rSNsXmBAk3ZEVQye0u4Qoo3NyVrMbCV+zc9nEwR8
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          port: 25
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  # PostgreSQL
+  datasource:
+    url: jdbc:postgresql://aa9bbsh8k7xriq.cmt4otxvbkhv.eu-west-2.rds.amazonaws.com:5432/postgres
+    username: mieszko
+    password: koleszko
+  jpa:
+    hibernate:
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      jdbc.lob.non_contextual_creation: true
+      ddl-auto: update
+    properties.hibernate.temp.use_jdbc_metadata_defaults: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: metrics,health
+      base-path: /api
+    enabled-by-default: false
+  endpoint:
+    health.enabled: true
+    metrics.enabled: true
+
+#    export:
+#      graphite:
+#        host: graphite.example.com
+#        port: 9004
+
+server:
+  port: 5000
+
+logging:
+  level:
+    root: INFO
+    org.bitcoinj: ERROR
+    cash.bitcoinj: ERROR
+    com.auth0.spring.security.api: ERROR
+
+feign:
+  okhttp:
+    enabled: true
+  client:
+    config:
+      auth0:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full
+        encoder: feign.jackson.JacksonEncoder
+        decoder: feign.jackson.JacksonDecoder

@@ -1,0 +1,54 @@
+auth0:
+  issuer: https://wallettopup.auth0.com/
+  apiAudience: https://wallettopup.auth0.com/api/v2/
+  # test only properties - domain, client_id, client_secret
+  domain: wallettopup.auth0.com
+  clientId: gnmeGAuP1hw5ClroyL6R3MMOUFBMkneG
+  clientSecret: EXDbjXdgTFfRaI9b7AIiEXa7QkgCi5LhaGzYGfG_e3FiESEwIkY71N716b1PT5yY
+
+es:
+  coffeebyt:
+    bitcoinj:
+      auto-start: false
+      # testnet/regtest/mainnet
+      network:
+        type: testnet
+    jlibra:
+      network:
+        address: "localhost"
+        port: 999
+    security:
+      enumeration-protection:
+        cool-down-time: 100
+        cool-down-unit: "MILLISECONDS"
+        max-attempts: 10
+    notification:
+      redemptions-topic-arn: "redemptions"
+      access-key-id: "foo"
+      secret-key-id: "bar"
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:myDb;DB_CLOSE_DELAY=-1
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        ddl-auto: create
+
+feign:
+  okhttp:
+    enabled: true
+  client:
+    config:
+      auth0:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: full
+        encoder: feign.jackson.JacksonEncoder
+        decoder: feign.jackson.JacksonDecoder
+
+logging:
+  level:
+    root: INFO
+    com.auth0.spring.security.api: ERROR
