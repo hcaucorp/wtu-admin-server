@@ -22,7 +22,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpHeaders;
@@ -30,7 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
-
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -40,9 +39,15 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -54,9 +59,7 @@ import static org.mockito.Mockito.*;
                 DatabaseConfig.class
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@MockBeans({
-        @MockBean(NotificationService.class)
-})
+@MockBean(NotificationService.class)
 public class VoucherControllerStressTest {
 
     @LocalServerPort
@@ -91,7 +94,7 @@ public class VoucherControllerStressTest {
     private String destinationAddress;
 
     @Before
-    public void setUpTest() throws Exception {
+    public void setUpTest() throws MalformedURLException {
         base = new URL("http://localhost:" + port + "/api");
         authorizationValue = "Bearer " + auth0Service.getToken().accessToken;
         destinationAddress = "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G";
@@ -119,8 +122,7 @@ public class VoucherControllerStressTest {
 
         Optional<Voucher> byId = voucherRepository.findById(voucher.getId());
 
-        assertTrue(byId.isPresent());
-        assertTrue(byId.get().isRedeemed());
+        assertTrue(byId.isPresent() && byId.get().isRedeemed());
 
         verify(currencyService, times(1)).sendMoney(wallet, destinationAddress, voucher.getAmount());
     }
@@ -139,7 +141,7 @@ public class VoucherControllerStressTest {
             thread.join(60_000);
         }
 
-        countDownLatch.await(1, TimeUnit.MINUTES);
+        assertTrue(countDownLatch.await(1, TimeUnit.MINUTES));
     }
 
     class RequestSenderThread implements Runnable {
@@ -159,6 +161,7 @@ public class VoucherControllerStressTest {
                 countDownLatch.countDown();
                 countDownLatch.await();
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 fail(e.getMessage());
             }
 
