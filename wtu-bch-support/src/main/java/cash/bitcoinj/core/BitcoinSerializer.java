@@ -17,8 +17,6 @@
 
 package cash.bitcoinj.core;
 
-import cash.bitcoinj.core.listeners.FeeFilterMessage;
-import cash.bitcoinj.core.listeners.SendHeadersMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +26,9 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+
+import cash.bitcoinj.core.listeners.FeeFilterMessage;
+import cash.bitcoinj.core.listeners.SendHeadersMessage;
 
 /**
  * <p>Methods to serialize and de-serialize messages to the Bitcoin network format as defined in
@@ -67,6 +68,7 @@ public class BitcoinSerializer extends MessageSerializer {
         names.put(RejectMessage.class, "reject");
         names.put(GetUTXOsMessage.class, "getutxos");
         names.put(UTXOsMessage.class, "utxos");
+        names.put(SendHeadersMessage.class, "sendheaders");
     }
 
     private final NetworkParameters params;
@@ -229,7 +231,7 @@ public class BitcoinSerializer extends MessageSerializer {
         } else if (command.equals("getutxos")) {
             return new GetUTXOsMessage(params, payloadBytes);
         } else if (command.equals("sendheaders")) {
-            return new SendHeadersMessage(params);
+            return new SendHeadersMessage(params, payloadBytes);
         } else if (command.equals("feefilter")) {
             return new FeeFilterMessage(params);
         } else {

@@ -93,16 +93,7 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
     }
 
     private Wallet restoreWalletSaveAndStart(cash.bitcoinj.wallet.Wallet bitcoinjWallet, long createdAtMillis) {
-        // TODO if file storage not found then restore wallet
-
-        // code from bitcoinj:
-//        log.info("Starting up with directory = {}", directory);
-//        try {
-//            File chainFile = new File(directory, filePrefix + ".spvchain");
-//            boolean chainFileExists = chainFile.exists();
-//            vWalletFile = new File(directory, filePrefix + ".wallet");
-
-//        bitcoinj.restoreWalletFromSeed(bitcoinjWallet.getKeyChainSeed());
+        bitcoinj.restoreWalletFromSeed(bitcoinjWallet.getKeyChainSeed());
 
         CashAddress receivingAddress = addressFactory.getFromBase58(networkParameters, bitcoinjWallet.currentReceiveAddress().toString());
 

@@ -3,7 +3,11 @@
 /.idea
 /target
 wtu-server-core/.bch
+wtu-server-core/target
 wtu-server-core/.btc
+wtu-bch-support/target
+wtu-utils/target
+wtu-utils/.bch-codes
 
 .DS_Store
 

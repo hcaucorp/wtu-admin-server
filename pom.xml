@@ -11,6 +11,8 @@
     <modules>
         <module>wtu-bch-support</module>
         <module>wtu-server-core</module>
+        <module>wtu-utils</module>
+        <module>wtu-server-integration-tests</module>
     </modules>
 
     <parent>
@@ -25,6 +27,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
         <!--    dependency versions in natural order   -->
+        <bitcoinj.version>0.15.3</bitcoinj.version>
         <bouncycastle.version>1.62</bouncycastle.version>
         <guava.version>26.0-android</guava.version>
         <lombok.version>1.18.6</lombok.version>
@@ -71,6 +74,12 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.bitcoinj</groupId>
+                <artifactId>bitcoinj-core</artifactId>
+                <version>${bitcoinj.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

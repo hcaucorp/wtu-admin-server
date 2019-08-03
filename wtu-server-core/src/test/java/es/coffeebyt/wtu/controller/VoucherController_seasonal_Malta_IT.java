@@ -1,6 +1,7 @@
 package es.coffeebyt.wtu.controller;
 
 import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
+import static es.coffeebyt.wtu.voucher.listeners.OnePerCustomerForMaltaPromotion.MALTA_VOUCHER_SKU;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -28,16 +29,17 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URI;
 import java.net.URL;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import es.coffeebyt.wtu.Application;
+import es.coffeebyt.wtu.api.ApiError;
 import es.coffeebyt.wtu.crypto.CurrencyService;
 import es.coffeebyt.wtu.crypto.CurrencyServiceSupplier;
 import es.coffeebyt.wtu.crypto.bch.BitcoinCashJFacade;
-import es.coffeebyt.wtu.crypto.bch.BitcoinCashService;
 import es.coffeebyt.wtu.crypto.btc.BitcoinJConfig;
 import es.coffeebyt.wtu.crypto.btc.BitcoinJFacade;
 import es.coffeebyt.wtu.notifications.NotificationService;
@@ -48,7 +50,7 @@ import es.coffeebyt.wtu.system.DatabaseConfig;
 import es.coffeebyt.wtu.utils.RandomUtils;
 import es.coffeebyt.wtu.voucher.Voucher;
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
-import es.coffeebyt.wtu.voucher.impl.RedemptionResponse;
+import es.coffeebyt.wtu.voucher.listeners.OnePerCustomerForMaltaPromotion;
 import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
 import lombok.extern.slf4j.Slf4j;
@@ -100,6 +102,9 @@ public class VoucherController_seasonal_Malta_IT {
     @Autowired
     private BitcoinCashJFacade bitcoinCashJFacade;
 
+    @Autowired
+    private OnePerCustomerForMaltaPromotion onePerCustomerForMaltaPromotion;
+
     private List<Voucher> testVouchers;
 
     private String authorizationValue;
@@ -131,39 +136,43 @@ public class VoucherController_seasonal_Malta_IT {
     }
 
     @Test
-    public void redeemVoucher() {
+    public void attemptToRedeemAnotherVoucherToTheSameAddress() {
         String currency = BCH;
         String destinationAddress = "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G";
-        CurrencyService currencyService = startCurrencyService(currency);
+        CurrencyService currencyService = currencyServiceSupplier.findByCurrency(currency);
 
         // receive address: myAUke4cumJb6fYvHAGvXVMzHbKTusrixG
         // for bch: bchtest:qrqe9azt6mdt3r04sct7l7mm2d3znp7daqlzv4zrfp
         Wallet wallet = currencyService.importWallet(new ImportWalletRequest(
                 currency,
                 "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary",
-                1546128000L));
+                Instant.now().getEpochSecond() // for this test we don't need balance visible, so don't download the chain
+        ));
 
         Voucher voucher = voucherRepository.save(RandomUtils.randomVoucher()
+                .withSku(MALTA_VOUCHER_SKU)
                 .withWalletId(wallet.getId())
                 .withSold(true)
                 .withPublished(true)
                 .withRedeemed(false));
 
-        ResponseEntity<RedemptionResponse> responseEntity = requestRedemption(voucher, destinationAddress);
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        //this should prevent consecutive redemptions to destinationAddress
+        onePerCustomerForMaltaPromotion.cachePut(destinationAddress);
 
-        RedemptionResponse response = responseEntity.getBody();
+        ResponseEntity<ApiError> responseEntity = requestRedemption(voucher, destinationAddress);
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+
+        ApiError response = responseEntity.getBody();
         assertNotNull(response);
-        assertNotNull(response.getTransactionId());
-        assertFalse(response.getTrackingUrls().isEmpty());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatus());
+        assertTrue(response.getMessage().startsWith("You've already used one voucher"));
 
         Optional<Voucher> byId = voucherRepository.findById(voucher.getId());
         assertTrue(byId.isPresent());
-        assertTrue(byId.get().isRedeemed());
+        assertFalse(byId.get().isRedeemed());
     }
 
-
-    private ResponseEntity<RedemptionResponse> requestRedemption(Voucher voucher, String destinationAddress) {
+    private ResponseEntity<ApiError> requestRedemption(Voucher voucher, String destinationAddress) {
         String url = base.toString() + "/vouchers/redeem";
         RequestEntity<?> requestEntity = RequestEntity
                 .post(URI.create(url))
@@ -172,18 +181,7 @@ public class VoucherController_seasonal_Malta_IT {
                         .withVoucherCode(voucher.getCode())
                         .withDestinationAddress(destinationAddress));
 
-        return template.postForEntity(url, requestEntity, RedemptionResponse.class);
+        return template.postForEntity(url, requestEntity, ApiError.class);
     }
 
-
-    private CurrencyService startCurrencyService(String currency) {
-        CurrencyService currencyService = currencyServiceSupplier.findByCurrency(currency);
-
-        if (currencyService instanceof BitcoinCashService)
-            ((BitcoinCashService) currencyService).start();
-
-        log.debug("Service should be running now.");
-
-        return currencyService;
-    }
 }

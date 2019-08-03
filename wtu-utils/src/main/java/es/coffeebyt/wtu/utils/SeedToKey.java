@@ -1,6 +1,7 @@
-package es.coffeebyt.wtu.tools;
+package es.coffeebyt.wtu.utils;
 
-import lombok.extern.slf4j.Slf4j;
+import static java.lang.Long.parseLong;
+
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.params.MainNetParams;
@@ -8,8 +9,7 @@ import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet;
 
-import static java.lang.Long.parseLong;
-import static org.bitcoinj.wallet.Wallet.fromSeed;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class SeedToKey {
@@ -26,7 +26,7 @@ public class SeedToKey {
         NetworkParameters params = MainNetParams.get();
 
         DeterministicSeed deterministicSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
-        Wallet wallet = fromSeed(params, deterministicSeed);
+        Wallet wallet = Wallet.fromSeed(params, deterministicSeed);
 
         DeterministicKey watchingKey = wallet.getWatchingKey();
 

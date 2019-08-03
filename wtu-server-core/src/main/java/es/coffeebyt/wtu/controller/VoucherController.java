@@ -25,6 +25,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
+import es.coffeebyt.wtu.api.ApiErrorValues;
 import es.coffeebyt.wtu.exception.IllegalOperationException;
 import es.coffeebyt.wtu.exception.MaltaCardException;
 import es.coffeebyt.wtu.notifications.NotificationService;
@@ -79,6 +80,9 @@ public class VoucherController {
     @PostMapping("/redeem")
     public RedemptionResponse redeemVoucher(@RequestBody @Valid RedemptionRequest detail) {
         try {
+            // handle API test values, testing in production? 😅
+            ApiErrorValues.handleGiftCardRedemption(detail);
+
             // can we proceed?
             enumerationProtectionService.checkIfBlocked(request);
 

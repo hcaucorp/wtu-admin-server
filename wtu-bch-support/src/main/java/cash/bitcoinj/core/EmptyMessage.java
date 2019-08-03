@@ -17,7 +17,6 @@
 
 package cash.bitcoinj.core;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -38,12 +37,11 @@ public abstract class EmptyMessage extends Message {
     }
 
     public EmptyMessage(NetworkParameters params, byte[] payload, int offset) throws ProtocolException {
-        super(params, payload, offset);
-        length = 0;
+        super(params, payload, offset, params.getDefaultSerializer(), 0);
     }
 
     @Override
-    protected final void bitcoinSerializeToStream(OutputStream stream) throws IOException {
+    protected final void bitcoinSerializeToStream(OutputStream stream) {
     }
 
     @Override

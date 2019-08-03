@@ -53,11 +53,13 @@ import java.util.concurrent.locks.ReentrantLock;
 import cash.bitcoinj.core.listeners.AbstractPeerEventListener;
 import cash.bitcoinj.core.listeners.BlocksDownloadedEventListener;
 import cash.bitcoinj.core.listeners.ChainDownloadStartedEventListener;
+import cash.bitcoinj.core.listeners.FeeFilterMessage;
 import cash.bitcoinj.core.listeners.GetDataEventListener;
 import cash.bitcoinj.core.listeners.OnTransactionBroadcastListener;
 import cash.bitcoinj.core.listeners.PeerConnectedEventListener;
 import cash.bitcoinj.core.listeners.PeerDisconnectedEventListener;
 import cash.bitcoinj.core.listeners.PreMessageReceivedEventListener;
+import cash.bitcoinj.core.listeners.SendHeadersMessage;
 import cash.bitcoinj.net.AbstractTimeoutHandler;
 import cash.bitcoinj.net.NioClient;
 import cash.bitcoinj.net.NioClientManager;
@@ -472,12 +474,7 @@ public class Peer extends PeerSocketHandler {
     @Override
     public void connectionClosed() {
         for (final ListenerRegistration<PeerDisconnectedEventListener> registration : disconnectedEventListeners) {
-            registration.executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    registration.listener.onPeerDisconnected(Peer.this, 0);
-                }
-            });
+            registration.executor.execute(() -> registration.listener.onPeerDisconnected(Peer.this, 0));
         }
     }
 
@@ -567,6 +564,10 @@ public class Peer extends PeerSocketHandler {
             processUTXOMessage((UTXOsMessage) m);
         } else if (m instanceof RejectMessage) {
             log.error("{} {}: Received {}", this, getPeerVersionMessage().subVer, m);
+        } else if (m instanceof SendHeadersMessage) {
+            // We ignore this message, because we don't announce new blocks.
+        } else if (m instanceof FeeFilterMessage) {
+            // We ignore this message
         } else {
             log.warn("{}: Received unhandled message: {}", this, m);
         }

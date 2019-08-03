@@ -35,7 +35,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         ddl-auto: create
-  banner.location:
 
 feign:
   okhttp:
@@ -51,5 +50,5 @@ feign:
 
 logging:
   level:
-    root: INFO
+    root: WARN
     com.auth0.spring.security.api: ERROR

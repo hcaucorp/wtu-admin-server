@@ -1,16 +1,14 @@
 package es.coffeebyt.wtu.api;
 
-import lombok.Value;
+import lombok.Data;
 
-import org.springframework.http.HttpStatus;
-
-import java.util.List;
-
-@Value
+@Data
 public class ApiError {
 
-    private HttpStatus status;
+    private int status;
     private String message;
-    private List<String> errors;
+    private String error;
+    private String timestamp;
+    private String path;
 
 }

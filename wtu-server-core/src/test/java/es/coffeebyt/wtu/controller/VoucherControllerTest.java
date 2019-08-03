@@ -32,6 +32,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import java.util.Optional;
 
 import es.coffeebyt.wtu.Application;
+import es.coffeebyt.wtu.api.ApiErrorValues;
 import es.coffeebyt.wtu.notifications.NotificationService;
 import es.coffeebyt.wtu.security.EnumerationProtectionService;
 import es.coffeebyt.wtu.security.TestSecurityConfig;
@@ -111,6 +112,11 @@ public class VoucherControllerTest {
                 .andExpect(content().json(om.writeValueAsString(response)))
                 .andExpect(jsonPath("$.trackingUrls[0]").value(response.getTrackingUrls().get(0)))
                 .andExpect(jsonPath("$.transactionId").value(response.getTransactionId()));
+    }
+
+    @Test
+    public void redeemVoucherVerifyApiErrorValue() {
+        String onePerCustomerErrorCode = ApiErrorValues.maltaGiftCodeFailingWithOnePerCustomerError;
     }
 
     static RequestPostProcessor remoteHost(final String remoteHost) {
