@@ -3,8 +3,6 @@ auth0:
   issuer: https://wallettopup.auth0.com/
   apiAudience: https://wallettopup.auth0.com/api/v2/
 
-
-
 # Spring Reference https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 spring:
   # PostgreSQL
@@ -33,3 +31,7 @@ es:
       # testnet/regtest/mainnet
       network:
         type: testnet
+    jlibra:
+      network:
+        address: "localhost"
+        port: 999

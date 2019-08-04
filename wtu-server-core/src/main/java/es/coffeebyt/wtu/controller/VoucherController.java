@@ -79,9 +79,11 @@ public class VoucherController {
 
     @PostMapping("/redeem")
     public RedemptionResponse redeemVoucher(@RequestBody @Valid RedemptionRequest detail) {
+
+        // handle API test values, testing in production? 😅
+        ApiErrorValues.handleGiftCardRedemption(detail);
+
         try {
-            // handle API test values, testing in production? 😅
-            ApiErrorValues.handleGiftCardRedemption(detail);
 
             // can we proceed?
             enumerationProtectionService.checkIfBlocked(request);

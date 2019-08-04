@@ -10,7 +10,5 @@ public class IllegalOperationException extends RuntimeException {
         super(message);
     }
 
-    public IllegalOperationException() {
-        super("See logs for details");
-    }
+    public IllegalOperationException() { }
 }

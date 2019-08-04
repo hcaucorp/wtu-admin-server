@@ -11,7 +11,6 @@
 
     <artifactId>wtu-utils</artifactId>
 
-
     <dependencies>
 
         <dependency>

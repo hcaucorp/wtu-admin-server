@@ -4,9 +4,9 @@ auth0:
   apiAudience: https://wallettopup.auth0.com/api/v2/
 
 # testnet/regtest/mainnet
-#bitcoinj:
-#  network:
-#    type: mainnet
+bitcoinj:
+  network:
+    type: mainnet
 
 es:
   coffeebyt:
@@ -17,8 +17,8 @@ es:
         type: mainnet
     jlibra:
       network:
-        address:
-        port:
+        address: "localhost"
+        port: 999
     security:
       enumeration-protection:
         cool-down-time: 24

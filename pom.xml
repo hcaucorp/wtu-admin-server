@@ -12,7 +12,6 @@
         <module>wtu-bch-support</module>
         <module>wtu-server-core</module>
         <module>wtu-utils</module>
-        <module>wtu-server-integration-tests</module>
     </modules>
 
     <parent>

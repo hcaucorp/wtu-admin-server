@@ -116,7 +116,7 @@ public class VoucherControllerTest {
 
     @Test
     public void redeemVoucherVerifyApiErrorValue() {
-        String onePerCustomerErrorCode = ApiErrorValues.maltaGiftCodeFailingWithOnePerCustomerError;
+        String onePerCustomerErrorCode = ApiErrorValues.MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR;
     }
 
     static RequestPostProcessor remoteHost(final String remoteHost) {
