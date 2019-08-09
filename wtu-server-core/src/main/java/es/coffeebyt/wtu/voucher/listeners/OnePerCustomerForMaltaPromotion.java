@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import es.coffeebyt.wtu.api.ApiErrorValues;
+import es.coffeebyt.wtu.api.ApiTestingConstants;
 import es.coffeebyt.wtu.exception.Thrower;
 import es.coffeebyt.wtu.repository.VoucherRepository;
 import es.coffeebyt.wtu.voucher.RedemptionListener;
@@ -33,7 +33,7 @@ public class OnePerCustomerForMaltaPromotion implements RedemptionValidator, Red
                 .orElseThrow(() -> new VoucherNotFoundException("Voucher " + redemptionRequest.getVoucherCode() + " not found."));
 
         if (MALTA_VOUCHER_SKU.equals(voucher.getSku()) && customersCache.contains(redemptionRequest.getDestinationAddress()))
-            Thrower.logAndThrow(MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER, () -> ApiErrorValues.maltaCardException);
+            Thrower.logAndThrow(MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER, () -> ApiTestingConstants.maltaCardException);
     }
 
     @Override

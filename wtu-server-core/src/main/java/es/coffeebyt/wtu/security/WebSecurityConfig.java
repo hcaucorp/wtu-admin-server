@@ -49,7 +49,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(POST, "/api/vouchers/redeem").permitAll()
                 .antMatchers(GET,
-                        "/v2/api-docs", //TODO make this available only from admin panel, not public
+//                        "/v2/api-docs",
                         "/api/health",
                         "/api/vouchers/{voucherCode}").permitAll()
                 .anyRequest().authenticated();

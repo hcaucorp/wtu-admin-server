@@ -15,7 +15,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
- * API will be published on https://app.swaggerhub.com/apis-docs/wallet-top-up/wtu-public-api/1.0.0
+ * API will be published on https://app.swaggerhub.com/apis-docs/wallet-top-up/wtu-public-api/0.2.0
  */
 @Configuration
 @EnableSwagger2
@@ -37,7 +37,7 @@ public class SwaggerConfig {
                 "Wallet Top Up REST API",
                 "Documentation for third party wallet integration.",
                 "0.2.0",
-                "Terms of service",
+                "https://www.wallettopup.co.uk/tos",
                 new Contact("Contact Us", "https://www.wallettopup.co.uk/contact", "hubert.czerpak@wallettopup.co.uk"),
                 "Apache 2.0", "http://www.apache.org/licenses/LICENSE-2.0", Collections.emptyList());
     }

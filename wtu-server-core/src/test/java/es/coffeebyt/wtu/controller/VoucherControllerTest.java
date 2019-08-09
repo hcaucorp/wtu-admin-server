@@ -1,6 +1,5 @@
 package es.coffeebyt.wtu.controller;
 
-import static es.coffeebyt.wtu.api.ApiErrorValues.MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR;
 import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_FAILURE;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
@@ -24,19 +23,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
-import java.time.Instant;
 import java.util.Optional;
 
 import es.coffeebyt.wtu.Application;
-import es.coffeebyt.wtu.api.ApiError;
-import es.coffeebyt.wtu.api.ApiErrorValues;
 import es.coffeebyt.wtu.security.EnumerationProtectionService;
 import es.coffeebyt.wtu.security.TestSecurityConfig;
 import es.coffeebyt.wtu.utils.IAmATeapotException;

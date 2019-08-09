@@ -1,7 +1,7 @@
 package es.coffeebyt.wtu.controller;
 
 import es.coffeebyt.wtu.api.ApiError;
-import es.coffeebyt.wtu.api.ApiErrorValues;
+import es.coffeebyt.wtu.api.ApiTestingConstants;
 import es.coffeebyt.wtu.exception.IllegalOperationException;
 import es.coffeebyt.wtu.exception.MaltaCardException;
 import es.coffeebyt.wtu.security.EnumerationProtectionService;
@@ -13,6 +13,7 @@ import es.coffeebyt.wtu.voucher.impl.RedemptionResponse;
 import es.coffeebyt.wtu.voucher.impl.VoucherGenerationSpec;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.Example;
@@ -88,7 +89,7 @@ public class VoucherController {
     @ApiResponses({
             @ApiResponse(
                     code = 400,
-                    message = "Bad request. No message available.",
+                    message = "Bad request.",
                     examples = @Example(@ExampleProperty(mediaType = "application/json", value = "{\"timestamp\":\"2019-08-09T13:33:07.482+0000\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"No message available\",\"path\":\"/api/vouchers/redeem\"}")),
                     response = ApiError.class
             ),
@@ -101,15 +102,28 @@ public class VoucherController {
             @ApiResponse(
                     code = 400,
                     message = "IP is blocked.",
-                    examples = @Example(@ExampleProperty(mediaType = "application/json", value = "{\"timestamp\":\"2019-08-09T13:33:07.482+0000\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"IP is blocked: <your ip here>\",\"path\":\"/api/vouchers/redeem\"}")),
+                    examples = @Example(
+                            @ExampleProperty(
+                                    mediaType = "application/json",
+                                    value = "{\"timestamp\":\"2019-08-09T13:33:07.482+0000\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"IP is blocked: <your ip here>\",\"path\":\"/api/vouchers/redeem\"}")
+                    ),
                     response = ApiError.class
             )
     })
     @PostMapping(value = "/redeem", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-    public RedemptionResponse redeemVoucher(@RequestBody @Valid RedemptionRequest detail) {
+    public RedemptionResponse redeemVoucher(
+            @ApiParam(
+                    value = "Request body containing code from gift card and destination address of a wallet where funds will be transferred.",
+                    required = true,
+                    example = "{\n"
+                            + "  \"destinationAddress\": \"1PzePkRhoFN4DPsmKT4zobVd2EQqkeevtW\",\n"
+                            + "  \"voucherCode\": \"wtubtc-dcb6a8a1-b9c0-4f43-81b4-f26274db772f\"\n"
+                            + "}"
+
+            ) @RequestBody @Valid RedemptionRequest detail) {
 
         // handle API test values, testing in production? 😅
-        ApiErrorValues.handleGiftCardRedemption(detail);
+        ApiTestingConstants.handleApiErrors(detail);
 
         try {
 
@@ -159,13 +173,12 @@ public class VoucherController {
 
     @ApiOperation(
             value = "Maybe return some information about voucher code provided.",
-            notes = "Provides status information about given voucher. It expects voucher code as the last path parameter. Replace {voucherCode} with a voucher code you want to verify.\n" +
-                    "Possible status values are: redeemed, expired, valid. Timestamp is in milliseconds."
+            notes = "Provides status information about given voucher. It expects voucher code as the last path parameter. Replace {voucherCode} with a voucher code you want to verify."
     )
     @ApiResponses({
             @ApiResponse(
                     code = 400,
-                    message = "Bad request. No message available.",
+                    message = "Bad request.",
                     examples = @Example(@ExampleProperty(mediaType = "application/json", value = "{\"timestamp\":\"2019-08-09T14:23:47.851+0000\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"Response status 400\",\"path\":\"/api/vouchers/i_dont_exist\"}")),
                     response = ApiError.class
             ),
@@ -181,7 +194,8 @@ public class VoucherController {
             produces = APPLICATION_JSON_VALUE,
             consumes = APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<VoucherInfoResponse> voucherInfo(@PathVariable String voucherCode) {
+    public ResponseEntity<VoucherInfoResponse> voucherInfo(
+            @ApiParam(value = "Code from gift card (a.k.a. voucher code)", required = true) @PathVariable String voucherCode) {
 
         enumerationProtectionService.checkIfBlocked(request);
 

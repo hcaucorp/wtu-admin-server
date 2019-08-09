@@ -9,12 +9,12 @@ import static es.coffeebyt.wtu.voucher.listeners.OnePerCustomerForMaltaPromotion
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @UtilityClass
-public class ApiErrorValues {
+public class ApiTestingConstants {
 
     public static final MaltaCardException maltaCardException = new MaltaCardException(MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER);
     public static final String MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR = "wtubch-264ae5cf-b1eb-4217-9ba7-a4a06b23b434";
 
-    public static void handleGiftCardRedemption(RedemptionRequest redemptionRequest) {
+    public static void handleApiErrors(RedemptionRequest redemptionRequest) {
         if (MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR.equals(redemptionRequest.getVoucherCode())) {
             throw new ResponseStatusException(BAD_REQUEST, MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER, maltaCardException);
         }

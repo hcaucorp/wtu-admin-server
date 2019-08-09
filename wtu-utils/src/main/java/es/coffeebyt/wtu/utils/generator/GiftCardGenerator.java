@@ -40,7 +40,7 @@ public class GiftCardGenerator {
                         })
                         .collect(joining(lineSeparator()));
 
-        pushToFile("paper-codes-vol-II.txt", fileContent);
+        pushToFile("gift-card-generator-output.txt", fileContent);
     }
 
     private static void pushToFile(String file, String content) throws IOException {
