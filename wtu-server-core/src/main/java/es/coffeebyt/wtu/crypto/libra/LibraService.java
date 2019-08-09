@@ -2,7 +2,7 @@ package es.coffeebyt.wtu.crypto.libra;
 
 import static dev.jlibra.mnemonic.Mnemonic.WORDS;
 
-import dev.jlibra.AccountState;
+import dev.jlibra.admissioncontrol.query.AccountState;
 import dev.jlibra.admissioncontrol.AdmissionControl;
 import dev.jlibra.admissioncontrol.query.ImmutableGetAccountState;
 import dev.jlibra.admissioncontrol.query.ImmutableQuery;

@@ -1,8 +1,10 @@
 package es.coffeebyt.wtu.api;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class ApiError {
 
     private int status;

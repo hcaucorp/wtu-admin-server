@@ -1,9 +1,8 @@
 ##### Backlog
-- move bitcoin-cashj into submodule
+- add fixed expiration time for MALTA gift cards
+- read Swagger api-docs from admin console
+- add error message when generating vouchers fails because of voucher code already in use.
 - load bitcoinj and bitcoinj-cash wallets from files if exist, else restore
-- add jlibra library and libra support
-- remove orders-topic-arn from AWS "arn:aws:sns:eu-west-2:367570967874:orders"
-- add "one per customer" feature restriction
 - implement "wallet groups"
 - store tx hashes with redeemed vouchers
 - UI - Create vouchers doesn't work after failing first time, have to refresh the page 

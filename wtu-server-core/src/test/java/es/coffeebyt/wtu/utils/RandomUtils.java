@@ -39,7 +39,10 @@ public class RandomUtils {
     }
 
     public static Wallet randomWallet(NetworkParameters params) {
-        org.bitcoinj.wallet.Wallet wallet = new org.bitcoinj.wallet.Wallet(params);
+        org.bitcoinj.wallet.Wallet wallet = new org.bitcoinj.wallet.Wallet(
+                params,
+                KeyChainGroup.builder(params).fromRandom(Script.ScriptType.P2PKH).build()
+        );
 
         return new Wallet()
                 .withId(nextLong())

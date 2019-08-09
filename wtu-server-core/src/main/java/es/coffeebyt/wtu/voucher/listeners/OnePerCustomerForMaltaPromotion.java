@@ -21,7 +21,7 @@ public class OnePerCustomerForMaltaPromotion implements RedemptionValidator, Red
 
     public final static String MALTA_VOUCHER_SKU = "AI_AND_BC_SUMMIT_WINTER_EDITION_PROMOTIONAL_VOUCHER";
     public final static String MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER =
-            "You've already used one voucher! AI and BC Summit promotional gift cards are limited to one per customer 😇";
+            "You've already used one voucher! This edition is limited to one per customer.";
 
     private final Set<String> customersCache = new CopyOnWriteArraySet<>();
 
