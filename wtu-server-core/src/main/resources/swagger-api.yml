@@ -1,0 +1,130 @@
+swagger: '2.0'
+info:
+  description: Documentation for third party wallet integration.
+  version: 0.2.0
+  title: Wallet Top Up REST API
+  termsOfService: 'https://www.wallettopup.co.uk/tos'
+  contact:
+    name: Contact Us
+    url: 'https://www.wallettopup.co.uk/contact'
+    email: hubert.czerpak@wallettopup.co.uk
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0'
+host: api.wallettopup.co.uk
+basePath: /
+tags:
+  - name: voucher-controller
+    description: Voucher Controller
+paths:
+  /api/vouchers/redeem:
+    post:
+      tags:
+        - voucher-controller
+      summary: Redeem voucher code to address provided in the request
+      description: 'A single voucher can be "used" (i.e. redeemed, activated) ONLY once. After successful request, all subsequent attempts will return error. You can perform as many correct requests and as fast as you can. However, too many invalid requests may put you on a blacklist. API may not be able to distinct from your wallet address, if destination wallet matches your voucher currency. It is possible to send us voucher-code starting with "wtubtc-" and destination-address of a wallet with BCH currency on it. Because some addresses are valid in both blockchains, making that kind of request would trigger transaction on BTC blockchain, and, unfortunately, provided BCH address would never receive anything from us. It is up to the client to validate if your wallet''s currency matches voucher''s currency. Please use the voucher prefix to make sure you''re requesting correct redemption.'
+      operationId: redeemVoucherUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: detail
+          description: Request body containing code from gift card and destination address of a wallet where funds will be transferred.
+          required: true
+          schema:
+            $ref: '#/definitions/RedemptionRequest'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/RedemptionResponse'
+        '201':
+          description: Created
+        '400':
+          description: Bad request.
+          schema:
+            $ref: '#/definitions/ApiError'
+      deprecated: false
+  '/api/vouchers/{voucherCode}':
+    get:
+      tags:
+        - voucher-controller
+      summary: Maybe return some information about voucher code provided.
+      description: |-
+        Provides status information about given voucher. It expects voucher code as the last path parameter. Replace {voucherCode} with a voucher code you want to verify.
+        You can perform as many correct requests and as fast as you can. However, too many invalid requests may put you on a blacklist.
+        Requesting info about non existent voucher code is an invalid request.
+      operationId: voucherInfoUsingGET
+      produces:
+        - application/json
+      parameters:
+        - name: voucherCode
+          in: path
+          description: Code from gift card (a.k.a. voucher code)
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/VoucherInfoResponse'
+        '400':
+          description: Bad request.
+          schema:
+            $ref: '#/definitions/ApiError'
+      deprecated: false
+definitions:
+  ApiError:
+    type: object
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+        description: Current gift card code status.
+        enum:
+          - IP is blocked.
+          - Bad request.
+          - You've already used one voucher! This edition is limited to one per customer.
+      path:
+        type: string
+      status:
+        type: integer
+        format: int32
+      timestamp:
+        type: string
+    title: ApiError
+  RedemptionRequest:
+    type: object
+    properties:
+      destinationAddress:
+        type: string
+      voucherCode:
+        type: string
+    title: RedemptionRequest
+  RedemptionResponse:
+    type: object
+    properties:
+      trackingUrls:
+        type: array
+        items:
+          type: string
+      transactionId:
+        type: string
+    title: RedemptionResponse
+  VoucherInfoResponse:
+    type: object
+    properties:
+      expiresAt:
+        type: string
+        description: Timestamp is in milliseconds.
+      status:
+        type: string
+        description: Current gift card code status.
+        enum:
+          - redeemed
+          - expired
+          - valid
+    title: VoucherInfoResponse

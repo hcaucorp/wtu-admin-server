@@ -3,7 +3,6 @@ package es.coffeebyt.wtu.controller;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.times;
@@ -164,7 +163,6 @@ public class VoucherControllerStressTest {
                 countDownLatch.await();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                fail(e.getMessage());
             }
 
             ResponseEntity<RedemptionResponse> response =

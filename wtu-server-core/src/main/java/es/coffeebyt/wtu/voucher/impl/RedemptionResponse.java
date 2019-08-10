@@ -17,8 +17,8 @@ import java.util.List;
 public class RedemptionResponse implements Serializable {
 
     @NotEmpty
-    List<String> trackingUrls;
+    private List<String> trackingUrls;
 
     @NotBlank
-    String transactionId;
+    private String transactionId;
 }

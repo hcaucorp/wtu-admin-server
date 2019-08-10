@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import es.coffeebyt.wtu.api.ApiErrorValues;
+import es.coffeebyt.wtu.api.ApiTestingConstants;
 import es.coffeebyt.wtu.exception.Thrower;
 import es.coffeebyt.wtu.repository.VoucherRepository;
 import es.coffeebyt.wtu.voucher.RedemptionListener;
@@ -21,7 +21,7 @@ public class OnePerCustomerForMaltaPromotion implements RedemptionValidator, Red
 
     public final static String MALTA_VOUCHER_SKU = "AI_AND_BC_SUMMIT_WINTER_EDITION_PROMOTIONAL_VOUCHER";
     public final static String MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER =
-            "You've already used one voucher! AI and BC Summit promotional gift cards are limited to one per customer 😇";
+            "You've already used one voucher! This edition is limited to one per customer.";
 
     private final Set<String> customersCache = new CopyOnWriteArraySet<>();
 
@@ -33,7 +33,7 @@ public class OnePerCustomerForMaltaPromotion implements RedemptionValidator, Red
                 .orElseThrow(() -> new VoucherNotFoundException("Voucher " + redemptionRequest.getVoucherCode() + " not found."));
 
         if (MALTA_VOUCHER_SKU.equals(voucher.getSku()) && customersCache.contains(redemptionRequest.getDestinationAddress()))
-            Thrower.logAndThrow(MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER, () -> ApiErrorValues.maltaCardException);
+            Thrower.logAndThrow(MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER, () -> ApiTestingConstants.maltaCardException);
     }
 
     @Override

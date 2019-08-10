@@ -1,6 +1,7 @@
 package es.coffeebyt.wtu.voucher;
 
 import es.coffeebyt.wtu.exception.IllegalOperationException;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
@@ -16,14 +17,14 @@ import static java.time.Instant.now;
 @Value
 public class VoucherInfoResponse {
 
-    private String status; // redeemed, expired, valid
+    private String status;
     private String expiresAt;
 
     public static VoucherInfoResponse from(Voucher voucher) {
         return new VoucherInfoResponse(calculateStatus(voucher), "" + calculateExpiresAt(voucher));
     }
 
-    static String calculateStatus(@Nonnull Voucher voucher) {
+    private static String calculateStatus(@Nonnull Voucher voucher) {
 
         if (voucher.isRedeemed()) return "redeemed";
 
@@ -44,5 +45,15 @@ public class VoucherInfoResponse {
         return voucher.getExpiresAt() > 0 ?
                 voucher.getExpiresAt() :
                 ZonedDateTime.ofInstant(Instant.ofEpochMilli(voucher.getCreatedAt()), ZoneOffset.UTC).plusYears(2).toInstant().toEpochMilli();
+    }
+
+    @ApiModelProperty(value = "Current gift card code status.", allowableValues = "redeemed,expired,valid")
+    public String getStatus() {
+        return status;
+    }
+
+    @ApiModelProperty(value = "Timestamp is in milliseconds.")
+    public String getExpiresAt() {
+        return expiresAt;
     }
 }

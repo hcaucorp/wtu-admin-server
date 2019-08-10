@@ -1,47 +1,8 @@
 package es.coffeebyt.wtu.controller;
 
-import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
-import static es.coffeebyt.wtu.crypto.btc.BitcoinService.BTC;
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import org.bitcoinj.core.Context;
-import org.bitcoinj.core.NetworkParameters;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import java.net.URI;
-import java.net.URL;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.IntStream;
-
 import es.coffeebyt.wtu.Application;
 import es.coffeebyt.wtu.Collections;
+import es.coffeebyt.wtu.api.ApiError;
 import es.coffeebyt.wtu.crypto.CurrencyService;
 import es.coffeebyt.wtu.crypto.CurrencyServiceSupplier;
 import es.coffeebyt.wtu.crypto.bch.BitcoinCashJFacade;
@@ -63,6 +24,48 @@ import es.coffeebyt.wtu.voucher.impl.VoucherGenerationSpec;
 import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
 import lombok.extern.slf4j.Slf4j;
+import org.bitcoinj.core.Context;
+import org.bitcoinj.core.NetworkParameters;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit4.SpringRunner;
+import java.net.URI;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.IntStream;
+
+import static es.coffeebyt.wtu.api.ApiTestingConstants.MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR;
+import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
+import static es.coffeebyt.wtu.crypto.btc.BitcoinService.BTC;
+import static es.coffeebyt.wtu.utils.RandomUtils.randomVoucher;
+import static es.coffeebyt.wtu.voucher.listeners.OnePerCustomerForMaltaPromotion.MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER;
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -125,8 +128,8 @@ public class VoucherControllerIT {
     public void setUpTest() throws Exception {
         base = new URL("http://localhost:" + port + "/api");
         testVouchers = asList(
-                voucherRepository.save(RandomUtils.randomVoucher()),
-                voucherRepository.save(RandomUtils.randomVoucher())
+                voucherRepository.save(randomVoucher()),
+                voucherRepository.save(randomVoucher())
         );
         Context.propagate(new Context(networkParameters));
         authorizationValue = "Bearer " + auth0Service.getToken().accessToken;
@@ -162,8 +165,8 @@ public class VoucherControllerIT {
     public void deleteVoucherBySku() {
         String sku = RandomUtils.randomSku();
         testVouchers = asList(
-                voucherRepository.save(RandomUtils.randomVoucher().withSku(sku)),
-                voucherRepository.save(RandomUtils.randomVoucher().withSku(sku))
+                voucherRepository.save(randomVoucher().withSku(sku)),
+                voucherRepository.save(randomVoucher().withSku(sku))
         );
 
         testVouchers.forEach(voucher -> assertTrue(voucherRepository.findById(voucher.getId()).isPresent()));
@@ -209,6 +212,24 @@ public class VoucherControllerIT {
         redeemVoucher(BCH, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G");
     }
 
+    @Test
+    public void redeemVoucherVerifyApiErrorValue() throws Exception {
+        Voucher voucher = randomVoucher()
+                .withCode(MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR);
+        String destinationAddress= "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G";
+
+        ResponseEntity<ApiError> responseEntity = requestRedemption(voucher, destinationAddress, ApiError.class);
+        assertEquals(BAD_REQUEST, responseEntity.getStatusCode());
+
+        ApiError response = responseEntity.getBody();
+
+        assertNotNull(response);
+        assertEquals(BAD_REQUEST.value(), response.getStatus());
+        assertEquals(MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER, response.getMessage());
+        assertEquals("Bad Request", response.getError());
+        assertEquals("/api/vouchers/redeem", response.getPath());
+    }
+
     public void redeemMultipleVouchersUsingOneCoinInTheSameBlock(String currency, String destinationAddress) {
         CurrencyService currencyService = startCurrencyService(currency);
 
@@ -219,7 +240,7 @@ public class VoucherControllerIT {
                 "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary",
                 1546128000L));
 
-        List<Voucher> vouchers = IntStream.range(0, 10).mapToObj(i -> voucherRepository.save(RandomUtils.randomVoucher()
+        List<Voucher> vouchers = IntStream.range(0, 10).mapToObj(i -> voucherRepository.save(randomVoucher()
                 .withWalletId(wallet.getId())
                 .withSold(true)
                 .withPublished(true)
@@ -227,9 +248,8 @@ public class VoucherControllerIT {
                 .collect(toList());
 
         for (int i = 0; i < vouchers.size(); i++) {
-
             Voucher voucher = vouchers.get(i);
-            ResponseEntity<RedemptionResponse> responseEntity = requestRedemption(voucher, destinationAddress);
+            ResponseEntity<RedemptionResponse> responseEntity = requestRedemption(voucher, destinationAddress, RedemptionResponse.class);
             assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
 
             RedemptionResponse response = responseEntity.getBody();
@@ -259,7 +279,7 @@ public class VoucherControllerIT {
         return currencyService;
     }
 
-    private ResponseEntity<RedemptionResponse> requestRedemption(Voucher voucher, String destinationAddress) {
+    private <T> ResponseEntity<T> requestRedemption(Voucher voucher, String destinationAddress, Class<T> responseType) {
         String url = base.toString() + "/vouchers/redeem";
         RequestEntity<?> requestEntity = RequestEntity
                 .post(URI.create(url))
@@ -268,8 +288,9 @@ public class VoucherControllerIT {
                         .withVoucherCode(voucher.getCode())
                         .withDestinationAddress(destinationAddress));
 
-        return template.postForEntity(url, requestEntity, RedemptionResponse.class);
+        return template.postForEntity(url, requestEntity, responseType);
     }
+
 
     public void redeemVoucher(String currency, String destinationAddress) {
         CurrencyService currencyService = startCurrencyService(currency);
@@ -281,13 +302,18 @@ public class VoucherControllerIT {
                 "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary",
                 1546128000L));
 
-        Voucher voucher = voucherRepository.save(RandomUtils.randomVoucher()
+        Voucher voucher = voucherRepository.save(randomVoucher()
                 .withWalletId(wallet.getId())
                 .withSold(true)
                 .withPublished(true)
                 .withRedeemed(false));
 
-        ResponseEntity<RedemptionResponse> responseEntity = requestRedemption(voucher, destinationAddress);
+        redeemVoucher(destinationAddress, voucher);
+    }
+
+    public void redeemVoucher(String destinationAddress, Voucher voucher) {
+
+        ResponseEntity<RedemptionResponse> responseEntity = requestRedemption(voucher, destinationAddress, RedemptionResponse.class);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
 
         RedemptionResponse response = responseEntity.getBody();
@@ -304,8 +330,8 @@ public class VoucherControllerIT {
     public void publishVouchersBySku() {
         String sku = RandomUtils.randomSku();
         voucherRepository.deleteAll();
-        Voucher published = RandomUtils.randomVoucher().withSku(sku).withPublished(true),
-                unpublished = RandomUtils.randomVoucher().withSku(sku).withPublished(false);
+        Voucher published = randomVoucher().withSku(sku).withPublished(true),
+                unpublished = randomVoucher().withSku(sku).withPublished(false);
         testVouchers = voucherRepository.saveAll(Collections.asSet(published, unpublished));
 
         String url = base.toString() + format("/vouchers/%s/publish", sku);
@@ -330,8 +356,8 @@ public class VoucherControllerIT {
     public void unpublishVouchersBySku() {
         String sku = RandomUtils.randomSku();
         voucherRepository.deleteAll();
-        Voucher published = RandomUtils.randomVoucher().withSku(sku).withPublished(true),
-                unpublished = RandomUtils.randomVoucher().withSku(sku).withPublished(false);
+        Voucher published = randomVoucher().withSku(sku).withPublished(true),
+                unpublished = randomVoucher().withSku(sku).withPublished(false);
         testVouchers = voucherRepository.saveAll(Collections.asSet(published, unpublished));
 
         String url = base.toString() + format("/vouchers/%s/unpublish", sku);

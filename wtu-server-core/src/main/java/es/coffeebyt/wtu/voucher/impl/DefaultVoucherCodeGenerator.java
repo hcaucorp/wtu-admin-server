@@ -12,13 +12,13 @@ import static java.lang.String.format;
 @RequiredArgsConstructor
 public class DefaultVoucherCodeGenerator implements VoucherCodeGenerator {
 
-    private final String PATTERN = "wtu{currency}-{uuid}";
-    private final String CURRENCY = "{currency}";
-    private final String UUID = "{uuid}";
+    public static final String PATTERN = "wtu{currency}-{uuid}";
+    public static final String CURRENCY = "{currency}";
+    public static final String UUID = "{uuid}";
 
     private final WalletService walletService;
 
-    private String uuid() {
+    public static String uuid() {
         return java.util.UUID.randomUUID().toString();
     }
 

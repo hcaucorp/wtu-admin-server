@@ -32,8 +32,6 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import java.util.Optional;
 
 import es.coffeebyt.wtu.Application;
-import es.coffeebyt.wtu.api.ApiErrorValues;
-import es.coffeebyt.wtu.notifications.NotificationService;
 import es.coffeebyt.wtu.security.EnumerationProtectionService;
 import es.coffeebyt.wtu.security.TestSecurityConfig;
 import es.coffeebyt.wtu.utils.IAmATeapotException;
@@ -58,9 +56,6 @@ public class VoucherControllerTest {
     private final static String baseUrl = "/api";
 
     private ObjectMapper om = new ObjectMapper();
-
-    @MockBean
-    private NotificationService notificationService;
 
     @MockBean
     private EnumerationProtectionService enumerationProtectionService;
@@ -112,11 +107,6 @@ public class VoucherControllerTest {
                 .andExpect(content().json(om.writeValueAsString(response)))
                 .andExpect(jsonPath("$.trackingUrls[0]").value(response.getTrackingUrls().get(0)))
                 .andExpect(jsonPath("$.transactionId").value(response.getTransactionId()));
-    }
-
-    @Test
-    public void redeemVoucherVerifyApiErrorValue() {
-        String onePerCustomerErrorCode = ApiErrorValues.MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR;
     }
 
     static RequestPostProcessor remoteHost(final String remoteHost) {
