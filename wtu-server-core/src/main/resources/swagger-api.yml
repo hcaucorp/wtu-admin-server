@@ -22,9 +22,7 @@ paths:
       tags:
         - voucher-controller
       summary: Redeem voucher code to address provided in the request
-      description: |-
-        Requesting info about non existent voucher code is considered as invalid request.
-        Too many invalid requests may put you on blacklist for some time.
+      description: 'A single voucher can be "used" (i.e. redeemed, activated) ONLY once. After successful request, all subsequent attempts will return error. You can perform as many correct requests and as fast as you can. However, too many invalid requests may put you on a blacklist. API may not be able to distinct from your wallet address, if destination wallet matches your voucher currency. It is possible to send us voucher-code starting with "wtubtc-" and destination-address of a wallet with BCH currency on it. Because some addresses are valid in both blockchains, making that kind of request would trigger transaction on BTC blockchain, and, unfortunately, provided BCH address would never receive anything from us. It is up to the client to validate if your wallet''s currency matches voucher''s currency. Please use the voucher prefix to make sure you''re requesting correct redemption.'
       operationId: redeemVoucherUsingPOST
       consumes:
         - application/json
@@ -42,8 +40,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/RedemptionResponse'
+        '201':
+          description: Created
         '400':
-          description: Bad request. No message available.
+          description: Bad request.
           schema:
             $ref: '#/definitions/ApiError'
       deprecated: false
@@ -52,7 +52,10 @@ paths:
       tags:
         - voucher-controller
       summary: Maybe return some information about voucher code provided.
-      description: 'Provides status information about given voucher. It expects voucher code as the last path parameter. Replace {voucherCode} with a voucher code you want to verify.'
+      description: |-
+        Provides status information about given voucher. It expects voucher code as the last path parameter. Replace {voucherCode} with a voucher code you want to verify.
+        You can perform as many correct requests and as fast as you can. However, too many invalid requests may put you on a blacklist.
+        Requesting info about non existent voucher code is an invalid request.
       operationId: voucherInfoUsingGET
       produces:
         - application/json

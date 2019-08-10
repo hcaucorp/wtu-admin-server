@@ -1,5 +1,32 @@
 package es.coffeebyt.wtu.controller;
 
+import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_FAILURE;
+import static es.coffeebyt.wtu.voucher.listeners.OnePerCustomerForMaltaPromotion.MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+
 import es.coffeebyt.wtu.api.ApiError;
 import es.coffeebyt.wtu.api.ApiTestingConstants;
 import es.coffeebyt.wtu.exception.IllegalOperationException;
@@ -20,30 +47,6 @@ import io.swagger.annotations.Example;
 import io.swagger.annotations.ExampleProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
-
-import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_FAILURE;
-import static es.coffeebyt.wtu.voucher.listeners.OnePerCustomerForMaltaPromotion.MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequestMapping("/api/vouchers")
 @RequiredArgsConstructor
@@ -83,8 +86,13 @@ public class VoucherController {
 
     @ApiOperation(
             value = "Redeem voucher code to address provided in the request",
-            notes = "Requesting info about non existent voucher code is considered as invalid request. \n" +
-                    "Too many invalid requests may put you on blacklist for some time."
+            notes = "A single voucher can be \"used\" (i.e. redeemed, activated) ONLY once. After successful request, all subsequent attempts will return error. " +
+                    "You can perform as many correct requests and as fast as you can. However, too many invalid requests may put you on a blacklist. " +
+                    "API may not be able to distinct from your wallet address, if destination wallet matches your voucher currency. It is possible to send " +
+                    "us voucher-code starting with \"wtubtc-\" and destination-address of a wallet with BCH currency on it. Because some addresses are valid " +
+                    "in both blockchains, making that kind of request would trigger transaction on BTC blockchain, and, unfortunately, provided BCH address " +
+                    "would never receive anything from us. It is up to the client to validate if your wallet's currency matches voucher's currency. Please " +
+                    "use the voucher prefix to make sure you're requesting correct redemption."
     )
     @ApiResponses({
             @ApiResponse(
@@ -173,7 +181,9 @@ public class VoucherController {
 
     @ApiOperation(
             value = "Maybe return some information about voucher code provided.",
-            notes = "Provides status information about given voucher. It expects voucher code as the last path parameter. Replace {voucherCode} with a voucher code you want to verify."
+            notes = "Provides status information about given voucher. It expects voucher code as the last path parameter. Replace {voucherCode} with a voucher code you want to verify.\n" +
+                    "You can perform as many correct requests and as fast as you can. However, too many invalid requests may put you on a blacklist.\n" +
+                    "Requesting info about non existent voucher code is an invalid request."
     )
     @ApiResponses({
             @ApiResponse(
