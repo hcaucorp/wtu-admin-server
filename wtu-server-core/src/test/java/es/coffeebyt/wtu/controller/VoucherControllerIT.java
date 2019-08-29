@@ -10,6 +10,7 @@ import es.coffeebyt.wtu.crypto.bch.BitcoinCashService;
 import es.coffeebyt.wtu.crypto.btc.BitcoinJConfig;
 import es.coffeebyt.wtu.crypto.btc.BitcoinJFacade;
 import es.coffeebyt.wtu.crypto.btc.BitcoinService;
+import es.coffeebyt.wtu.metrics.ActuatorConfig;
 import es.coffeebyt.wtu.notifications.NotificationService;
 import es.coffeebyt.wtu.repository.VoucherRepository;
 import es.coffeebyt.wtu.repository.WalletRepository;
@@ -23,6 +24,7 @@ import es.coffeebyt.wtu.voucher.impl.RedemptionResponse;
 import es.coffeebyt.wtu.voucher.impl.VoucherGenerationSpec;
 import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.Context;
 import org.bitcoinj.core.NetworkParameters;
@@ -55,6 +57,7 @@ import java.util.stream.IntStream;
 import static es.coffeebyt.wtu.api.ApiTestingConstants.MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR;
 import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
 import static es.coffeebyt.wtu.crypto.btc.BitcoinService.BTC;
+import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_SUCCESS;
 import static es.coffeebyt.wtu.utils.RandomUtils.randomVoucher;
 import static es.coffeebyt.wtu.voucher.listeners.OnePerCustomerForMaltaPromotion.MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER;
 import static java.lang.String.format;
@@ -74,7 +77,8 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
                 Application.class,
                 Auth0Service.class,
                 BitcoinJConfig.class,
-                DatabaseConfig.class
+                DatabaseConfig.class,
+                ActuatorConfig.class
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @MockBeans({
@@ -112,6 +116,9 @@ public class VoucherControllerIT {
 
     @Autowired
     private BitcoinCashJFacade bitcoinCashJFacade;
+
+    @Autowired
+    private MeterRegistry meterRegistry;
 
     private List<Voucher> testVouchers;
 
@@ -213,7 +220,7 @@ public class VoucherControllerIT {
     }
 
     @Test
-    public void redeemVoucherVerifyApiErrorValue() throws Exception {
+    public void redeemVoucherVerifyApiErrorValue() {
         Voucher voucher = randomVoucher()
                 .withCode(MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR);
         String destinationAddress= "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G";
@@ -324,6 +331,8 @@ public class VoucherControllerIT {
         Optional<Voucher> byId = voucherRepository.findById(voucher.getId());
         assertTrue(byId.isPresent());
         assertTrue(byId.get().isRedeemed());
+
+        assertEquals(1, meterRegistry.counter(COUNTER_REDEMPTION_SUCCESS).count(), 0.01);
     }
 
     @Test

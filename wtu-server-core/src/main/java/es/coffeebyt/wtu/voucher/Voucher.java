@@ -23,7 +23,7 @@ import java.io.Serializable;
 @EntityListeners(AuditingEntityListener.class)
 public class Voucher implements Serializable {
 
-    public static final String CODE_PATTERN = "^wtu[a-z]{3}-[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$";
+    public static final String CODE_PATTERN = "^wtu[a-z]{3,5}-[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$";
 
     @Column(nullable = false, updatable = false)
     @Positive

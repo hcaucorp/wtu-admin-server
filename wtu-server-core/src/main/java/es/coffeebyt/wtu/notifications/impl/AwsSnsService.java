@@ -56,7 +56,7 @@ public class AwsSnsService implements NotificationService {
         }
 
         String subject = "Daily redemption summary";
-        String message = String.format("Successful redemptions: %d \nFailed redemptions:     %d", successful, failed);
+        String message = String.format("Successful redemptions: %d %nFailed redemptions:     %d", successful, failed);
 
         pushNotification(subject, message);
     }

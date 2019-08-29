@@ -36,10 +36,10 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class DefaultVoucherService implements VoucherService {
 
+    static final long DUST_AMOUNT = 546;
+
     @Value(PropertyNames.BITCOIN_NETWORK)
     private String networkType;
-
-    final static long DUST_AMOUNT = 546;
 
     private final WalletService walletService;
     private final VoucherRepository voucherRepository;
@@ -55,11 +55,12 @@ public class DefaultVoucherService implements VoucherService {
             throw new IllegalOperationException(message);
         }
 
-        walletService.findById(spec.walletId)
-                .orElseThrow(() -> new ResourceNotFoundException("Wallet with id " + spec.walletId + " not found."));
+        if (!walletService.findById(spec.walletId).isPresent())
+                throw new ResourceNotFoundException("Wallet with id " + spec.walletId + " not found.");
 
         long amount = spec.totalAmount / spec.count;
 
+        // TODO dust is network specific, remove this
         if (amount <= DUST_AMOUNT)
             throw new IllegalOperationException("Voucher value is too low. Must be greater than " + DUST_AMOUNT);
 
