@@ -1,15 +1,17 @@
 package es.coffeebyt.wtu.voucher;
 
-import es.coffeebyt.wtu.exception.IllegalOperationException;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Value;
+import static java.time.Instant.now;
 
 import javax.annotation.Nonnull;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
-import static java.time.Instant.now;
+import es.coffeebyt.wtu.exception.IllegalOperationException;
+import es.coffeebyt.wtu.voucher.listeners.MaltaPromotion;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Value;
 
 /**
  * CAUTION! Only limited information can be shared about the voucher! As limited as possible.
@@ -42,6 +44,10 @@ public class VoucherInfoResponse {
     // temporary walk-around for legacy value for old vouchers :(
     // should be simply voucher.getExpiresAt()
     private static long calculateExpiresAt(@Nonnull Voucher voucher) {
+        if (MaltaPromotion.MALTA_VOUCHER_SKU.equals(voucher.getSku())) {
+            return MaltaPromotion.EXPIRATION_TIME;
+        }
+
         return voucher.getExpiresAt() > 0 ?
                 voucher.getExpiresAt() :
                 ZonedDateTime.ofInstant(Instant.ofEpochMilli(voucher.getCreatedAt()), ZoneOffset.UTC).plusYears(2).toInstant().toEpochMilli();

@@ -32,7 +32,11 @@ public class BitcoinCashJFacade implements AutoCloseable {
     }
 
     void startSilently() {
-        if (bitcoinj.state() != Service.State.NEW) return;
+        Service.State state = bitcoinj.state();
+        if (state != Service.State.NEW) {
+            log.warn("Current state of BitcoinCashWalletAppKit is {}. Skipping startup.", state);
+            return;
+        }
 
         bitcoinj.startAsync();
         bitcoinj.awaitRunning();

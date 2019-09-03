@@ -1,5 +1,7 @@
 package es.coffeebyt.wtu.voucher.listeners;
 
+import static es.coffeebyt.wtu.utils.RandomUtils.randomRedemptionRequest;
+import static es.coffeebyt.wtu.utils.RandomUtils.randomValidVoucher;
 import static es.coffeebyt.wtu.utils.TryUtils.expectingException;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,11 +13,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import es.coffeebyt.wtu.exception.IllegalOperationException;
 import es.coffeebyt.wtu.repository.VoucherRepository;
-import es.coffeebyt.wtu.utils.RandomUtils;
 import es.coffeebyt.wtu.voucher.Voucher;
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 
@@ -30,11 +33,11 @@ public class ShouldBeRedeemableTest {
 
     @Test
     public void shouldBePublishedToRedeemFailure() {
-        Voucher voucher = RandomUtils.randomValidVoucher()
+        Voucher voucher = randomValidVoucher()
                 .withPublished(false);
         when(voucherRepository.findByCode(any())).thenReturn(Optional.of(voucher));
 
-        RedemptionRequest redemptionRequest = RandomUtils.randomRedemptionRequest();
+        RedemptionRequest redemptionRequest = randomRedemptionRequest();
         Throwable throwable = expectingException(() -> subject.validate(redemptionRequest));
 
         assertEquals(IllegalOperationException.class, throwable.getClass());
@@ -43,10 +46,33 @@ public class ShouldBeRedeemableTest {
 
     @Test
     public void shouldBePublishedToRedeemSuccess() {
-        when(voucherRepository.findByCode(any())).thenReturn(Optional.of(RandomUtils.randomValidVoucher()
+        when(voucherRepository.findByCode(any())).thenReturn(Optional.of(randomValidVoucher()
                 .withPublished(true)));
 
-        RedemptionRequest redemptionRequest = RandomUtils.randomRedemptionRequest();
+        RedemptionRequest redemptionRequest = randomRedemptionRequest();
+        subject.validate(redemptionRequest);
+    }
+
+    @Test
+    public void expiredVoucherShallNotPass() {
+        Voucher voucher = randomValidVoucher()
+                .withExpiresAt(Instant.now().minus(1, ChronoUnit.SECONDS).toEpochMilli());
+
+        when(voucherRepository.findByCode(any())).thenReturn(Optional.of(voucher));
+
+        RedemptionRequest redemptionRequest = randomRedemptionRequest();
+        Throwable throwable = expectingException(() -> subject.validate(redemptionRequest));
+
+        assertEquals(IllegalOperationException.class, throwable.getClass());
+        assertEquals("Attempting to redeem expired voucher " + voucher.getCode(), throwable.getMessage());
+    }
+
+    @Test
+    public void shouldNotBeExpiredToPass() {
+        Voucher voucher = randomValidVoucher();
+        when(voucherRepository.findByCode(any())).thenReturn(Optional.of(voucher));
+
+        RedemptionRequest redemptionRequest = randomRedemptionRequest();
         subject.validate(redemptionRequest);
     }
 }
