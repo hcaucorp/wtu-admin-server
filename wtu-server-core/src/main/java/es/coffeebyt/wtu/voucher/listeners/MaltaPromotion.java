@@ -1,7 +1,11 @@
 package es.coffeebyt.wtu.voucher.listeners;
 
+import static es.coffeebyt.wtu.time.TimeStamp.clearTimeInformation;
+
 import org.springframework.stereotype.Component;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -15,13 +19,18 @@ import es.coffeebyt.wtu.voucher.VoucherNotFoundException;
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * "One per customer" restriction for Malta SKU
+ */
 @Component
 @RequiredArgsConstructor
-public class OnePerCustomerForMaltaPromotion implements RedemptionValidator, RedemptionListener {
+public class MaltaPromotion implements RedemptionValidator, RedemptionListener {
 
     public final static String MALTA_VOUCHER_SKU = "AI_AND_BC_SUMMIT_WINTER_EDITION_PROMOTIONAL_VOUCHER";
-    public final static String MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER =
-            "You've already used one voucher! This edition is limited to one per customer.";
+    public final static String MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER = "You've already used one voucher! This edition is limited to one per customer.";
+    public final static long EXPIRATION_TIME = clearTimeInformation(
+            ZonedDateTime.of(2019, 12, 1, 0, 0, 0, 0, ZoneId.of("UTC")
+            ).toInstant().toEpochMilli());
 
     private final Set<String> customersCache = new CopyOnWriteArraySet<>();
 

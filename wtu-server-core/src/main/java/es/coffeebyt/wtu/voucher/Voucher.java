@@ -1,18 +1,26 @@
 package es.coffeebyt.wtu.voucher;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Wither;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.annotation.MatchesPattern;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
+
 import java.io.Serializable;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Wither;
 
 @Data
 @Wither
@@ -58,6 +66,9 @@ public class Voucher implements Serializable {
     @NotBlank
     private String sku;
 
+    /**
+     * Value in millis
+     */
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreatedDate
     @Min(1322697600) // 12/01/2011 @ 12:00am (UTC)
@@ -65,6 +76,8 @@ public class Voucher implements Serializable {
 
     /**
      * By convention expires after 2 years. Date, no time info.
+     *
+     * Value in millis
      */
     @Column(name = "expires_at")
     private long expiresAt;

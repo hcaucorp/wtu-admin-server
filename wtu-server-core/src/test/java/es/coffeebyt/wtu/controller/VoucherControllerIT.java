@@ -1,5 +1,52 @@
 package es.coffeebyt.wtu.controller;
 
+import static es.coffeebyt.wtu.api.ApiTestingConstants.MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR;
+import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
+import static es.coffeebyt.wtu.crypto.btc.BitcoinService.BTC;
+import static es.coffeebyt.wtu.utils.RandomUtils.randomVoucher;
+import static es.coffeebyt.wtu.voucher.listeners.MaltaPromotion.MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER;
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
+import org.bitcoinj.core.Context;
+import org.bitcoinj.core.NetworkParameters;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import java.net.URI;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.IntStream;
+
 import es.coffeebyt.wtu.Application;
 import es.coffeebyt.wtu.Collections;
 import es.coffeebyt.wtu.api.ApiError;
@@ -24,48 +71,6 @@ import es.coffeebyt.wtu.voucher.impl.VoucherGenerationSpec;
 import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
 import lombok.extern.slf4j.Slf4j;
-import org.bitcoinj.core.Context;
-import org.bitcoinj.core.NetworkParameters;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
-import java.net.URI;
-import java.net.URL;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.IntStream;
-
-import static es.coffeebyt.wtu.api.ApiTestingConstants.MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR;
-import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
-import static es.coffeebyt.wtu.crypto.btc.BitcoinService.BTC;
-import static es.coffeebyt.wtu.utils.RandomUtils.randomVoucher;
-import static es.coffeebyt.wtu.voucher.listeners.OnePerCustomerForMaltaPromotion.MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER;
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -151,7 +156,7 @@ public class VoucherControllerIT {
                 .header(HttpHeaders.AUTHORIZATION, authorizationValue)
                 .build();
         ResponseEntity<List<Voucher>> response = template
-                .exchange(base.toString() + "/vouchers", HttpMethod.GET, requestEntity, new VoucherList());
+                .exchange(base.toString() + "/vouchers", GET, requestEntity, new VoucherList());
 
         List<Voucher> body = response.getBody();
         assertNotNull(body);
@@ -384,7 +389,12 @@ public class VoucherControllerIT {
 
         String url = base.toString() + "/vouchers/" + voucher.getCode();
 
-        ResponseEntity<VoucherInfoResponse> response = template.getForEntity(url, VoucherInfoResponse.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity entity = new HttpEntity(headers);
+
+        ResponseEntity<VoucherInfoResponse> response = template.exchange(url, GET, entity, VoucherInfoResponse.class);
 
         VoucherInfoResponse expected = VoucherInfoResponse.from(voucher);
 

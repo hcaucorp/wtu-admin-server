@@ -1,12 +1,13 @@
 package es.coffeebyt.wtu.api;
 
+import static es.coffeebyt.wtu.voucher.listeners.MaltaPromotion.MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
+import org.springframework.web.server.ResponseStatusException;
+
 import es.coffeebyt.wtu.exception.MaltaCardException;
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 import lombok.experimental.UtilityClass;
-import org.springframework.web.server.ResponseStatusException;
-
-import static es.coffeebyt.wtu.voucher.listeners.OnePerCustomerForMaltaPromotion.MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @UtilityClass
 public class ApiTestingConstants {

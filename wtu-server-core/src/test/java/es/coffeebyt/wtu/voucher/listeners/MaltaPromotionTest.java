@@ -22,18 +22,18 @@ import es.coffeebyt.wtu.voucher.Voucher;
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OnePerCustomerForMaltaPromotionTest {
+public class MaltaPromotionTest {
 
     @Mock
     private VoucherRepository voucherRepository;
 
     @InjectMocks
-    private OnePerCustomerForMaltaPromotion subject;
+    private MaltaPromotion subject;
 
     @Before
     public void setUp() {
         Voucher voucher = RandomUtils.randomValidVoucher()
-                .withSku(OnePerCustomerForMaltaPromotion.MALTA_VOUCHER_SKU);
+                .withSku(MaltaPromotion.MALTA_VOUCHER_SKU);
 
         when(voucherRepository.findByCode(any())).thenReturn(Optional.of(voucher));
     }
@@ -46,7 +46,7 @@ public class OnePerCustomerForMaltaPromotionTest {
         Throwable throwable = expectingException(() -> subject.validate(redemptionRequest));
 
         assertEquals(MaltaCardException.class, throwable.getClass());
-        assertEquals("You've already used one voucher! AI and BC Summit promotional gift cards are limited to one per customer \uD83D\uDE07", throwable.getMessage());
+        assertEquals("You've already used one voucher! This edition is limited to one per customer.", throwable.getMessage());
     }
 
     @Test

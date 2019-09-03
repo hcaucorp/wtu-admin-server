@@ -1,7 +1,7 @@
 package es.coffeebyt.wtu.controller;
 
 import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_FAILURE;
-import static es.coffeebyt.wtu.voucher.listeners.OnePerCustomerForMaltaPromotion.MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER;
+import static es.coffeebyt.wtu.voucher.listeners.MaltaPromotion.MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -156,7 +156,9 @@ public class VoucherController {
             meterRegistry.counter(COUNTER_REDEMPTION_FAILURE).increment();
 
             // in case of Malta event error we can feed back more info
-            throw new ResponseStatusException(BAD_REQUEST, e.getMessage(), e);
+            throw new ResponseStatusException(BAD_REQUEST,
+                    e.getMessage(),  // TODO use some kind of error message-code specific to malta error
+                    e);
         } catch (Exception e) {
             log.error("Failed redemption ({}) with exception {}, message: {}", detail.toString(),
                     e.getClass().getSimpleName(), e.getMessage());

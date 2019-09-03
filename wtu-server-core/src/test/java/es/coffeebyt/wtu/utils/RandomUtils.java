@@ -13,6 +13,7 @@ import org.bitcoinj.wallet.KeyChainGroup;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -108,14 +109,19 @@ public class RandomUtils {
                 .withSold(false)
                 .withRedeemed(false)
                 .withSku(randomSku())
-                .withExpiresAt(TimeStamp.clearTimeInformation(ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().toEpochMilli()));
+                .withExpiresAt(TimeStamp.clearTimeInformation(
+                        ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().toEpochMilli()
+                ));
     }
 
     public static Voucher randomValidVoucher() {
         return randomVoucher()
                 .withPublished(true)
                 .withSold(true)
-                .withRedeemed(false);
+                .withRedeemed(false)
+                .withExpiresAt(TimeStamp.clearTimeInformation(
+                        ZonedDateTime.now(ZoneOffset.UTC).plus(1, ChronoUnit.YEARS).toInstant().toEpochMilli())
+                );
     }
 
     public static VoucherGenerationSpec randomVoucherGenerationSpec() {
@@ -140,10 +146,6 @@ public class RandomUtils {
         return new RedemptionRequest(
                 randomString(),
                 randomString());
-    }
-
-    public static String randomEmail() {
-        return randomString() + "@" + randomString() + ".io";
     }
 
     public static String randomIp() {
