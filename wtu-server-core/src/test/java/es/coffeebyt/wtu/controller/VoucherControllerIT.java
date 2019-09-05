@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.metrics.MetricsEndpoint.MetricResponse;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
@@ -70,7 +71,7 @@ import es.coffeebyt.wtu.voucher.VoucherInfoResponse;
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 import es.coffeebyt.wtu.voucher.impl.RedemptionResponse;
 import es.coffeebyt.wtu.voucher.impl.VoucherGenerationSpec;
-import es.coffeebyt.wtu.voucher.listeners.RedemptionSuccessCounter;
+import es.coffeebyt.wtu.voucher.listeners.RedemptionSuccessCounterIncreaser;
 import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -85,7 +86,7 @@ import lombok.extern.slf4j.Slf4j;
                 BitcoinJConfig.class,
                 DatabaseConfig.class,
                 ActuatorConfig.class,
-                RedemptionSuccessCounter.class
+                RedemptionSuccessCounterIncreaser.class
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @MockBeans({
@@ -219,6 +220,23 @@ public class VoucherControllerIT {
     @Test
     public void redeemBtcVoucher() {
         redeemVoucher(BTC, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G");
+
+        verifyCounters();
+    }
+
+    private void verifyCounters() {
+        assertEquals(1, meterRegistry.counter(COUNTER_REDEMPTION_SUCCESS).count(), 0.01);
+
+        String url = base.toString() + "/metrics/redemption.success";
+
+        RequestEntity<?> requestEntity = RequestEntity
+                .get(URI.create(url))
+                .header(HttpHeaders.AUTHORIZATION, authorizationValue)
+                .build();
+
+        ResponseEntity<MetricResponse> response = template.getForEntity(url, MetricResponse.class, requestEntity);
+
+        assertEquals(1.0, response.getBody().getMeasurements().get(0).getValue(), 0.1);
     }
 
     @Test
@@ -338,8 +356,6 @@ public class VoucherControllerIT {
         Optional<Voucher> byId = voucherRepository.findById(voucher.getId());
         assertTrue(byId.isPresent());
         assertTrue(byId.get().isRedeemed());
-
-        assertEquals(1, meterRegistry.counter(COUNTER_REDEMPTION_SUCCESS).count(), 0.01);
     }
 
     @Test
