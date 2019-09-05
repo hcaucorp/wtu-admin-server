@@ -168,7 +168,7 @@
         <dependency>
             <groupId>es.coffeebyt</groupId>
             <artifactId>wtu-bch-support</artifactId>
-            <version>0.2.0</version>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- tag::tests[] -->

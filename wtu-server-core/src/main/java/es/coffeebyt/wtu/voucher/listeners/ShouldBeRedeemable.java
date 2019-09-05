@@ -1,5 +1,7 @@
 package es.coffeebyt.wtu.voucher.listeners;
 
+import static es.coffeebyt.wtu.voucher.listeners.MaltaPromotion.MALTA_VOUCHER_SKU;
+
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -32,7 +34,8 @@ public class ShouldBeRedeemable implements RedemptionValidator {
         if (voucher.isRedeemed())
             Thrower.logAndThrowIllegalOperationException("Attempting to redeem already redeemed voucher " + voucher.getCode());
 
-        if (isExpired(voucher))
+        // TODO have to perform data migration first...
+        if (MALTA_VOUCHER_SKU.equals(voucher.getSku()) && isExpired(voucher))
             Thrower.logAndThrowIllegalOperationException("Attempting to redeem expired voucher " + voucher.getCode());
     }
 

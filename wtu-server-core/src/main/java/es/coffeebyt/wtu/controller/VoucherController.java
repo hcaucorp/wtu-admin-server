@@ -118,7 +118,8 @@ public class VoucherController {
                     response = ApiError.class
             )
     })
-    @PostMapping(value = "/redeem", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/redeem", produces = APPLICATION_JSON_VALUE)
+//    @PostMapping(value = "/redeem", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public RedemptionResponse redeemVoucher(
             @ApiParam(
                     value = "Request body containing code from gift card and destination address of a wallet where funds will be transferred.",
@@ -203,8 +204,7 @@ public class VoucherController {
     })
     @GetMapping(
             value = "/{voucherCode}",
-            produces = APPLICATION_JSON_VALUE,
-            consumes = APPLICATION_JSON_VALUE
+            produces = APPLICATION_JSON_VALUE
     )
     public ResponseEntity<VoucherInfoResponse> voucherInfo(
             @ApiParam(value = "Code from gift card (a.k.a. voucher code)", required = true) @PathVariable String voucherCode) {

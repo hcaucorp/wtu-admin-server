@@ -1,34 +1,9 @@
 package es.coffeebyt.wtu.controller;
 
-import es.coffeebyt.wtu.Application;
-import es.coffeebyt.wtu.Collections;
-import es.coffeebyt.wtu.api.ApiError;
-import es.coffeebyt.wtu.crypto.CurrencyService;
-import es.coffeebyt.wtu.crypto.CurrencyServiceSupplier;
-import es.coffeebyt.wtu.crypto.bch.BitcoinCashJFacade;
-import es.coffeebyt.wtu.crypto.bch.BitcoinCashService;
-import es.coffeebyt.wtu.crypto.btc.BitcoinJConfig;
-import es.coffeebyt.wtu.crypto.btc.BitcoinJFacade;
-import es.coffeebyt.wtu.crypto.btc.BitcoinService;
-import es.coffeebyt.wtu.metrics.ActuatorConfig;
-import es.coffeebyt.wtu.notifications.NotificationService;
-import es.coffeebyt.wtu.repository.VoucherRepository;
-import es.coffeebyt.wtu.repository.WalletRepository;
-import es.coffeebyt.wtu.security.Auth0Service;
-import es.coffeebyt.wtu.system.DatabaseConfig;
-import es.coffeebyt.wtu.utils.RandomUtils;
-import es.coffeebyt.wtu.voucher.Voucher;
-import es.coffeebyt.wtu.voucher.VoucherInfoResponse;
-import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
-import es.coffeebyt.wtu.voucher.impl.RedemptionResponse;
-import es.coffeebyt.wtu.voucher.impl.VoucherGenerationSpec;
-import es.coffeebyt.wtu.wallet.ImportWalletRequest;
-import es.coffeebyt.wtu.wallet.Wallet;
-import io.micrometer.core.instrument.MeterRegistry;
-import lombok.extern.slf4j.Slf4j;
 import static es.coffeebyt.wtu.api.ApiTestingConstants.MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR;
 import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
 import static es.coffeebyt.wtu.crypto.btc.BitcoinService.BTC;
+import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_SUCCESS;
 import static es.coffeebyt.wtu.utils.RandomUtils.randomVoucher;
 import static es.coffeebyt.wtu.voucher.listeners.MaltaPromotion.MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER;
 import static java.lang.String.format;
@@ -83,6 +58,7 @@ import es.coffeebyt.wtu.crypto.bch.BitcoinCashService;
 import es.coffeebyt.wtu.crypto.btc.BitcoinJConfig;
 import es.coffeebyt.wtu.crypto.btc.BitcoinJFacade;
 import es.coffeebyt.wtu.crypto.btc.BitcoinService;
+import es.coffeebyt.wtu.metrics.ActuatorConfig;
 import es.coffeebyt.wtu.notifications.NotificationService;
 import es.coffeebyt.wtu.repository.VoucherRepository;
 import es.coffeebyt.wtu.repository.WalletRepository;
@@ -94,24 +70,11 @@ import es.coffeebyt.wtu.voucher.VoucherInfoResponse;
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 import es.coffeebyt.wtu.voucher.impl.RedemptionResponse;
 import es.coffeebyt.wtu.voucher.impl.VoucherGenerationSpec;
+import es.coffeebyt.wtu.voucher.listeners.RedemptionSuccessCounter;
 import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
-import static es.coffeebyt.wtu.api.ApiTestingConstants.MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR;
-import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
-import static es.coffeebyt.wtu.crypto.btc.BitcoinService.BTC;
-import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_SUCCESS;
-import static es.coffeebyt.wtu.utils.RandomUtils.randomVoucher;
-import static es.coffeebyt.wtu.voucher.listeners.OnePerCustomerForMaltaPromotion.MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER;
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -121,7 +84,8 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
                 Auth0Service.class,
                 BitcoinJConfig.class,
                 DatabaseConfig.class,
-                ActuatorConfig.class
+                ActuatorConfig.class,
+                RedemptionSuccessCounter.class
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @MockBeans({

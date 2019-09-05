@@ -1,5 +1,37 @@
 package es.coffeebyt.wtu.voucher.impl;
 
+import static es.coffeebyt.wtu.utils.TryUtils.expectingException;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang3.RandomUtils.nextInt;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import org.bitcoinj.core.Context;
+import org.bitcoinj.params.UnitTestParams;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 import es.coffeebyt.wtu.crypto.CurrencyService;
 import es.coffeebyt.wtu.crypto.CurrencyServiceSupplier;
 import es.coffeebyt.wtu.exception.IllegalOperationException;
@@ -12,31 +44,6 @@ import es.coffeebyt.wtu.voucher.Voucher;
 import es.coffeebyt.wtu.voucher.VoucherNotFoundException;
 import es.coffeebyt.wtu.wallet.Wallet;
 import es.coffeebyt.wtu.wallet.WalletService;
-import org.bitcoinj.core.Context;
-import org.bitcoinj.params.UnitTestParams;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import static es.coffeebyt.wtu.utils.TryUtils.expectingException;
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.lang3.RandomUtils.nextInt;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultVoucherServiceTest {
@@ -54,12 +61,11 @@ public class DefaultVoucherServiceTest {
     private List<RedemptionValidator> redemptionValidators;
 
     @Mock
-    private List<RedemptionListener> redemptionListeners;
-
-    @Mock
     private CurrencyService currencyService;
 
-    @InjectMocks
+    @Mock
+    private RedemptionListener redemptionListener;
+
     private DefaultVoucherService subject;
 
     @Before
@@ -67,6 +73,8 @@ public class DefaultVoucherServiceTest {
         Context btcContext = new Context(UnitTestParams.get());
         Context.propagate(btcContext);
         when(currencyServiceSupplier.findByCurrency(any())).thenReturn(currencyService);
+
+        subject = new DefaultVoucherService(walletService, voucherRepository, currencyServiceSupplier, redemptionValidators, singletonList(redemptionListener));
     }
 
     @Test(expected = IllegalOperationException.class)
@@ -145,6 +153,8 @@ public class DefaultVoucherServiceTest {
         when(currencyService.sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()))).thenThrow(new IllegalOperationException());
 
         subject.redeemVoucher(new RedemptionRequest(destinationAddress, code));
+
+        verify(redemptionListener, never()).redeemed(any());
     }
 
     @Test
@@ -166,6 +176,7 @@ public class DefaultVoucherServiceTest {
 
         verify(currencyService, times(1)).sendMoney(eq(wallet), eq(destinationAddress), eq(voucher.getAmount()));
         verify(voucherRepository, times(1)).save(eq(voucher.withRedeemed(true)));
+        verify(redemptionListener, times(1)).redeemed(any());
     }
 
     @Test

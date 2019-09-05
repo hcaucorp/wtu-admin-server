@@ -1,8 +1,6 @@
 package es.coffeebyt.wtu.controller;
 
-import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_FAILURE;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -42,12 +40,10 @@ import es.coffeebyt.wtu.voucher.VoucherNotFoundException;
 import es.coffeebyt.wtu.voucher.VoucherService;
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 import es.coffeebyt.wtu.voucher.impl.RedemptionResponse;
-import es.coffeebyt.wtu.voucher.listeners.RedemptionSuccessCounter;
-import io.micrometer.core.instrument.MeterRegistry;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
-        Application.class, TestSecurityConfig.class, RedemptionSuccessCounter.class
+        Application.class, TestSecurityConfig.class
 })
 @AutoConfigureMockMvc
 @ActiveProfiles("unit-test")
@@ -65,9 +61,6 @@ public class VoucherControllerTest {
 
     @MockBean
     private VoucherService voucherService;
-
-    @Autowired
-    private MeterRegistry meterRegistry;
 
     @Test
     public void getAllVouchers() throws Exception {
@@ -118,8 +111,6 @@ public class VoucherControllerTest {
 
     @Test
     public void redeemVoucher_notFound() throws Exception {
-        double currentCount = meterRegistry.counter(COUNTER_REDEMPTION_FAILURE).count();
-
         RedemptionRequest request = RandomUtils.randomRedemptionRequest();
         when(voucherService.redeemVoucher(any())).thenThrow(new VoucherNotFoundException(RandomUtils.randomString()));
 
@@ -127,14 +118,10 @@ public class VoucherControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(om.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
-
-        assertEquals(currentCount + 1, meterRegistry.counter(COUNTER_REDEMPTION_FAILURE).count(), 0);
     }
 
     @Test
     public void redeemVoucher_totalDisaster() throws Exception {
-        double currentCount = meterRegistry.counter(COUNTER_REDEMPTION_FAILURE).count();
-
         RedemptionRequest request = RandomUtils.randomRedemptionRequest();
         when(voucherService.redeemVoucher(any())).thenThrow(new IAmATeapotException());
 
@@ -142,8 +129,6 @@ public class VoucherControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(om.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
-
-        assertEquals(currentCount + 1, meterRegistry.counter(COUNTER_REDEMPTION_FAILURE).count(), 0);
     }
 
     @Test
