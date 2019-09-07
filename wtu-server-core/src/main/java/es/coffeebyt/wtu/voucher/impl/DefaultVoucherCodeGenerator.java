@@ -12,9 +12,9 @@ import static java.lang.String.format;
 @RequiredArgsConstructor
 public class DefaultVoucherCodeGenerator implements VoucherCodeGenerator {
 
-    public static final String PATTERN = "wtu{currency}-{uuid}";
-    public static final String CURRENCY = "{currency}";
-    public static final String UUID = "{uuid}";
+    public static final String VOUCHER_CODE_PATTERN = "wtu{currency}-{uuid}";
+    public static final String CURRENCY_PATTERN = "{currency}";
+    public static final String UUID_PATTERN = "{uuid}";
 
     private final WalletService walletService;
 
@@ -27,8 +27,8 @@ public class DefaultVoucherCodeGenerator implements VoucherCodeGenerator {
         Wallet wallet = walletService.findById(generationDetails.walletId)
                 .orElseThrow(() -> new ResourceNotFoundException(format("Wallet with id %s not found", generationDetails.walletId)));
 
-        return PATTERN
-                .replace(CURRENCY, wallet.getCurrency().toLowerCase())
-                .replace(UUID, uuid());
+        return VOUCHER_CODE_PATTERN
+                .replace(CURRENCY_PATTERN, wallet.getCurrency().toLowerCase())
+                .replace(UUID_PATTERN, uuid());
     }
 }
