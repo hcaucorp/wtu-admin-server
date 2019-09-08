@@ -1,10 +1,12 @@
 package es.coffeebyt.wtu.utils;
 
 import static java.lang.Long.parseLong;
+import static org.bitcoinj.wallet.Wallet.fromSeed;
 
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.params.MainNetParams;
+import org.bitcoinj.script.Script;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet;
@@ -25,8 +27,8 @@ public class SeedToKey {
 
         NetworkParameters params = MainNetParams.get();
 
-        DeterministicSeed deterministicSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
-        Wallet wallet = Wallet.fromSeed(params, deterministicSeed);
+        DeterministicSeed seed = new DeterministicSeed(mnemonic, null, "", creationTime);
+        Wallet wallet = fromSeed(params, seed, Script.ScriptType.P2PKH);
 
         DeterministicKey watchingKey = wallet.getWatchingKey();
 
