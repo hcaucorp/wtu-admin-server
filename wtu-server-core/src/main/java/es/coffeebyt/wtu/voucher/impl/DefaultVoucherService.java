@@ -9,9 +9,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
+import javax.validation.constraints.NotBlank;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -56,7 +58,7 @@ public class DefaultVoucherService implements VoucherService {
         }
 
         if (!walletService.findById(spec.walletId).isPresent())
-                throw new ResourceNotFoundException("Wallet with id " + spec.walletId + " not found.");
+                throw new ResourceNotFoundException(format("Wallet with id %s not found.", spec.walletId));
 
         long amount = spec.totalAmount / spec.count;
 
@@ -111,20 +113,37 @@ public class DefaultVoucherService implements VoucherService {
     }
 
     @Override
-    public void save(List<Voucher> vouchers) {
+    public void save(@Nonnull List<Voucher> vouchers) {
+        verifyVouchers(vouchers);
+
         voucherRepository.saveAll(vouchers);
+    }
+
+    private void verifyVouchers(List<Voucher> vouchers) {
+        Set<@NotBlank String> alreadyExisting = vouchers.parallelStream()
+                .map(Voucher::getCode)
+                .map(voucherRepository::findByCode)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(Voucher::getCode)
+                .collect(Collectors.toSet());
+
+        if (!alreadyExisting.isEmpty()) {
+            String message = "Following voucher code(s) already exist: " + String.join(", ", alreadyExisting);
+            throw new IllegalOperationException(message);
+        }
     }
 
     @Override
     public synchronized RedemptionResponse redeemVoucher(@Nonnull RedemptionRequest detail) {
         Voucher voucher = voucherRepository.findByCode(detail.getVoucherCode())
-                .orElseThrow(() -> new VoucherNotFoundException("Voucher " + detail.getVoucherCode() + " not found."));
+                .orElseThrow(() -> new VoucherNotFoundException(format("Voucher %S not found.", detail.getVoucherCode())));
 
         // run all validations
         redemptionValidators.forEach(validator -> validator.validate(detail));
 
         Wallet wallet = walletService.findById(voucher.getWalletId())
-                .orElseThrow(() -> new ResourceNotFoundException("Wallet " + voucher.getWalletId() + " not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(format("Wallet %s not found.", voucher.getWalletId())));
 
         voucherRepository.save(voucher.withRedeemed(true));
 
