@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
 import es.coffeebyt.wtu.crypto.bch.BitcoinCashService;
 import es.coffeebyt.wtu.crypto.btc.BitcoinService;
 import es.coffeebyt.wtu.fulfillment.Fulfillment;
-import es.coffeebyt.wtu.time.TimeStamp;
+import es.coffeebyt.wtu.time.TimeUtil;
 import es.coffeebyt.wtu.voucher.Voucher;
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 import es.coffeebyt.wtu.voucher.impl.VoucherGenerationSpec;
@@ -109,7 +109,7 @@ public class RandomUtils {
                 .withSold(false)
                 .withRedeemed(false)
                 .withSku(randomSku())
-                .withExpiresAt(TimeStamp.clearTimeInformation(
+                .withExpiresAt(TimeUtil.clearTimeInformation(
                         ZonedDateTime.now(ZoneOffset.UTC).plusYears(2).toInstant().toEpochMilli()
                 ));
     }
@@ -119,7 +119,7 @@ public class RandomUtils {
                 .withPublished(true)
                 .withSold(true)
                 .withRedeemed(false)
-                .withExpiresAt(TimeStamp.clearTimeInformation(
+                .withExpiresAt(TimeUtil.clearTimeInformation(
                         ZonedDateTime.now(ZoneOffset.UTC).plus(1, ChronoUnit.YEARS).toInstant().toEpochMilli())
                 );
     }

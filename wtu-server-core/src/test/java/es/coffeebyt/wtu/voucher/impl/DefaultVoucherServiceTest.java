@@ -1,5 +1,33 @@
 package es.coffeebyt.wtu.voucher.impl;
 
+import es.coffeebyt.wtu.crypto.CurrencyService;
+import es.coffeebyt.wtu.crypto.CurrencyServiceSupplier;
+import es.coffeebyt.wtu.exception.IllegalOperationException;
+import es.coffeebyt.wtu.exception.ResourceNotFoundException;
+import es.coffeebyt.wtu.repository.VoucherRepository;
+import es.coffeebyt.wtu.utils.RandomUtils;
+import es.coffeebyt.wtu.voucher.RedemptionListener;
+import es.coffeebyt.wtu.voucher.RedemptionValidator;
+import es.coffeebyt.wtu.voucher.Voucher;
+import es.coffeebyt.wtu.voucher.VoucherNotFoundException;
+import es.coffeebyt.wtu.wallet.Wallet;
+import es.coffeebyt.wtu.wallet.WalletService;
+import org.bitcoinj.core.Context;
+import org.bitcoinj.params.UnitTestParams;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static es.coffeebyt.wtu.time.TimeUtil.twoYearsFromNowMillis;
 import static es.coffeebyt.wtu.utils.TryUtils.expectingException;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -15,35 +43,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import org.bitcoinj.core.Context;
-import org.bitcoinj.params.UnitTestParams;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import es.coffeebyt.wtu.crypto.CurrencyService;
-import es.coffeebyt.wtu.crypto.CurrencyServiceSupplier;
-import es.coffeebyt.wtu.exception.IllegalOperationException;
-import es.coffeebyt.wtu.exception.ResourceNotFoundException;
-import es.coffeebyt.wtu.repository.VoucherRepository;
-import es.coffeebyt.wtu.utils.RandomUtils;
-import es.coffeebyt.wtu.voucher.RedemptionListener;
-import es.coffeebyt.wtu.voucher.RedemptionValidator;
-import es.coffeebyt.wtu.voucher.Voucher;
-import es.coffeebyt.wtu.voucher.VoucherNotFoundException;
-import es.coffeebyt.wtu.wallet.Wallet;
-import es.coffeebyt.wtu.wallet.WalletService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultVoucherServiceTest {
@@ -229,7 +228,9 @@ public class DefaultVoucherServiceTest {
         verify(voucherRepository, times(1)).saveAll(captor.capture());
 
         Set<Voucher> expected = vouchers.stream()
-                .map(voucher -> voucher.withPublished(true))
+                .map(voucher -> voucher
+                        .withPublished(true)
+                        .withExpiresAt(twoYearsFromNowMillis()))
                 .collect(toSet());
 
         Set<Voucher> actual = new HashSet<>(captor.getValue());
@@ -259,6 +260,7 @@ public class DefaultVoucherServiceTest {
                 .map(voucher -> voucher
                         .withSku(sku)
                         .withPublished(true)
+                        .withExpiresAt(twoYearsFromNowMillis())
                 )
                 .collect(toList());
 

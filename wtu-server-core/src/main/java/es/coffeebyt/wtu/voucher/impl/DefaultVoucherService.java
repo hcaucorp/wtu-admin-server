@@ -1,22 +1,5 @@
 package es.coffeebyt.wtu.voucher.impl;
 
-import static java.lang.String.format;
-import static java.util.Collections.emptySet;
-import static java.util.stream.Collectors.toList;
-
-import org.bitcoinj.core.NetworkParameters;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Nonnull;
-import javax.validation.constraints.NotBlank;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import es.coffeebyt.wtu.crypto.CurrencyServiceSupplier;
 import es.coffeebyt.wtu.exception.IllegalOperationException;
 import es.coffeebyt.wtu.exception.ResourceNotFoundException;
@@ -32,6 +15,21 @@ import es.coffeebyt.wtu.wallet.Wallet;
 import es.coffeebyt.wtu.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bitcoinj.core.NetworkParameters;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import javax.annotation.Nonnull;
+import javax.validation.constraints.NotBlank;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static es.coffeebyt.wtu.time.TimeUtil.twoYearsFromNowMillis;
+import static java.lang.String.format;
+import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -52,13 +50,15 @@ public class DefaultVoucherService implements VoucherService {
     @Override
     public List<Voucher> generateVouchers(VoucherGenerationSpec spec) {
         if (spec.totalAmount % spec.count != 0) {
-            String message = format("Total amount must be divisible by count because all vouchers must be identical. Current " +
-                    "specification is incorrect: can't split amount of: %s into %s equal pieces.", spec.totalAmount, spec.count);
+            String message = format(
+                    "Total amount must be divisible by count because all vouchers must be identical. Current " +
+                            "specification is incorrect: can't split amount of: %s into %s equal pieces.",
+                    spec.totalAmount, spec.count);
             throw new IllegalOperationException(message);
         }
 
         if (!walletService.findById(spec.walletId).isPresent())
-                throw new ResourceNotFoundException(format("Wallet with id %s not found.", spec.walletId));
+            throw new ResourceNotFoundException(format("Wallet with id %s not found.", spec.walletId));
 
         long amount = spec.totalAmount / spec.count;
 
@@ -96,7 +96,9 @@ public class DefaultVoucherService implements VoucherService {
     public void publishBySku(String sku) {
         List<Voucher> vouchers = voucherRepository.findByPublishedFalseAndSku(sku)
                 .stream()
-                .map(voucher -> voucher.withPublished(true))
+                .map(voucher -> voucher
+                        .withPublished(true)
+                        .withExpiresAt(twoYearsFromNowMillis()))
                 .collect(toList());
         if (!vouchers.isEmpty())
             voucherRepository.saveAll(vouchers);
@@ -137,13 +139,15 @@ public class DefaultVoucherService implements VoucherService {
     @Override
     public synchronized RedemptionResponse redeemVoucher(@Nonnull RedemptionRequest detail) {
         Voucher voucher = voucherRepository.findByCode(detail.getVoucherCode())
-                .orElseThrow(() -> new VoucherNotFoundException(format("Voucher %S not found.", detail.getVoucherCode())));
+                .orElseThrow(
+                        () -> new VoucherNotFoundException(format("Voucher %S not found.", detail.getVoucherCode())));
 
         // run all validations
         redemptionValidators.forEach(validator -> validator.validate(detail));
 
         Wallet wallet = walletService.findById(voucher.getWalletId())
-                .orElseThrow(() -> new ResourceNotFoundException(format("Wallet %s not found.", voucher.getWalletId())));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException(format("Wallet %s not found.", voucher.getWalletId())));
 
         voucherRepository.save(voucher.withRedeemed(true));
 
@@ -161,10 +165,8 @@ public class DefaultVoucherService implements VoucherService {
         String networkId = null;
         if ("BTC".equals(currency) && "mainnet".equals(networkType)) networkId = NetworkParameters.ID_MAINNET;
         if ("BTC".equals(currency) && "testnet".equals(networkType)) networkId = NetworkParameters.ID_TESTNET;
-        if ("BCH".equals(currency) && "mainnet".equals(networkType))
-            networkId = cash.bitcoinj.core.NetworkParameters.ID_MAINNET;
-        if ("BCH".equals(currency) && "testnet".equals(networkType))
-            networkId = cash.bitcoinj.core.NetworkParameters.ID_TESTNET;
+        if ("BCH".equals(currency) && "mainnet".equals(networkType)) networkId = cash.bitcoinj.core.NetworkParameters.ID_MAINNET;
+        if ("BCH".equals(currency) && "testnet".equals(networkType)) networkId = cash.bitcoinj.core.NetworkParameters.ID_TESTNET;
 
         return new RedemptionResponse(
                 RedemptionUtils.blockExploresByNetworkId.getOrDefault(networkId, emptySet())

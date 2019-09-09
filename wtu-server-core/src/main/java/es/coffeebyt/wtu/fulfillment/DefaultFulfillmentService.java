@@ -15,7 +15,7 @@ import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-import static es.coffeebyt.wtu.time.TimeStamp.clearTimeInformation;
+import static es.coffeebyt.wtu.time.TimeUtil.clearTimeInformation;
 import static java.util.stream.Collectors.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 

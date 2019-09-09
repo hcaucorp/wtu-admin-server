@@ -1,6 +1,6 @@
 package es.coffeebyt.wtu.voucher.listeners;
 
-import static es.coffeebyt.wtu.time.TimeStamp.clearTimeInformation;
+import static es.coffeebyt.wtu.time.TimeUtil.clearTimeInformation;
 
 import org.springframework.stereotype.Component;
 
