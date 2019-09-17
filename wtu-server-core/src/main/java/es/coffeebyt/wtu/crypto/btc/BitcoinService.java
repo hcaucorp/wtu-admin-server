@@ -1,12 +1,14 @@
 package es.coffeebyt.wtu.crypto.btc;
 
-import static java.lang.String.format;
-import static java.time.Instant.ofEpochSecond;
-import static java.util.Collections.emptyList;
-import static java.util.Objects.requireNonNull;
-import static org.bitcoinj.script.Script.ScriptType.P2PKH;
-import static org.bitcoinj.wallet.Wallet.fromSeed;
-
+import es.coffeebyt.wtu.crypto.CurrencyService;
+import es.coffeebyt.wtu.exception.IllegalOperationException;
+import es.coffeebyt.wtu.exception.Thrower;
+import es.coffeebyt.wtu.repository.WalletRepository;
+import es.coffeebyt.wtu.system.PropertyNames;
+import es.coffeebyt.wtu.wallet.ImportWalletRequest;
+import es.coffeebyt.wtu.wallet.Wallet;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.InsufficientMoneyException;
@@ -20,30 +22,25 @@ import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet.SendResult;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
 import java.time.Instant;
 import java.util.Optional;
 
-import es.coffeebyt.wtu.crypto.CurrencyService;
-import es.coffeebyt.wtu.exception.IllegalOperationException;
-import es.coffeebyt.wtu.exception.Thrower;
-import es.coffeebyt.wtu.repository.WalletRepository;
-import es.coffeebyt.wtu.system.PropertyNames;
-import es.coffeebyt.wtu.wallet.ImportWalletRequest;
-import es.coffeebyt.wtu.wallet.Wallet;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static java.lang.String.format;
+import static java.time.Instant.ofEpochSecond;
+import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
+import static org.bitcoinj.script.Script.ScriptType.P2PKH;
+import static org.bitcoinj.wallet.Wallet.fromSeed;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class BitcoinService implements CurrencyService, AutoCloseable {
 
-    public final static String BTC = "BTC";
+    public static final String BTC = "BTC";
 
     @Value(PropertyNames.BITCOINJ_AUTOSTART)
     private boolean autoStart;
@@ -72,20 +69,22 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
         bitcoinj.close();
     }
 
-    public Wallet importWallet(String mnemonic, long creationTime) {
+    public Wallet importWallet(String mnemonic, long epochSeconds) {
         if (walletRepository.findOneByCurrency(BTC).isPresent())
             Thrower.logAndThrowIllegalOperationException("BTC wallet already exists. Currently we support only single wallet per currency");
 
-        if (creationTime > Instant.now().getEpochSecond())
+        if (epochSeconds > Instant.now().getEpochSecond())
             Thrower.logAndThrowIllegalOperationException("Creation time is set in the future. Are you trying to pass milli seconds?");
 
         try {
-            DeterministicSeed deterministicSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
+            DeterministicSeed deterministicSeed = new DeterministicSeed(mnemonic, null, "", epochSeconds);
             org.bitcoinj.wallet.Wallet wallet = fromSeed(networkParameters, deterministicSeed, P2PKH);
-            return restoreWalletSaveAndStart(wallet, ofEpochSecond(creationTime).toEpochMilli());
+            return restoreWalletSaveAndStart(wallet, ofEpochSecond(epochSeconds).toEpochMilli());
         } catch (UnreadableWalletException e) {
-            log.error(e.getMessage());
-            throw new IllegalOperationException(e.getMessage());
+            String message = format("Can't read wallet (mnemonic: %s, created at: %s) because: %s",
+                    mnemonic, ofEpochSecond(epochSeconds).toEpochMilli(), e.getMessage());
+            log.error(message);
+            throw new BitcoinException(message);
         }
     }
 
@@ -119,7 +118,9 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
             long createdAtSeconds = Instant.ofEpochMilli(createdAtMillis).getEpochSecond();
             return Optional.of(new DeterministicSeed(mnemonic, null, "", createdAtSeconds));
         } catch (UnreadableWalletException e) {
-            return Optional.empty();
+            String message = format("Can't read wallet (mnemonic: %s, created at: %s) because: %s", mnemonic, createdAtMillis, e.getMessage());
+            log.error(message);
+            throw new BitcoinException(message);
         }
     }
 

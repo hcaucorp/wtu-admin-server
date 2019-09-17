@@ -20,6 +20,6 @@ public class RedemptionSuccessCounterIncreaser implements RedemptionListener {
     @Override
     public void redeemed(RedemptionRequest redemptionRequest) {
         meterRegistry.counter(COUNTER_REDEMPTION_SUCCESS).increment();
-        log.info("Incrementing counter: {}, value is now: {}", COUNTER_REDEMPTION_SUCCESS, meterRegistry.counter(COUNTER_REDEMPTION_SUCCESS));
+        log.info("Incrementing counter: {}, value is now: {}", COUNTER_REDEMPTION_SUCCESS, meterRegistry.counter(COUNTER_REDEMPTION_SUCCESS).count());
     }
 }

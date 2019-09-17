@@ -1,6 +1,5 @@
 package es.coffeebyt.wtu.controller;
 
-import es.coffeebyt.wtu.crypto.CurrencyNotSupported;
 import es.coffeebyt.wtu.crypto.CurrencyServiceSupplier;
 import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
@@ -8,8 +7,13 @@ import es.coffeebyt.wtu.wallet.WalletService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Nonnull;
 import javax.validation.Valid;
 import java.util.List;
@@ -29,7 +33,7 @@ public class WalletController {
     }
 
     @PostMapping
-    public ResponseEntity<Wallet> generateWallet(@RequestBody String currency) throws CurrencyNotSupported {
+    public ResponseEntity<Wallet> generateWallet(@RequestBody String currency) {
 
         Wallet wallet = currencyServiceSupplier.findByCurrency(currency).generateWallet();
 
@@ -39,7 +43,7 @@ public class WalletController {
     }
 
     @PutMapping
-    public ResponseEntity<Object> importWallet(@RequestBody @Valid @Nonnull ImportWalletRequest walletDescription) throws CurrencyNotSupported {
+    public ResponseEntity<Object> importWallet(@RequestBody @Valid @Nonnull ImportWalletRequest walletDescription) {
         currencyServiceSupplier.findByCurrency(walletDescription.currency)
                 .importWallet(walletDescription);
 

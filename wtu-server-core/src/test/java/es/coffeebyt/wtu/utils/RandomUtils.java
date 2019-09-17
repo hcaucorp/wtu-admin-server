@@ -1,15 +1,19 @@
 package es.coffeebyt.wtu.utils;
 
-import static org.apache.commons.lang3.RandomUtils.nextInt;
-import static org.apache.commons.lang3.RandomUtils.nextLong;
-
+import es.coffeebyt.wtu.crypto.bch.BitcoinCashService;
+import es.coffeebyt.wtu.crypto.btc.BitcoinService;
+import es.coffeebyt.wtu.time.TimeUtil;
+import es.coffeebyt.wtu.voucher.Voucher;
+import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
+import es.coffeebyt.wtu.voucher.impl.VoucherGenerationSpec;
+import es.coffeebyt.wtu.wallet.Wallet;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.params.UnitTestParams;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.wallet.KeyChainGroup;
-
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -19,25 +23,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import es.coffeebyt.wtu.crypto.bch.BitcoinCashService;
-import es.coffeebyt.wtu.crypto.btc.BitcoinService;
-import es.coffeebyt.wtu.fulfillment.Fulfillment;
-import es.coffeebyt.wtu.time.TimeUtil;
-import es.coffeebyt.wtu.voucher.Voucher;
-import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
-import es.coffeebyt.wtu.voucher.impl.VoucherGenerationSpec;
-import es.coffeebyt.wtu.wallet.Wallet;
-import lombok.experimental.UtilityClass;
+import static org.apache.commons.lang3.RandomUtils.nextInt;
+import static org.apache.commons.lang3.RandomUtils.nextLong;
 
 @UtilityClass
 public class RandomUtils {
-
-    public static Fulfillment randomFulfillment() {
-        return new Fulfillment()
-                .withOrderId(nextLong())
-                .withCompletedAt(Instant.now().toEpochMilli())
-                .withVouchers(randomVouchers(nextInt(3, 20)));
-    }
 
     public static Wallet randomWallet(NetworkParameters params) {
         org.bitcoinj.wallet.Wallet wallet = new org.bitcoinj.wallet.Wallet(

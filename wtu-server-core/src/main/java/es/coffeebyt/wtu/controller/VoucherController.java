@@ -1,36 +1,11 @@
 package es.coffeebyt.wtu.controller;
 
-import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_FAILURE;
-import static es.coffeebyt.wtu.voucher.listeners.MaltaPromotion.MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
-
 import es.coffeebyt.wtu.api.ApiError;
 import es.coffeebyt.wtu.api.ApiTestingConstants;
+import es.coffeebyt.wtu.crypto.libra.LibraException;
 import es.coffeebyt.wtu.exception.IllegalOperationException;
 import es.coffeebyt.wtu.exception.MaltaCardException;
+import es.coffeebyt.wtu.exception.WtuErrorCodes;
 import es.coffeebyt.wtu.security.EnumerationProtectionService;
 import es.coffeebyt.wtu.voucher.Voucher;
 import es.coffeebyt.wtu.voucher.VoucherInfoResponse;
@@ -47,6 +22,31 @@ import io.swagger.annotations.Example;
 import io.swagger.annotations.ExampleProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+
+import static es.coffeebyt.wtu.exception.WtuErrorCodes.ONE_PER_CUSTOMER;
+import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_FAILURE;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequestMapping("/api/vouchers")
 @RequiredArgsConstructor
@@ -103,8 +103,8 @@ public class VoucherController {
             ),
             @ApiResponse(
                     code = 400,
-                    message = MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER,
-                    examples = @Example(@ExampleProperty(mediaType = "application/json", value = "{\"timestamp\":\"2019-08-09T13:33:07.482+0000\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"" + MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER + "\",\"path\":\"/api/vouchers/redeem\"}")),
+                    message = "ONE_PER_CUSTOMER",
+                    examples = @Example(@ExampleProperty(mediaType = "application/json", value = "{\"timestamp\":\"2019-08-09T13:33:07.482+0000\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"ONE_PER_CUSTOMER\",\"path\":\"/api/vouchers/redeem\"}")),
                     response = ApiError.class
             ),
             @ApiResponse(
@@ -116,10 +116,15 @@ public class VoucherController {
                                     value = "{\"timestamp\":\"2019-08-09T13:33:07.482+0000\",\"status\":400,\"error\":\"Bad Request\",\"message\":\"IP is blocked: <your ip here>\",\"path\":\"/api/vouchers/redeem\"}")
                     ),
                     response = ApiError.class
+            ),
+            @ApiResponse(
+                    code = 500,
+                    message = "Internal server error.",
+                    examples = @Example(@ExampleProperty(mediaType = "application/json", value = "{\"timestamp\":\"2019-08-09T14:30:13.432+0000\",\"status\":500,\"error\":\"Bad Request\",\"message\":\"Server error\",\"path\":\"/api/vouchers/redeem\"}")),
+                    response = ApiError.class
             )
     })
-    @PostMapping(value = "/redeem", produces = APPLICATION_JSON_VALUE)
-//    @PostMapping(value = "/redeem", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/redeem", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public RedemptionResponse redeemVoucher(
             @ApiParam(
                     value = "Request body containing code from gift card and destination address of a wallet where funds will be transferred.",
@@ -158,8 +163,10 @@ public class VoucherController {
 
             // in case of Malta event error we can feed back more info
             throw new ResponseStatusException(BAD_REQUEST,
-                    e.getMessage(),  // TODO use some kind of error message-code specific to malta error
+                    ONE_PER_CUSTOMER.name(),
                     e);
+        } catch (LibraException e) {
+            throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             log.error("Failed redemption ({}) with exception {}, message: {}", detail.toString(),
                     e.getClass().getSimpleName(), e.getMessage());

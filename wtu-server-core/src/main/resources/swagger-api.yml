@@ -87,7 +87,7 @@ definitions:
         enum:
           - IP is blocked.
           - Bad request.
-          - You've already used one voucher! This edition is limited to one per customer.
+          - Internal server error.
       path:
         type: string
       status:

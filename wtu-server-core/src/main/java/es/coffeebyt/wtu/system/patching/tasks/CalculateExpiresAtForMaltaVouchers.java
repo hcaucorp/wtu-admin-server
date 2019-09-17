@@ -43,7 +43,11 @@ public class CalculateExpiresAtForMaltaVouchers implements PatchingTask {
         );
 
         return correctedVouchers.stream()
-                .map(voucher -> new PatchingResult("Voucher.expiresAt", MALTA_VOUCHER_SKU, message))
+                .map(voucher -> new PatchingResult(
+                        "Voucher.expiresAt",
+                        format("Code: %s, sku: %s", voucher.getCode(), voucher.getSku()),
+                        message
+                ))
                 .collect(toList());
     }
 }

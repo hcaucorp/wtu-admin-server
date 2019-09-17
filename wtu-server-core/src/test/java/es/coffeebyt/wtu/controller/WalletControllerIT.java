@@ -2,7 +2,6 @@ package es.coffeebyt.wtu.controller;
 
 import es.coffeebyt.wtu.Application;
 import es.coffeebyt.wtu.crypto.btc.BitcoinJFacade;
-import es.coffeebyt.wtu.crypto.btc.BitcoinService;
 import es.coffeebyt.wtu.repository.WalletRepository;
 import es.coffeebyt.wtu.security.Auth0Service;
 import es.coffeebyt.wtu.utils.RandomUtils;
@@ -21,16 +20,23 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
+import static es.coffeebyt.wtu.crypto.btc.BitcoinService.BTC;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -88,7 +94,10 @@ public class WalletControllerIT {
 
     @Test
     public void getAllWallets() {
-        Wallet testWallet = walletRepository.save(RandomUtils.randomWallet(networkParameters).withCurrency(BitcoinService.BTC));
+        Wallet testWallet = walletRepository.save(new Wallet()
+                .withCurrency(BTC)
+                .withMnemonic("defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary")
+                .withCreatedAt(1546128000000L));
 
         String url = base.toString() + "/wallets";
 
@@ -114,7 +123,7 @@ public class WalletControllerIT {
                 .put(URI.create(url))
                 .header(HttpHeaders.AUTHORIZATION, authorizationValue)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ImportWalletRequest(BitcoinService.BTC, mnemonic, createdAt));
+                .body(new ImportWalletRequest(BTC, mnemonic, createdAt));
 
         ResponseEntity<String> response = template.exchange(url, HttpMethod.PUT, requestEntity, String.class);
 

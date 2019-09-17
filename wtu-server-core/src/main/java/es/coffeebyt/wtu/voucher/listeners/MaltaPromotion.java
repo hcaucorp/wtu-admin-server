@@ -1,6 +1,7 @@
 package es.coffeebyt.wtu.voucher.listeners;
 
 import static es.coffeebyt.wtu.time.TimeUtil.clearTimeInformation;
+import static java.lang.String.format;
 
 import org.springframework.stereotype.Component;
 
@@ -26,9 +27,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MaltaPromotion implements RedemptionValidator, RedemptionListener {
 
-    public final static String MALTA_VOUCHER_SKU = "AI_AND_BC_SUMMIT_WINTER_EDITION_PROMOTIONAL_VOUCHER";
-    public final static String MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER = "You've already used one voucher! This edition is limited to one per customer.";
-    public final static long EXPIRATION_TIME = clearTimeInformation(
+    public static final  String MALTA_VOUCHER_SKU = "AI_AND_BC_SUMMIT_WINTER_EDITION_PROMOTIONAL_VOUCHER";
+    public static final  long EXPIRATION_TIME = clearTimeInformation(
             ZonedDateTime.of(2019, 12, 1, 0, 0, 0, 0, ZoneId.of("UTC")
             ).toInstant().toEpochMilli());
 
@@ -39,10 +39,10 @@ public class MaltaPromotion implements RedemptionValidator, RedemptionListener {
     @Override
     public void validate(RedemptionRequest redemptionRequest) {
         Voucher voucher = voucherRepository.findByCode(redemptionRequest.getVoucherCode())
-                .orElseThrow(() -> new VoucherNotFoundException("Voucher " + redemptionRequest.getVoucherCode() + " not found."));
+                .orElseThrow(() -> new VoucherNotFoundException(format("Voucher %s not found.", redemptionRequest.getVoucherCode())));
 
         if (MALTA_VOUCHER_SKU.equals(voucher.getSku()) && customersCache.contains(redemptionRequest.getDestinationAddress()))
-            Thrower.logAndThrow(MALTA_VOUCHER_REDEMPTION_ERROR_ONE_PER_CUSTOMER, () -> ApiTestingConstants.maltaCardException);
+            Thrower.logAndThrow("One per customer", () -> ApiTestingConstants.maltaCardException);
     }
 
     @Override

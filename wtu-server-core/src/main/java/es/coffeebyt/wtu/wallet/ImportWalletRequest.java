@@ -19,6 +19,7 @@ public class ImportWalletRequest {
     @NotBlank
     public String mnemonic;
 
+    /** Epoch seconds. NOT millis */
     @Min(1322697600L)
     @Max(1600000000L)
     public long createdAt;
