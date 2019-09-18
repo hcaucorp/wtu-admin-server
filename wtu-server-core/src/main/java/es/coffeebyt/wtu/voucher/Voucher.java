@@ -75,9 +75,9 @@ public class Voucher implements Serializable {
     private long createdAt;
 
     /**
-     * By convention expires after 2 years. Date, no time info.
+     * Most will expire after 2 years.
      *
-     * Value in millis
+     * Value in millis, rounded down to days (no time info).
      */
     @Column(name = "expires_at")
     private long expiresAt;

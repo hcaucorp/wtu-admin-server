@@ -1,7 +1,13 @@
 package es.coffeebyt.wtu.crypto.btc;
 
+import javax.annotation.Nonnull;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
+import java.time.Instant;
+import java.util.Optional;
+
 import es.coffeebyt.wtu.crypto.CurrencyService;
-import es.coffeebyt.wtu.exception.IllegalOperationException;
 import es.coffeebyt.wtu.exception.Thrower;
 import es.coffeebyt.wtu.repository.WalletRepository;
 import es.coffeebyt.wtu.system.PropertyNames;
@@ -22,11 +28,6 @@ import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet.SendResult;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import javax.annotation.Nonnull;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.time.Instant;
-import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.time.Instant.ofEpochSecond;
@@ -133,11 +134,7 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
                 networkParameters,
                 KeyChainGroup.builder(networkParameters).fromRandom(Script.ScriptType.P2PKH).build()
         );
-        String walletWords = walletWords(bitcoinjWallet);
         long creationTime = bitcoinjWallet.getKeyChainSeed().getCreationTimeSeconds();
-
-        log.info("Seed words are: {}", walletWords);
-        log.info("Seed birthday is: {}", creationTime);
 
         return restoreWalletSaveAndStart(bitcoinjWallet, Instant.ofEpochSecond(creationTime).toEpochMilli());
     }
@@ -160,7 +157,7 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
             String message = format("Not enough funds on wallet #%s. Available %.8f, but requested %.8f. Exception message: %s",
                     from.getId(), (double) bitcoinj.getBalance() / 10_000_000, (double) amount / 10_000_000, e.getMessage());
 
-            throw new IllegalOperationException(message);
+            throw new BitcoinException(message);
         }
     }
 

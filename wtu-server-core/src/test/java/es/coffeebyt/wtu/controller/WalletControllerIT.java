@@ -7,6 +7,7 @@ import es.coffeebyt.wtu.security.Auth0Service;
 import es.coffeebyt.wtu.utils.RandomUtils;
 import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
+import es.coffeebyt.wtu.wallet.WalletReport;
 import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.Context;
 import org.bitcoinj.core.NetworkParameters;
@@ -106,11 +107,13 @@ public class WalletControllerIT {
                 .header(HttpHeaders.AUTHORIZATION, authorizationValue)
                 .build();
 
-        ResponseEntity<List<Wallet>> response = template
-                .exchange(url, HttpMethod.GET, requestEntity, new WalletList());
+        ResponseEntity<List<WalletReport>> response = template
+                .exchange(url, HttpMethod.GET, requestEntity, new WalletReportList());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(singletonList(testWallet), response.getBody());
+
+        // mnemonic should be empty
+        assertEquals(singletonList(new WalletReport(testWallet.withMnemonic(null), 0)), response.getBody());
     }
 
     @Test
@@ -182,7 +185,7 @@ public class WalletControllerIT {
         assertEquals(HttpStatus.UNAUTHORIZED, noAuth.getStatusCode());
     }
 
-    private static class WalletList extends ParameterizedTypeReference<List<Wallet>> {
+    private static class WalletReportList extends ParameterizedTypeReference<List<WalletReport>> {
         //
     }
 }

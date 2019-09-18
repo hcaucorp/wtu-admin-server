@@ -1,13 +1,5 @@
 package es.coffeebyt.wtu.crypto.bch;
 
-import static java.lang.String.format;
-import static java.time.Instant.ofEpochSecond;
-import static java.util.Collections.emptyList;
-
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -27,7 +19,6 @@ import cash.bitcoinj.wallet.DeterministicSeed;
 import cash.bitcoinj.wallet.SendRequest;
 import cash.bitcoinj.wallet.UnreadableWalletException;
 import es.coffeebyt.wtu.crypto.CurrencyService;
-import es.coffeebyt.wtu.exception.IllegalOperationException;
 import es.coffeebyt.wtu.exception.Thrower;
 import es.coffeebyt.wtu.repository.WalletRepository;
 import es.coffeebyt.wtu.system.PropertyNames;
@@ -35,6 +26,13 @@ import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import static java.lang.String.format;
+import static java.time.Instant.ofEpochSecond;
+import static java.util.Collections.emptyList;
 
 @Slf4j
 @Component
@@ -88,7 +86,7 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
             return restoreWalletSaveAndStart(wallet, ofEpochSecond(creationTime).toEpochMilli());
         } catch (UnreadableWalletException e) {
             log.error(e.getMessage());
-            throw new IllegalOperationException(e.getMessage());
+            throw new BitcoinCashException(e.getMessage());
         }
     }
 
@@ -134,11 +132,7 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
             Thrower.logAndThrowIllegalOperationException("BCH wallet already exists. Currently we support only single wallet per currency");
 
         cash.bitcoinj.wallet.Wallet cashjWallet = new cash.bitcoinj.wallet.Wallet(networkParameters);
-        String walletWords = walletWords(cashjWallet);
         long creationTime = cashjWallet.getKeyChainSeed().getCreationTimeSeconds();
-
-        log.info("Seed words are: {}", walletWords);
-        log.info("Seed birthday is: {}", creationTime);
 
         return restoreWalletSaveAndStart(cashjWallet, Instant.ofEpochSecond(creationTime).toEpochMilli());
     }
@@ -195,7 +189,7 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
                 CashAddress receivingAddress = readAddress(networkParameters, from.getAddress());
                 log.info("Current receiving address: {}", receivingAddress);
             }
-            throw new IllegalOperationException(message);
+            throw new BitcoinCashException(message);
         }
     }
 

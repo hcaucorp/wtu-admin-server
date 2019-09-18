@@ -131,8 +131,7 @@ public class DefaultVoucherService implements VoucherService {
                 .collect(Collectors.toSet());
 
         if (!alreadyExisting.isEmpty()) {
-            String message = "Following voucher code(s) already exist: " + String.join(", ", alreadyExisting);
-            throw new IllegalOperationException(message);
+            throw new IllegalOperationException("Following voucher code(s) already exist: " + String.join(", ", alreadyExisting));
         }
     }
 

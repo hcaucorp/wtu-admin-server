@@ -1,11 +1,12 @@
 package es.coffeebyt.wtu.voucher.listeners;
 
-import static es.coffeebyt.wtu.utils.TryUtils.expectingException;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import java.util.Optional;
 
+import es.coffeebyt.wtu.repository.VoucherRepository;
+import es.coffeebyt.wtu.utils.RandomUtils;
+import es.coffeebyt.wtu.voucher.Voucher;
+import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
+import es.coffeebyt.wtu.voucher.listeners.MaltaPromotion.MaltaCardException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,13 +14,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Optional;
-
-import es.coffeebyt.wtu.exception.MaltaCardException;
-import es.coffeebyt.wtu.repository.VoucherRepository;
-import es.coffeebyt.wtu.utils.RandomUtils;
-import es.coffeebyt.wtu.voucher.Voucher;
-import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
+import static es.coffeebyt.wtu.exception.WtuErrorCodes.ONE_PER_CUSTOMER;
+import static es.coffeebyt.wtu.utils.TryUtils.expectingException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MaltaPromotionTest {
@@ -46,7 +46,7 @@ public class MaltaPromotionTest {
         Throwable throwable = expectingException(() -> subject.validate(redemptionRequest));
 
         assertEquals(MaltaCardException.class, throwable.getClass());
-        assertEquals("You've already used one voucher! This edition is limited to one per customer.", throwable.getMessage());
+        assertEquals(ONE_PER_CUSTOMER.name(), throwable.getMessage());
     }
 
     @Test

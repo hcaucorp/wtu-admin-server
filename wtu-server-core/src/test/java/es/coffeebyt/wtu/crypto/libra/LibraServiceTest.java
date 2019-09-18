@@ -4,6 +4,7 @@ import es.coffeebyt.wtu.repository.WalletRepository;
 import es.coffeebyt.wtu.wallet.Wallet;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -29,6 +30,7 @@ public class LibraServiceTest {
     public void importWallet() {
     }
 
+    @Ignore
     @Test
     public void generateWallet() {
         Wallet generatedWallet = subject.generateWallet();

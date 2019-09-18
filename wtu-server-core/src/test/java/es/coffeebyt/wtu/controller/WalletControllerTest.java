@@ -78,7 +78,7 @@ public class WalletControllerTest {
         mvc.perform(get(baseUrl + "/wallets"))
                 .andExpect(status().isOk());
 
-        verify(walletService, times(1)).findAll();
+        verify(walletService, times(1)).walletStats();
     }
 
     @Test

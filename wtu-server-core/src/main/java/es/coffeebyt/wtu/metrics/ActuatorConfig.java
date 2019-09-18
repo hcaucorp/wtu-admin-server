@@ -10,6 +10,7 @@ public class ActuatorConfig {
 
     public static final String COUNTER_REDEMPTION_SUCCESS = "redemption.success";
     public static final String COUNTER_REDEMPTION_FAILURE = "redemption.failure";
+    public static final String COUNTER_REDEMPTION_ERROR = "redemption.error";
 
     @Bean
     public Counter redemptionSuccessCounter(MeterRegistry registry) {
@@ -19,5 +20,10 @@ public class ActuatorConfig {
     @Bean
     public Counter redemptionFailureCounter(MeterRegistry registry) {
         return registry.counter(COUNTER_REDEMPTION_FAILURE);
+    }
+
+    @Bean
+    public Counter redemptionErrorCounter(MeterRegistry registry) {
+        return registry.counter(COUNTER_REDEMPTION_ERROR);
     }
 }

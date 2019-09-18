@@ -73,11 +73,6 @@ management:
     health.enabled: true
     metrics.enabled: true
 
-#    export:
-#      graphite:
-#        host: graphite.example.com
-#        port: 9004
-
 server:
   port: 5000
 

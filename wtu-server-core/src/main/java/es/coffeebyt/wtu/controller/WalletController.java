@@ -1,8 +1,14 @@
 package es.coffeebyt.wtu.controller;
 
+import javax.annotation.Nonnull;
+import javax.validation.Valid;
+
+import java.util.List;
+
 import es.coffeebyt.wtu.crypto.CurrencyServiceSupplier;
 import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
+import es.coffeebyt.wtu.wallet.WalletReport;
 import es.coffeebyt.wtu.wallet.WalletService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,9 +20,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import javax.annotation.Nonnull;
-import javax.validation.Valid;
-import java.util.List;
 
 @RequestMapping("/api/wallets")
 @RestController
@@ -28,8 +31,8 @@ public class WalletController {
     private WalletService walletService;
 
     @GetMapping
-    public List<Wallet> getAllWallets() {
-        return walletService.findAll();
+    public List<WalletReport> getAllWallets() {
+        return walletService.walletStats();
     }
 
     @PostMapping

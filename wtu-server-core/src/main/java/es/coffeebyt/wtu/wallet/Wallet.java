@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Wither;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -55,7 +56,7 @@ public class Wallet implements Serializable {
 
         Wallet wallet = (Wallet) o;
 
-        if (!mnemonic.equals(wallet.mnemonic)) return false;
+        if (!StringUtils.equals(mnemonic, wallet.mnemonic)) return false;
         return currency.equals(wallet.currency);
     }
 

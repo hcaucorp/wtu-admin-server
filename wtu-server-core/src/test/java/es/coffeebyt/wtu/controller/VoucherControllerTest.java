@@ -1,8 +1,10 @@
 package es.coffeebyt.wtu.controller;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import es.coffeebyt.wtu.Application;
-import es.coffeebyt.wtu.exception.MaltaCardException;
 import es.coffeebyt.wtu.security.EnumerationProtectionService;
 import es.coffeebyt.wtu.security.TestSecurityConfig;
 import es.coffeebyt.wtu.utils.IAmATeapotException;
@@ -13,6 +15,7 @@ import es.coffeebyt.wtu.voucher.VoucherNotFoundException;
 import es.coffeebyt.wtu.voucher.VoucherService;
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 import es.coffeebyt.wtu.voucher.impl.RedemptionResponse;
+import es.coffeebyt.wtu.voucher.listeners.MaltaPromotion.MaltaCardException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +26,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
-import java.util.Optional;
 
 import static es.coffeebyt.wtu.exception.WtuErrorCodes.ONE_PER_CUSTOMER;
 import static es.coffeebyt.wtu.utils.RandomUtils.randomIp;

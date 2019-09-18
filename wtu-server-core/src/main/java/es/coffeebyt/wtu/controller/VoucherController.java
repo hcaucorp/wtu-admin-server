@@ -1,11 +1,15 @@
 package es.coffeebyt.wtu.controller;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+
 import es.coffeebyt.wtu.api.ApiError;
 import es.coffeebyt.wtu.api.ApiTestingConstants;
-import es.coffeebyt.wtu.crypto.libra.LibraException;
 import es.coffeebyt.wtu.exception.IllegalOperationException;
-import es.coffeebyt.wtu.exception.MaltaCardException;
-import es.coffeebyt.wtu.exception.WtuErrorCodes;
 import es.coffeebyt.wtu.security.EnumerationProtectionService;
 import es.coffeebyt.wtu.voucher.Voucher;
 import es.coffeebyt.wtu.voucher.VoucherInfoResponse;
@@ -13,6 +17,7 @@ import es.coffeebyt.wtu.voucher.VoucherService;
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 import es.coffeebyt.wtu.voucher.impl.RedemptionResponse;
 import es.coffeebyt.wtu.voucher.impl.VoucherGenerationSpec;
+import es.coffeebyt.wtu.voucher.listeners.MaltaPromotion.MaltaCardException;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -36,16 +41,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
 
 import static es.coffeebyt.wtu.exception.WtuErrorCodes.ONE_PER_CUSTOMER;
+import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_ERROR;
 import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_FAILURE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequestMapping("/api/vouchers")
@@ -152,6 +152,7 @@ public class VoucherController {
                     detail.getDestinationAddress(), response.getTransactionId());
 
             // whitelist current IP
+            enumerationProtectionService.succeeded(request);
 
             return response;
         } catch (MaltaCardException e) {
@@ -162,20 +163,25 @@ public class VoucherController {
             meterRegistry.counter(COUNTER_REDEMPTION_FAILURE).increment();
 
             // in case of Malta event error we can feed back more info
-            throw new ResponseStatusException(BAD_REQUEST,
-                    ONE_PER_CUSTOMER.name(),
-                    e);
-        } catch (LibraException e) {
-            throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
-        } catch (Exception e) {
+            throw new ResponseStatusException(BAD_REQUEST, ONE_PER_CUSTOMER.name(), e);
+        } catch (IllegalOperationException e) { // this will mean invalid input
+
             log.error("Failed redemption ({}) with exception {}, message: {}", detail.toString(),
                     e.getClass().getSimpleName(), e.getMessage());
 
             enumerationProtectionService.failed(request);
             meterRegistry.counter(COUNTER_REDEMPTION_FAILURE).increment();
+            // intentional provide no info about the problem
+            throw new ResponseStatusException(BAD_REQUEST);
+        } catch (Exception e) { // this will mean server error, something unexpected to investigate, a bug to fix
+            log.error("Unexpected error during redemption attempt ({}) with exception {}, message: {}",
+                    detail.toString(), e.getClass().getSimpleName(), e.getMessage());
+
+            enumerationProtectionService.failed(request);
+            meterRegistry.counter(COUNTER_REDEMPTION_ERROR).increment();
 
             // intentional provide no info about the problem
-            throw new IllegalOperationException();
+            throw new ResponseStatusException(BAD_REQUEST);
         }
     }
 

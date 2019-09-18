@@ -17,16 +17,17 @@ import static java.lang.String.format;
 import static java.time.ZoneOffset.UTC;
 import static java.util.stream.Collectors.toList;
 
+/**
+ * //TODO: Run this patch after publishing vouchers with sku: AI_AND_BC_SUMMIT_WINTER_EDITION_PROMOTIONAL_VOUCHER
+ * //TODO: Running it before will have no effect because voucher codes must be published. Publishing by default
+ * //TODO: will set expiration date in 2 years but this will shorten it and set 1st December 2019 as limit.
+ */
 @Component
 @RequiredArgsConstructor
 public class CalculateExpiresAtForMaltaVouchers implements PatchingTask {
 
     private final VoucherRepository voucherRepository;
 
-    /**
-     * - migrate old voucher expiration dates:
-     * - Malta vouchers: expire on 1st December 2019.
-     */
     @Override
     public List<PatchingResult> call() {
         List<Voucher> correctedVouchers = voucherRepository.findByPublishedTrue().stream()

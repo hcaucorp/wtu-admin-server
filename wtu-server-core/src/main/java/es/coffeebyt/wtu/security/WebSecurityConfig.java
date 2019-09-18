@@ -48,7 +48,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(POST, "/api/vouchers/redeem").permitAll()
                 .antMatchers(GET,
-//                        "/v2/api-docs",
+//                        "/v2/api-docs", // swagger docs path
                         "/api/health",
                         "/api/vouchers/{voucherCode}").permitAll()
                 .anyRequest().authenticated();

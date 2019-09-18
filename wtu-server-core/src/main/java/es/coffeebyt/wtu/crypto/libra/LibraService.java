@@ -92,8 +92,6 @@ public class LibraService implements CurrencyService {
         Mnemonic mnemonic = generateMnemonic();
         LibraWallet libraWallet = new LibraWallet(mnemonic);
 
-        log.info("Seed words are: {}", mnemonic.toString());
-
         return restoreWalletSaveAndStart(libraWallet);
     }
 

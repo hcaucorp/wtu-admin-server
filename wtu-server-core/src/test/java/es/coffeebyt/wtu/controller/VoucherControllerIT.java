@@ -1,5 +1,13 @@
 package es.coffeebyt.wtu.controller;
 
+import java.net.URI;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.IntStream;
+
 import es.coffeebyt.wtu.Application;
 import es.coffeebyt.wtu.Collections;
 import es.coffeebyt.wtu.api.ApiError;
@@ -36,7 +44,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.metrics.MetricsEndpoint.MetricResponse;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
@@ -51,13 +58,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
-import java.net.URI;
-import java.net.URL;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.IntStream;
 
 import static es.coffeebyt.wtu.api.ApiTestingConstants.MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR;
 import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
@@ -220,24 +220,6 @@ public class VoucherControllerIT {
     @Test
     public void redeemBtcVoucher() {
         redeemVoucher(BTC, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G");
-
-        verifyCounters();
-    }
-
-    private void verifyCounters() {
-        assertEquals(1, meterRegistry.counter(COUNTER_REDEMPTION_SUCCESS).count(), 0.01);
-
-        String url = base.toString() + "/metrics/redemption.success";
-
-        RequestEntity<?> requestEntity = RequestEntity
-                .get(URI.create(url))
-                .header(HttpHeaders.AUTHORIZATION, authorizationValue)
-                .build();
-
-        ResponseEntity<MetricResponse> response = template.getForEntity(url, MetricResponse.class, requestEntity);
-
-        assertNotNull(response.getBody());
-        assertEquals(1.0, response.getBody().getMeasurements().get(0).getValue(), 0.1);
     }
 
     @Ignore
@@ -272,7 +254,7 @@ public class VoucherControllerIT {
         Wallet wallet = currencyService.importWallet(new ImportWalletRequest(
                 currency,
                 "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary",
-                1546128000000L));
+                1546128000L));
 
         List<Voucher> vouchers = IntStream.range(0, 10).mapToObj(i -> voucherRepository.save(randomVoucher()
                 .withWalletId(wallet.getId())
@@ -334,7 +316,7 @@ public class VoucherControllerIT {
         Wallet wallet = currencyService.importWallet(new ImportWalletRequest(
                 currency,
                 "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary",
-                1546128000000L));
+                1546128000L));
 
         Voucher voucher = voucherRepository.save(randomVoucher()
                 .withWalletId(wallet.getId())

@@ -23,4 +23,6 @@ public interface WalletService {
     Optional<Wallet> findById(Long id);
 
     Wallet save(Wallet wallet);
+
+    List<WalletReport> walletStats();
 }

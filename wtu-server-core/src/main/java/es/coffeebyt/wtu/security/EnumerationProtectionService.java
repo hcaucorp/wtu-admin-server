@@ -64,6 +64,7 @@ public class EnumerationProtectionService {
         try {
             attempts = attemptsCache.get(ip);
         } catch (ExecutionException ignored) {
+            // ignore
         }
         attempts++;
         attemptsCache.put(ip, attempts);

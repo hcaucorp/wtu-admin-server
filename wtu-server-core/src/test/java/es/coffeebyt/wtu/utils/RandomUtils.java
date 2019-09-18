@@ -11,6 +11,7 @@ import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.params.TestNet3Params;
 import org.bitcoinj.params.UnitTestParams;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.wallet.KeyChainGroup;
@@ -59,7 +60,11 @@ public class RandomUtils {
     }
 
     public static Wallet randomWallet() {
-        return randomWallet(UnitTestParams.get());
+        try {
+            return randomWallet(UnitTestParams.get());
+        } catch (IllegalStateException damnBitcoinj) {
+            return randomWallet(TestNet3Params.get());
+        }
     }
 
     public static String randomBtcAddress(NetworkParameters params) {

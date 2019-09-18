@@ -1,16 +1,11 @@
 package es.coffeebyt.wtu.voucher.listeners;
 
-import static es.coffeebyt.wtu.time.TimeUtil.clearTimeInformation;
-import static java.lang.String.format;
-
-import org.springframework.stereotype.Component;
-
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import es.coffeebyt.wtu.api.ApiTestingConstants;
+import es.coffeebyt.wtu.exception.IllegalOperationException;
 import es.coffeebyt.wtu.exception.Thrower;
 import es.coffeebyt.wtu.repository.VoucherRepository;
 import es.coffeebyt.wtu.voucher.RedemptionListener;
@@ -19,6 +14,11 @@ import es.coffeebyt.wtu.voucher.Voucher;
 import es.coffeebyt.wtu.voucher.VoucherNotFoundException;
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import static es.coffeebyt.wtu.exception.WtuErrorCodes.ONE_PER_CUSTOMER;
+import static es.coffeebyt.wtu.time.TimeUtil.clearTimeInformation;
+import static java.lang.String.format;
 
 /**
  * "One per customer" restriction for Malta SKU
@@ -42,7 +42,7 @@ public class MaltaPromotion implements RedemptionValidator, RedemptionListener {
                 .orElseThrow(() -> new VoucherNotFoundException(format("Voucher %s not found.", redemptionRequest.getVoucherCode())));
 
         if (MALTA_VOUCHER_SKU.equals(voucher.getSku()) && customersCache.contains(redemptionRequest.getDestinationAddress()))
-            Thrower.logAndThrow("One per customer", () -> ApiTestingConstants.maltaCardException);
+            Thrower.logAndThrow("One per customer", MaltaCardException::new);
     }
 
     @Override
@@ -56,5 +56,12 @@ public class MaltaPromotion implements RedemptionValidator, RedemptionListener {
 
     boolean cacheContains(String address) {
         return customersCache.contains(address);
+    }
+
+    public static class MaltaCardException extends IllegalOperationException {
+
+        public MaltaCardException() {
+            super(ONE_PER_CUSTOMER.name());
+        }
     }
 }

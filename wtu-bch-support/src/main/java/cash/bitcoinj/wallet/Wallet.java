@@ -17,6 +17,7 @@
 
 package cash.bitcoinj.wallet;
 
+import static cash.bitcoinj.script.Script.ALL_VERIFY_FLAGS;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -4091,7 +4092,7 @@ public class Wallet extends BaseTaggableObject
                     // We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
                     // we sign missing pieces (to check this would require either assuming any signatures are signing
                     // standard output types or a way to get processed signatures out of script execution)
-                    txIn.getScriptSig().correctlySpends(tx, i, txIn.getConnectedOutput().getScriptPubKey());
+                    txIn.getScriptSig().correctlySpends(tx, i, txIn.getConnectedOutput().getScriptPubKey(), ALL_VERIFY_FLAGS);
                     log.warn("Input {} already correctly spends output, assuming SIGHASH type used will be safe and skipping signing.", i);
                     continue;
                 } catch (ScriptException e) {

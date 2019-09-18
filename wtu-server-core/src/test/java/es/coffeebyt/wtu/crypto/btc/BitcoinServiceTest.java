@@ -63,7 +63,7 @@ public class BitcoinServiceTest {
         assertEquals(expectedMessage, throwable.getMessage());
     }
 
-    @Test(expected = IllegalOperationException.class)
+    @Test(expected = BitcoinException.class)
     public void sendMoneyShouldFailWhenInsufficientMoney() throws Exception {
         Wallet wallet = RandomUtils.randomWallet().withCurrency("BTC");
         String to = RandomUtils.randomBtcAddress();

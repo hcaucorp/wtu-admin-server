@@ -1,4 +1,4 @@
-package es.coffeebyt.wtu.system.patching.tasks;
+package es.coffeebyt.wtu.system.patching.tasks.deprecated;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -10,25 +10,18 @@ import es.coffeebyt.wtu.system.patching.PatchingResult;
 import es.coffeebyt.wtu.system.patching.PatchingTask;
 import es.coffeebyt.wtu.voucher.Voucher;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import static es.coffeebyt.wtu.time.TimeUtil.twoYearsFromNowMillis;
-import static es.coffeebyt.wtu.voucher.listeners.MaltaPromotion.EXPIRATION_TIME;
 import static java.lang.String.format;
 import static java.time.ZoneOffset.UTC;
 import static java.util.stream.Collectors.toList;
 
-@Component
+//@Component
 @RequiredArgsConstructor
 public class CalculateMissingExpiresAtInVouchers implements PatchingTask {
 
     private final VoucherRepository voucherRepository;
 
-    /**
-     * - migrate old voucher expiration dates with priority:
-     * - Purchased ones: expire in 2 years from now.
-     * - Published ones: expire in 2 years from now.
-     */
     @Override
     public List<PatchingResult> call() {
         List<Voucher> correctedVouchers = voucherRepository.findByPublishedTrue().stream()
@@ -46,7 +39,7 @@ public class CalculateMissingExpiresAtInVouchers implements PatchingTask {
                         format("Code: %s, sku: %s", voucher.getCode(), voucher.getSku()),
                         format("Updated missing 'expiresAt' value to %d (%s)",
                                 voucher.getExpiresAt(),
-                                ZonedDateTime.ofInstant(Instant.ofEpochMilli(EXPIRATION_TIME), UTC).format(formatter)
+                                ZonedDateTime.ofInstant(Instant.ofEpochMilli(voucher.getExpiresAt()), UTC).format(formatter)
                         )
                 ))
                 .collect(toList());
