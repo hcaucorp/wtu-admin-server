@@ -31,7 +31,7 @@ public class WalletController {
     private WalletService walletService;
 
     @GetMapping
-    public List<WalletReport> getAllWallets() {
+    public List<WalletReport> walletsReport() {
         return walletService.walletStats();
     }
 

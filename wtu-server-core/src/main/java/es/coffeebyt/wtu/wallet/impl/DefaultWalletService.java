@@ -11,6 +11,7 @@ import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
 import es.coffeebyt.wtu.wallet.WalletReport;
 import es.coffeebyt.wtu.wallet.WalletService;
+import es.coffeebyt.wtu.wallet.WalletStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -40,13 +41,12 @@ public class DefaultWalletService implements WalletService {
                 .withMnemonic(null); // remove pk :D
     }
 
-    @Override
-    public List<Wallet> findAll() {
+    private List<Wallet> findAll() {
         return walletRepository.findAll().parallelStream()
                 .map(wallet -> wallet
                         .withBalance(currencyServiceSupplier
                                 .findByCurrency(wallet.getCurrency())
-                                .getBalance(wallet))
+                                .balanceOf(wallet))
                         .withMnemonic(null) // remove pk :D
                 )
                 .collect(toList());
@@ -70,13 +70,18 @@ public class DefaultWalletService implements WalletService {
     public List<WalletReport> walletStats() {
         List<Voucher> redeemable = voucherRepository.findByPublishedTrueAndRedeemedFalse();
         return findAll().stream()
-                .map(wallet -> new WalletReport(
-                        wallet,
-                        redeemable.stream()
-                                .filter(voucher -> voucher.getWalletId() == wallet.getId())
-                                .map(Voucher::getAmount)
-                                .reduce(0L, Long::sum)
-                ))
+                .map(wallet -> new WalletReport(wallet, requiredBalanceOf(wallet, redeemable), statusOf(wallet)))
                 .collect(toList());
+    }
+
+    private WalletStatus statusOf(Wallet wallet) {
+        return currencyServiceSupplier.findByCurrency(wallet.getCurrency()).statusOf(wallet);
+    }
+
+    private long requiredBalanceOf(Wallet wallet, /* All redeemable vouchers */ List<Voucher> redeemable) {
+        return redeemable.stream()
+                .filter(voucher -> voucher.getWalletId() == wallet.getId())
+                .map(Voucher::getAmount)
+                .reduce(0L, Long::sum);
     }
 }

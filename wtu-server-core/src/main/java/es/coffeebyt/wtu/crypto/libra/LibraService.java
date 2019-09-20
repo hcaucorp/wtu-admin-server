@@ -21,6 +21,7 @@ import es.coffeebyt.wtu.repository.WalletRepository;
 import es.coffeebyt.wtu.system.PropertyNames;
 import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
+import es.coffeebyt.wtu.wallet.WalletStatus;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -79,7 +80,7 @@ public class LibraService implements CurrencyService {
                 .withCurrency(LIBRA);
 
         return wallet
-                .withBalance(getBalance(wallet));
+                .withBalance(balanceOf(wallet));
     }
 
     @Override
@@ -100,7 +101,7 @@ public class LibraService implements CurrencyService {
                 .withMnemonic(libraWallet.mnemonic.toString())
                 .withCurrency(LIBRA);
 
-        return walletRepository.save(wallet.withBalance(getBalance(wallet)));
+        return walletRepository.save(wallet.withBalance(balanceOf(wallet)));
     }
 
     @Override
@@ -179,7 +180,7 @@ public class LibraService implements CurrencyService {
     }
 
     @Override
-    public long getBalance(Wallet wallet) {
+    public long balanceOf(Wallet wallet) {
 
         LibraWallet libraWallet = new LibraWallet(Mnemonic.fromString(wallet.getMnemonic()));
         String forAddress = libraWallet.account0.getAddress();
@@ -214,5 +215,9 @@ public class LibraService implements CurrencyService {
         log.info("Generated seed: {}", words);
 
         return Mnemonic.fromString(words);
+    }
+
+    @Override public WalletStatus statusOf(Wallet wallet) {
+        return WalletStatus.NEW;
     }
 }

@@ -1,7 +1,5 @@
 package es.coffeebyt.wtu.wallet.impl;
 
-import java.util.List;
-
 import es.coffeebyt.wtu.crypto.CurrencyService;
 import es.coffeebyt.wtu.crypto.CurrencyServiceSupplier;
 import es.coffeebyt.wtu.repository.VoucherRepository;
@@ -19,9 +17,6 @@ import static es.coffeebyt.wtu.crypto.btc.BitcoinService.BTC;
 import static es.coffeebyt.wtu.utils.RandomUtils.randomCurrency;
 import static es.coffeebyt.wtu.utils.RandomUtils.randomString;
 import static es.coffeebyt.wtu.utils.RandomUtils.randomWallet;
-import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
@@ -69,26 +64,6 @@ public class DefaultWalletServiceTest {
         subject.generateWallet(currency);
 
         verify(currencyService, times(1)).generateWallet();
-    }
-
-    @Test
-    public void findAll() {
-        String currency = randomCurrency();
-        Wallet wallet = randomWallet().withCurrency(currency);
-        long balance = nextLong();
-        when(walletRepository.findAll()).thenReturn(singletonList(wallet));
-        when(currencyService.getBalance(eq(wallet))).thenReturn(balance);
-
-        List<Wallet> wallets = subject.findAll();
-
-        verify(walletRepository, times(1)).findAll();
-        verify(currencyService, times(1)).getBalance(wallet);
-
-        List<Wallet> expeted = singletonList(wallet
-                .withBalance(balance)
-                .withMnemonic(null));
-
-        assertEquals(expeted, wallets);
     }
 
     @Test

@@ -24,6 +24,7 @@ import es.coffeebyt.wtu.repository.WalletRepository;
 import es.coffeebyt.wtu.system.PropertyNames;
 import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
+import es.coffeebyt.wtu.wallet.WalletStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -39,10 +40,10 @@ import static java.util.Collections.emptyList;
 @RequiredArgsConstructor
 public class BitcoinCashService implements CurrencyService, AutoCloseable {
 
+    public static final String BCH = "BCH";
+
     @Value(PropertyNames.BITCOINJ_AUTOSTART)
     private boolean autoStart;
-
-    public final static String BCH = "BCH";
 
     private final WalletRepository walletRepository;
 
@@ -64,7 +65,7 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
                 .ifPresent(bitcoinj::restoreWalletFromSeed);
 
         if (autoStart) {
-            bitcoinj.startSilently(); //force service start
+            bitcoinj.startAsync(); //force service start
         }
     }
 
@@ -193,8 +194,12 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
         }
     }
 
+    @Override public WalletStatus statusOf(Wallet wallet) {
+        return bitcoinj.getBalance() == -1 ? WalletStatus.STARTING : WalletStatus.RUNNING;
+    }
+
     @Override
-    public long getBalance(Wallet wallet) {
+    public long balanceOf(Wallet wallet) {
         return acceptsCurrency(wallet.getCurrency()) ? bitcoinj.getBalance() : 0;
     }
 

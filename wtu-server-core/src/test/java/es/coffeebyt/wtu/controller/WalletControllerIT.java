@@ -8,6 +8,7 @@ import es.coffeebyt.wtu.utils.RandomUtils;
 import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
 import es.coffeebyt.wtu.wallet.WalletReport;
+import es.coffeebyt.wtu.wallet.WalletStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.Context;
 import org.bitcoinj.core.NetworkParameters;
@@ -113,7 +114,7 @@ public class WalletControllerIT {
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         // mnemonic should be empty
-        assertEquals(singletonList(new WalletReport(testWallet.withMnemonic(null), 0)), response.getBody());
+        assertEquals(singletonList(new WalletReport(testWallet.withMnemonic(null), 0, WalletStatus.STARTING)), response.getBody());
     }
 
     @Test

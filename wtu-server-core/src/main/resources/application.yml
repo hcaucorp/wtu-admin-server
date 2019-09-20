@@ -12,7 +12,7 @@ es:
   coffeebyt:
     bitcoinj:
       # enable this only if restoring wallets from file
-      auto-start: false
+      auto-start: true
       network:
         type: mainnet
     jlibra:

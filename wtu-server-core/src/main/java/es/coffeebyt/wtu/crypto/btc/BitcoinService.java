@@ -13,6 +13,7 @@ import es.coffeebyt.wtu.repository.WalletRepository;
 import es.coffeebyt.wtu.system.PropertyNames;
 import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
+import es.coffeebyt.wtu.wallet.WalletStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bitcoinj.core.Address;
@@ -61,7 +62,7 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
                 .ifPresent(bitcoinj::restoreWalletFromSeed);
 
         if (autoStart) {
-            bitcoinj.startSilently(); //force service start
+            bitcoinj.startAsync(); //force service start
         }
     }
 
@@ -162,12 +163,16 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
     }
 
     @Override
-    public long getBalance(Wallet wallet) {
+    public long balanceOf(Wallet wallet) {
         return acceptsCurrency(wallet.getCurrency()) ? bitcoinj.getBalance() : 0;
     }
 
     @Override
     public boolean acceptsCurrency(String currency) {
         return BTC.equals(currency);
+    }
+
+    @Override public WalletStatus statusOf(Wallet wallet) {
+        return bitcoinj.getBalance() == -1 ? WalletStatus.STARTING : WalletStatus.RUNNING;
     }
 }

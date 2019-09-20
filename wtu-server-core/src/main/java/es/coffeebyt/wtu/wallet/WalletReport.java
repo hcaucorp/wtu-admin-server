@@ -11,4 +11,6 @@ public class WalletReport {
 
     // balance that is locked in redeemable vouchers
     private long requiredBalance;
+    
+    private WalletStatus status;
 }

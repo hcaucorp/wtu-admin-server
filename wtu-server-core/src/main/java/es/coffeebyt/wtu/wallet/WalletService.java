@@ -18,8 +18,6 @@ public interface WalletService {
 
     Wallet generateWallet(String currency);
 
-    List<Wallet> findAll();
-
     Optional<Wallet> findById(Long id);
 
     Wallet save(Wallet wallet);

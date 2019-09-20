@@ -46,7 +46,7 @@ public class BitcoinJFacade implements AutoCloseable {
         bitcoinj.restoreWalletFromSeed(seed);
     }
 
-    synchronized void startSilently() {
+    private synchronized void startSilently() {
         Service.State state = bitcoinj.state();
 
         switch (state) {
@@ -64,13 +64,32 @@ public class BitcoinJFacade implements AutoCloseable {
         }
     }
 
+    synchronized void startAsync() {
+        Service.State state = bitcoinj.state();
+
+        switch (state) {
+        case NEW:
+            bitcoinj.startAsync();
+            break;
+        case STARTING:
+        case RUNNING:
+            break;
+        default:
+            throw new BitcoinException(format("Can't start bitcoinj service because it's in %s state.", state));
+        }
+    }
+
     public long getBalance() {
-        startSilently();
-        return bitcoinj.wallet().getBalance(Wallet.BalanceType.ESTIMATED_SPENDABLE).value;
+        if (bitcoinj.state() == Service.State.RUNNING) {
+            return bitcoinj.wallet().getBalance(Wallet.BalanceType.ESTIMATED_SPENDABLE).value;
+        }
+
+        startAsync();
+        return -1;
     }
 
     Wallet.SendResult sendCoins(SendRequest sendRequest) throws InsufficientMoneyException {
-        startSilently();
+        startSilently(); // service must be up to send
 
         return bitcoinj.wallet().sendCoins(bitcoinj.peerGroup(), sendRequest);
     }
