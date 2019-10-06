@@ -19,3 +19,5 @@ Run `mvn test`
 Run `eb deploy` on local. Assuming set up access tokens in `~/.aws/config` file and `.elsticbeanstalk/config.yml` deployment file.
 
 Auto-deployment should use environment variables set. See https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-configuration.html
+
+`mvn clean package && eb deploy`
