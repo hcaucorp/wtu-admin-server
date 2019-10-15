@@ -1,5 +1,42 @@
 package es.coffeebyt.wtu.controller;
 
+import static es.coffeebyt.wtu.api.ApiTestingConstants.MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR;
+import static es.coffeebyt.wtu.exception.WtuErrorCodes.ONE_PER_CUSTOMER;
+import static es.coffeebyt.wtu.utils.RandomUtils.randomVoucher;
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
+import org.bitcoinj.core.Context;
+import org.bitcoinj.core.NetworkParameters;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit4.SpringRunner;
+
 import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
@@ -35,46 +72,6 @@ import es.coffeebyt.wtu.wallet.ImportWalletRequest;
 import es.coffeebyt.wtu.wallet.Wallet;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
-import org.bitcoinj.core.Context;
-import org.bitcoinj.core.NetworkParameters;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import static es.coffeebyt.wtu.api.ApiTestingConstants.MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR;
-import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
-import static es.coffeebyt.wtu.crypto.btc.BitcoinService.BTC;
-import static es.coffeebyt.wtu.exception.WtuErrorCodes.ONE_PER_CUSTOMER;
-import static es.coffeebyt.wtu.metrics.ActuatorConfig.COUNTER_REDEMPTION_SUCCESS;
-import static es.coffeebyt.wtu.utils.RandomUtils.randomVoucher;
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -216,16 +213,34 @@ public class VoucherControllerIT {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 
-    @Ignore
     @Test
     public void redeemBtcVoucher() {
-        redeemVoucher(BTC, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G");
+        redeemVoucher(BitcoinService.BTC, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G");
     }
 
-    @Ignore
+    @Test
+    public void redeemBchVoucher() {
+        redeemVoucher(BitcoinCashService.BCH, "bchtest:qrqe9azt6mdt3r04sct7l7mm2d3znp7daqlzv4zrfp");
+    }
+
     @Test
     public void redeemBchVoucher_toLegacyDestinationAddress() {
-        redeemVoucher(BCH, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G");
+        String currency = BitcoinCashService.BCH;
+        CurrencyService currencyService = startCurrencyService(currency);
+
+        Wallet wallet = currencyService.importWallet(new ImportWalletRequest(
+                currency,
+                "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary",
+                1546128000L));
+
+        Voucher voucher = voucherRepository.save(randomVoucher()
+                .withWalletId(wallet.getId())
+                .withSold(true)
+                .withPublished(true)
+                .withRedeemed(false));
+
+        ResponseEntity<RedemptionResponse> responseEntity = requestRedemption(voucher, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G", RedemptionResponse.class);
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }
 
     @Test
@@ -341,7 +356,7 @@ public class VoucherControllerIT {
         assertTrue(byId.isPresent());
         assertTrue(byId.get().isRedeemed());
 
-        assertEquals(1, meterRegistry.counter(COUNTER_REDEMPTION_SUCCESS).count(), 0.01);
+        assertEquals(1, meterRegistry.counter(ActuatorConfig.COUNTER_REDEMPTION_SUCCESS).count(), 0.01);
     }
 
     @Test

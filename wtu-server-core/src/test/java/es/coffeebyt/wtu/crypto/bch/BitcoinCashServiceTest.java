@@ -5,6 +5,7 @@ import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
 import static org.apache.commons.lang3.RandomUtils.nextLong;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -69,6 +70,10 @@ public class BitcoinCashServiceTest {
     public void readAddress() {
         assertNotNull(subject.readAddress(UnitTestParams.get(), "bchtest:qzepp6dn7czmu5t64uewj35mm8lcj2375sqt4ac8er"));
         assertNotNull(subject.readAddress(MainNetParams.get(), "bitcoincash:qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a"));
-        assertNotNull(subject.readAddress(MainNetParams.get(), "1BpEi6DfDAUFd7GtittLSdBeYJvcoaVggu"));
+    }
+
+    @Test(expected = BitcoinCashAddressFormatException.class)
+    public void rejectLegacyAddress() {
+        assertNull(subject.readAddress(MainNetParams.get(), "1BpEi6DfDAUFd7GtittLSdBeYJvcoaVggu"));
     }
 }
