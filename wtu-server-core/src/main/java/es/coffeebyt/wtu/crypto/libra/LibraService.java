@@ -22,7 +22,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import dev.jlibra.KeyUtils;
 import dev.jlibra.LibraHelper;
 import dev.jlibra.admissioncontrol.AdmissionControl;
 import dev.jlibra.admissioncontrol.query.AccountResource;
@@ -142,11 +141,10 @@ public class LibraService implements CurrencyService {
                 .build();
 
         SignedTransaction signedTransaction = ImmutableSignedTransaction.builder()
-                .publicKey(KeyUtils.stripPublicKeyPrefix(sourceWallet.account0.publicKey.getEncoded()))
+                .publicKey(sourceWallet.account0.publicKey.getEncoded())
                 .transaction(transaction)
                 .signature(LibraHelper.signTransaction(transaction, sourceWallet.account0.privateKey))
                 .build();
-
 
         SubmitTransactionResult result = admissionControl.submitTransaction(signedTransaction);
 
@@ -173,8 +171,9 @@ public class LibraService implements CurrencyService {
         if (result.getAccountStates().size() > 1) {
             log.error("Found {} states for the account {}. Aborting...", result.getAccountStates().size(), account0);
             result.getAccountStates().forEach(accountState -> {
-                log.error("Account Resource: ");
+                log.error("Account State: ");
                 log.error("Authentication Key: {}", Hex.toHexString(accountState.getAuthenticationKey()));
+                log.error("Address: {}", Hex.toHexString(accountState.getAuthenticationKey()));
                 log.error("Received events: {}", accountState.getReceivedEvents());
                 log.error("Sent events: {}", accountState.getSentEvents());
                 log.error("Balance (microLibras): {}", accountState.getBalanceInMicroLibras());

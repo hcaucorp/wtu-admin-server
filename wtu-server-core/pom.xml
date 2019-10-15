@@ -139,27 +139,7 @@
         <dependency>
             <groupId>dev.jlibra</groupId>
             <artifactId>jlibra-core</artifactId>
-            <version>0.4.0</version>
         </dependency>
-
-        <!--        <dependency>-->
-        <!--            <groupId>dev.jlibra</groupId>-->
-        <!--            <artifactId>jlibra-core</artifactId>-->
-        <!--            <version>0.1.0</version>-->
-        <!--        </dependency>-->
-
-        <!--        <dependency>-->
-        <!--            <groupId>dev.jlibra</groupId>-->
-        <!--            <artifactId>jlibra-grpc</artifactId>-->
-        <!--            <version>0.1.0</version>-->
-        <!--        </dependency>-->
-
-        <!--        <dependency>-->
-        <!--            <groupId>io.grpc</groupId>-->
-        <!--            <artifactId>grpc-api</artifactId>-->
-        <!--            <version>1.21.0</version>-->
-        <!--            <scope>compile</scope>-->
-        <!--        </dependency>-->
 
         <dependency>
             <groupId>com.google.guava</groupId>

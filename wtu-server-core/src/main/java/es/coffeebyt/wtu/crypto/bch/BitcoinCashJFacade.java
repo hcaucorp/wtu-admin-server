@@ -1,18 +1,20 @@
 package es.coffeebyt.wtu.crypto.bch;
 
+import com.google.common.util.concurrent.Service.State;
+
 import cash.bitcoinj.core.InsufficientMoneyException;
 import cash.bitcoinj.kits.WalletAppKit;
 import cash.bitcoinj.wallet.DeterministicSeed;
 import cash.bitcoinj.wallet.SendRequest;
 import cash.bitcoinj.wallet.Wallet;
-import com.google.common.util.concurrent.Service;
-
 import es.coffeebyt.wtu.crypto.btc.BitcoinException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import static cash.bitcoinj.wallet.Wallet.BalanceType.ESTIMATED_SPENDABLE;
+import static com.google.common.util.concurrent.Service.State.RUNNING;
 import static java.lang.String.format;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -25,7 +27,7 @@ public class BitcoinCashJFacade implements AutoCloseable {
     private final WalletAppKit bitcoinj;
 
     public synchronized void close() {
-        Service.State state = bitcoinj.state();
+        State state = bitcoinj.state();
 
         switch (state) {
         case STARTING:
@@ -51,7 +53,7 @@ public class BitcoinCashJFacade implements AutoCloseable {
     }
 
     private synchronized void startSilently() {
-        Service.State state = bitcoinj.state();
+        State state = bitcoinj.state();
 
         switch (state) {
         case NEW:
@@ -69,7 +71,7 @@ public class BitcoinCashJFacade implements AutoCloseable {
     }
 
     synchronized void startAsync() {
-        Service.State state = bitcoinj.state();
+        State state = bitcoinj.state();
 
         switch (state) {
         case NEW:
@@ -84,8 +86,8 @@ public class BitcoinCashJFacade implements AutoCloseable {
     }
 
     long getBalance() {
-        if (bitcoinj.state() == Service.State.RUNNING) {
-            return bitcoinj.wallet().getBalance(Wallet.BalanceType.ESTIMATED_SPENDABLE).value;
+        if (bitcoinj.state() == RUNNING) {
+            return bitcoinj.wallet().getBalance(ESTIMATED_SPENDABLE).value;
         }
 
         startAsync();
