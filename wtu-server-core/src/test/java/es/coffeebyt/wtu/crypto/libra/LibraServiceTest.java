@@ -22,7 +22,7 @@ public class LibraServiceTest {
     private LibraService subject;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         subject = new LibraService("localhost", 666, walletRepository);
     }
 

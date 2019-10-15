@@ -1,14 +1,29 @@
 package es.coffeebyt.wtu.crypto.libra;
 
+import javax.annotation.PreDestroy;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.security.Security;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import com.google.protobuf.ByteString;
+
+import dev.jlibra.LibraHelper;
 import dev.jlibra.admissioncontrol.AdmissionControl;
-import dev.jlibra.admissioncontrol.query.AccountState;
+import dev.jlibra.admissioncontrol.query.AccountResource;
 import dev.jlibra.admissioncontrol.query.ImmutableGetAccountState;
 import dev.jlibra.admissioncontrol.query.ImmutableQuery;
 import dev.jlibra.admissioncontrol.query.UpdateToLatestLedgerResult;
-import dev.jlibra.admissioncontrol.transaction.AddressArgument;
+import dev.jlibra.admissioncontrol.transaction.AccountAddressArgument;
 import dev.jlibra.admissioncontrol.transaction.ImmutableProgram;
+import dev.jlibra.admissioncontrol.transaction.ImmutableSignedTransaction;
 import dev.jlibra.admissioncontrol.transaction.ImmutableTransaction;
+import dev.jlibra.admissioncontrol.transaction.SignedTransaction;
 import dev.jlibra.admissioncontrol.transaction.SubmitTransactionResult;
 import dev.jlibra.admissioncontrol.transaction.Transaction;
 import dev.jlibra.admissioncontrol.transaction.U64Argument;
@@ -29,15 +44,6 @@ import org.apache.commons.lang3.RandomUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import javax.annotation.PreDestroy;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.security.Security;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static dev.jlibra.mnemonic.Mnemonic.WORDS;
 import static java.lang.String.format;
@@ -113,13 +119,13 @@ public class LibraService implements CurrencyService {
                             from.getCurrency()));
 
         LibraWallet sourceWallet = new LibraWallet(from);
-        AccountState accountState = getAccountState(sourceWallet.account0);
+        AccountResource accountState = getAccountState(sourceWallet.account0);
 
         long sequenceNumber = accountState != null ? accountState.getSequenceNumber() : 0;
 
         // Arguments for the peer to peer transaction
         U64Argument amountArgument = new U64Argument(amount * 1000000);
-        AddressArgument addressArgument = new AddressArgument(Hex.decode(toAddress));
+        AccountAddressArgument addressArgument = new AccountAddressArgument(Hex.decode(toAddress));
 
         Transaction transaction = ImmutableTransaction.builder()
                 .sequenceNumber(sequenceNumber)
@@ -133,11 +139,13 @@ public class LibraService implements CurrencyService {
                                 .build())
                 .build();
 
-        SubmitTransactionResult result = admissionControl.submitTransaction(
-                sourceWallet.account0.publicKey,
-                sourceWallet.account0.privateKey,
-                transaction
-        );
+        SignedTransaction signedTransaction = ImmutableSignedTransaction.builder()
+                .publicKey(sourceWallet.account0.publicKey.getEncoded())
+                .transaction(transaction)
+                .signature(LibraHelper.signTransaction(transaction, sourceWallet.account0.privateKey))
+                .build();
+
+        SubmitTransactionResult result = admissionControl.submitTransaction(signedTransaction);
 
         log.info("Status type: {}", result.getStatusCase());
         log.info("Admission control status: {}", result.getAdmissionControlStatus());
@@ -147,7 +155,7 @@ public class LibraService implements CurrencyService {
         return sourceWallet.account0.getAddress() + ":" + sequenceNumber;
     }
 
-    private AccountState getAccountState(ExtendedPrivKey account0) {
+    private AccountResource getAccountState(ExtendedPrivKey account0) {
         UpdateToLatestLedgerResult result = admissionControl
                 .updateToLatestLedger(ImmutableQuery.builder()
                         .addAccountStateQueries(ImmutableGetAccountState.builder()
@@ -163,7 +171,8 @@ public class LibraService implements CurrencyService {
             log.error("Found {} states for the account {}. Aborting...", result.getAccountStates().size(), account0);
             result.getAccountStates().forEach(accountState -> {
                 log.error("Account State: ");
-                log.error("Address: {}", Hex.toHexString(accountState.getAddress()));
+                log.error("Authentication Key: {}", Hex.toHexString(accountState.getAuthenticationKey()));
+                log.error("Address: {}", Hex.toHexString(accountState.getAuthenticationKey()));
                 log.error("Received events: {}", accountState.getReceivedEvents());
                 log.error("Sent events: {}", accountState.getSentEvents());
                 log.error("Balance (microLibras): {}", accountState.getBalanceInMicroLibras());
@@ -193,10 +202,10 @@ public class LibraService implements CurrencyService {
         return result.getAccountStates()
                 .stream()
                 .filter(accountState -> Arrays.equals(
-                        accountState.getAddress(),
+                        accountState.getAuthenticationKey(),
                         Hex.decode(forAddress)
                 ))
-                .map(AccountState::getBalanceInMicroLibras)
+                .map(AccountResource::getBalanceInMicroLibras)
                 .findFirst()
                 .orElse(0L);
     }
