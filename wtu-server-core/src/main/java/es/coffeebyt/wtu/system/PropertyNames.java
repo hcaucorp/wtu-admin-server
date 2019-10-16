@@ -1,5 +1,8 @@
 package es.coffeebyt.wtu.system;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 public class PropertyNames {
     public static final String BITCOIN_NETWORK = "${es.coffeebyt.bitcoinj.network.type}";
     public static final String BITCOINJ_AUTOSTART = "${es.coffeebyt.bitcoinj.auto-start}";

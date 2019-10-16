@@ -1,7 +1,7 @@
 # JWT configuration by Auth0
-auth0:
-  issuer: https://wallettopup.auth0.com/
-  apiAudience: https://wallettopup.auth0.com/api/v2/
+#auth0:
+#  issuer: https://wallettopup.auth0.com/
+#  apiAudience: https://wallettopup.auth0.com/api/v2/
 
 # Spring Reference https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 spring:
