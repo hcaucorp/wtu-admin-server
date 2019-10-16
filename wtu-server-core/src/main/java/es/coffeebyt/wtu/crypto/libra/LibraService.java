@@ -1,5 +1,16 @@
 package es.coffeebyt.wtu.crypto.libra;
 
+import static dev.jlibra.mnemonic.Mnemonic.WORDS;
+import static java.lang.String.format;
+import static org.springframework.util.CollectionUtils.isEmpty;
+
+import com.google.protobuf.ByteString;
+
+import org.apache.commons.lang3.RandomUtils;
+import org.bouncycastle.util.encoders.Hex;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import javax.annotation.PreDestroy;
 
 import java.math.BigDecimal;
@@ -10,8 +21,6 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import com.google.protobuf.ByteString;
 
 import dev.jlibra.LibraHelper;
 import dev.jlibra.admissioncontrol.AdmissionControl;
@@ -40,14 +49,6 @@ import es.coffeebyt.wtu.wallet.WalletStatus;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomUtils;
-import org.bouncycastle.util.encoders.Hex;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import static dev.jlibra.mnemonic.Mnemonic.WORDS;
-import static java.lang.String.format;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
 @Component
@@ -63,9 +64,9 @@ public class LibraService implements CurrencyService {
     private final AdmissionControl admissionControl;
     private final WalletRepository walletRepository;
 
-    public LibraService(@Value(PropertyNames.LIBRA_NETWORK_ADDRESS) String networkAddress,
-            @Value(PropertyNames.LIBRA_NETWORK_PORT) int networkPort,
-            WalletRepository walletRepository) {
+    LibraService(@Value(PropertyNames.LIBRA_NETWORK_ADDRESS) String networkAddress,
+                 @Value(PropertyNames.LIBRA_NETWORK_PORT) int networkPort,
+                 WalletRepository walletRepository) {
         this.walletRepository = walletRepository;
         channel = ManagedChannelBuilder.forAddress(networkAddress, networkPort)
                 .usePlaintext()
@@ -119,9 +120,9 @@ public class LibraService implements CurrencyService {
                             from.getCurrency()));
 
         LibraWallet sourceWallet = new LibraWallet(from);
-        AccountResource accountState = getAccountState(sourceWallet.account0);
+        AccountResource accountResource = getAccountState(sourceWallet.account0);
 
-        long sequenceNumber = accountState != null ? accountState.getSequenceNumber() : 0;
+        long sequenceNumber = accountResource != null ? accountResource.getSequenceNumber() : 0;
 
         // Arguments for the peer to peer transaction
         U64Argument amountArgument = new U64Argument(amount * 1000000);
