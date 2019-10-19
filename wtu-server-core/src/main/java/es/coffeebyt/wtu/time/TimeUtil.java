@@ -1,17 +1,17 @@
 package es.coffeebyt.wtu.time;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+
+import lombok.experimental.UtilityClass;
 
 import static java.time.Instant.ofEpochMilli;
 import static java.time.ZoneOffset.UTC;
 
+@UtilityClass
 public class TimeUtil {
-
-    private TimeUtil() {}
-
+    
     private static final long oneDayMillis = Duration.ofDays(1).toMillis();
 
     public static long clearTimeInformation(long epochMillis) {

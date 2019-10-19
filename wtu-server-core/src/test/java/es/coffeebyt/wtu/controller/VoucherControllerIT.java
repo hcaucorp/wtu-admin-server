@@ -343,6 +343,7 @@ public class VoucherControllerIT {
     }
 
     public void redeemVoucher(String destinationAddress, Voucher voucher) {
+        double previousRedemptionCount = meterRegistry.counter(ActuatorConfig.COUNTER_REDEMPTION_SUCCESS).count();
 
         ResponseEntity<RedemptionResponse> responseEntity = requestRedemption(voucher, destinationAddress, RedemptionResponse.class);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
@@ -356,7 +357,7 @@ public class VoucherControllerIT {
         assertTrue(byId.isPresent());
         assertTrue(byId.get().isRedeemed());
 
-        assertEquals(1, meterRegistry.counter(ActuatorConfig.COUNTER_REDEMPTION_SUCCESS).count(), 0.01);
+        assertEquals(previousRedemptionCount + 1, meterRegistry.counter(ActuatorConfig.COUNTER_REDEMPTION_SUCCESS).count(), 0.01);
     }
 
     @Test

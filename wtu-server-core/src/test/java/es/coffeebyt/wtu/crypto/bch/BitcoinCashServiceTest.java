@@ -1,21 +1,5 @@
 package es.coffeebyt.wtu.crypto.bch;
 
-import static es.coffeebyt.wtu.Collections.asSet;
-import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
-import static org.apache.commons.lang3.RandomUtils.nextLong;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import java.util.Set;
 
 import cash.bitcoinj.core.Context;
@@ -26,6 +10,20 @@ import cash.bitcoinj.params.UnitTestParams;
 import es.coffeebyt.wtu.repository.WalletRepository;
 import es.coffeebyt.wtu.utils.RandomUtils;
 import es.coffeebyt.wtu.wallet.Wallet;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import static es.coffeebyt.wtu.Collections.asSet;
+import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
+import static org.apache.commons.lang3.RandomUtils.nextLong;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BitcoinCashServiceTest {
@@ -74,6 +72,6 @@ public class BitcoinCashServiceTest {
 
     @Test(expected = BitcoinCashAddressFormatException.class)
     public void rejectLegacyAddress() {
-        assertNull(subject.readAddress(MainNetParams.get(), "1BpEi6DfDAUFd7GtittLSdBeYJvcoaVggu"));
+        subject.readAddress(MainNetParams.get(), "1BpEi6DfDAUFd7GtittLSdBeYJvcoaVggu");
     }
 }

@@ -61,8 +61,6 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
 
     @PostConstruct
     public void start() {
-        readWalletFromDB()
-                .ifPresent(bitcoinj::restoreWalletFromSeed);
 
         if (autoStart) {
             bitcoinj.startAsync(); //force service start
@@ -114,20 +112,6 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
         return importWallet(mnemonic, createdAt);
     }
 
-    private Optional<DeterministicSeed> readWalletFromDB() {
-        return walletRepository.findOneByCurrency(BCH)
-                .flatMap(wallet -> from(wallet.getMnemonic(), wallet.getCreatedAt()));
-    }
-
-    private Optional<DeterministicSeed> from(String mnemonic, long createdAtMillis) {
-        try {
-            long createdAtSeconds = Instant.ofEpochMilli(createdAtMillis).getEpochSecond();
-            return Optional.of(new DeterministicSeed(mnemonic, null, "", createdAtSeconds));
-        } catch (UnreadableWalletException e) {
-            return Optional.empty();
-        }
-    }
-
     public Wallet generateWallet() {
         if (walletRepository.findOneByCurrency(BCH).isPresent())
             Thrower.logAndThrowIllegalOperationException("BCH wallet already exists. Currently we support only single wallet per currency");
@@ -139,30 +123,13 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
     }
 
     CashAddress readAddress(NetworkParameters params, String input) {
-        StringBuilder stringBuilder = new StringBuilder();
         try {
             return addressFactory.getFromFormattedAddress(params, input);
         } catch (AddressFormatException e) {
-            stringBuilder
-                    .append("Input: ")
-                    .append(input)
-                    .append("could not be decoded from cash address format. Exception: ")
-                    .append(e.getClass().getSimpleName())
-                    .append(e.getMessage());
-        }
+            log.error(String.format("Input: %s could not be decoded from cash address format. Exception: %s, message %s",
+                    input, e.getClass().getSimpleName(), e.getMessage()));
 
-        try {
-            return addressFactory.getFromBase58(params, input);
-        } catch (AddressFormatException e) {
-            stringBuilder
-                    .append("Input: ")
-                    .append(input)
-                    .append("could not be decoded from Base58 address format. Exception: ")
-                    .append(e.getClass().getSimpleName())
-                    .append(e.getMessage());
-            log.error(stringBuilder.toString());
-
-            throw e;
+            throw new BitcoinCashAddressFormatException();
         }
     }
 
