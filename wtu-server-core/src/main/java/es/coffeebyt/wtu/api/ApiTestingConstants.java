@@ -18,4 +18,9 @@ public class ApiTestingConstants {
             throw new ResponseStatusException(BAD_REQUEST, ONE_PER_CUSTOMER.name(), new MaltaCardException());
         }
     }
+
+    public static boolean isTestCode(String voucherCode) {
+        return MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR.equals(voucherCode);
+    }
+
 }

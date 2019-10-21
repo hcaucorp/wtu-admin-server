@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import java.net.URI;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -223,6 +224,14 @@ public class VoucherController {
             @ApiParam(value = "Code from gift card (a.k.a. voucher code)", required = true) @PathVariable String voucherCode) {
 
         enumerationProtectionService.checkIfBlocked(request);
+
+        // handle API test values, testing in production? 😅 remove after MALTA
+        if (ApiTestingConstants.isTestCode(voucherCode)) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new VoucherInfoResponse("test", "" + Instant.now().plusSeconds(10).toEpochMilli()));
+        }
 
         Optional<Voucher> optionalVoucher = voucherService.findByCode(voucherCode);
 
