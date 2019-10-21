@@ -230,7 +230,7 @@ public class VoucherController {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new VoucherInfoResponse("test", "" + Instant.now().plusSeconds(10).toEpochMilli()));
+                    .body(new VoucherInfoResponse("valid", "" + Instant.now().plusSeconds(10).toEpochMilli()));
         }
 
         Optional<Voucher> optionalVoucher = voucherService.findByCode(voucherCode);
