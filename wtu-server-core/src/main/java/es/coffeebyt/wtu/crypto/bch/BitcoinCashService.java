@@ -61,6 +61,8 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
 
     @PostConstruct
     public void start() {
+        readWalletFromDB()
+                .ifPresent(bitcoinj::restoreWalletFromSeed);
 
         if (autoStart) {
             bitcoinj.startAsync(); //force service start
@@ -110,6 +112,20 @@ public class BitcoinCashService implements CurrencyService, AutoCloseable {
         long createdAt = walletDescription.createdAt;
 
         return importWallet(mnemonic, createdAt);
+    }
+
+    private Optional<DeterministicSeed> readWalletFromDB() {
+        return walletRepository.findOneByCurrency(BCH)
+                .flatMap(wallet -> from(wallet.getMnemonic(), wallet.getCreatedAt()));
+    }
+
+    private Optional<DeterministicSeed> from(String mnemonic, long createdAtMillis) {
+        try {
+            long createdAtSeconds = Instant.ofEpochMilli(createdAtMillis).getEpochSecond();
+            return Optional.of(new DeterministicSeed(mnemonic, null, "", createdAtSeconds));
+        } catch (UnreadableWalletException e) {
+            return Optional.empty();
+        }
     }
 
     public Wallet generateWallet() {

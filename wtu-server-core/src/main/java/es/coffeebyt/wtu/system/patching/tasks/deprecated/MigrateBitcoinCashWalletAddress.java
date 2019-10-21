@@ -1,4 +1,4 @@
-package es.coffeebyt.wtu.system.patching.tasks;
+package es.coffeebyt.wtu.system.patching.tasks.deprecated;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,12 +10,11 @@ import es.coffeebyt.wtu.repository.WalletRepository;
 import es.coffeebyt.wtu.system.patching.PatchingResult;
 import es.coffeebyt.wtu.system.patching.PatchingTask;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import static es.coffeebyt.wtu.crypto.bch.BitcoinCashService.BCH;
 import static java.lang.String.format;
 
-@Component
+//@Component
 @RequiredArgsConstructor
 public class MigrateBitcoinCashWalletAddress implements PatchingTask {
 

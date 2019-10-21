@@ -1,4 +1,5 @@
 ##### Backlog
+- REDEMPTION ERROR counter not working!!
 - !! move integration test to integration-tests project!!!!
 - move admin-ui to aws git and code pipeline
 - write libraservicetest

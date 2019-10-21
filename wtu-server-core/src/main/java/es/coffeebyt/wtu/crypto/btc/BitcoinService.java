@@ -58,6 +58,9 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
 
     @PostConstruct
     public void start() {
+        readWalletFromDB()
+                .ifPresent(bitcoinj::restoreWalletFromSeed);
+
         if (autoStart) {
             bitcoinj.startAsync(); //force service start
         }
@@ -105,6 +108,22 @@ public class BitcoinService implements CurrencyService, AutoCloseable {
         String mnemonic = requireNonNull(walletDescription.mnemonic);
         long createdAt = walletDescription.createdAt;
         return importWallet(mnemonic, createdAt);
+    }
+
+    private Optional<DeterministicSeed> readWalletFromDB() {
+        return walletRepository.findOneByCurrency(BTC)
+                .flatMap(wallet -> from(wallet.getMnemonic(), wallet.getCreatedAt()));
+    }
+
+    private Optional<DeterministicSeed> from(String mnemonic, long createdAtMillis) {
+        try {
+            long createdAtSeconds = Instant.ofEpochMilli(createdAtMillis).getEpochSecond();
+            return Optional.of(new DeterministicSeed(mnemonic, null, "", createdAtSeconds));
+        } catch (UnreadableWalletException e) {
+            String message = format("Can't read wallet (mnemonic: %s, created at: %s) because: %s", mnemonic, createdAtMillis, e.getMessage());
+            log.error(message);
+            throw new BitcoinException(message);
+        }
     }
 
     public Wallet generateWallet() {
