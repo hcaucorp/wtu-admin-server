@@ -1,5 +1,7 @@
 package es.coffeebyt.wtu.voucher.listeners;
 
+import org.springframework.stereotype.Component;
+
 import java.time.Instant;
 import java.util.Objects;
 
@@ -10,8 +12,10 @@ import es.coffeebyt.wtu.voucher.Voucher;
 import es.coffeebyt.wtu.voucher.VoucherNotFoundException;
 import es.coffeebyt.wtu.voucher.impl.RedemptionRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
+/**
+ * Redemption request validator.
+ */
 @Component
 @RequiredArgsConstructor
 public class ShouldBeRedeemable implements RedemptionValidator {

@@ -1,5 +1,6 @@
 ##### Backlog
 - REDEMPTION ERROR counter not working!!
+- change redemption -> server backend to use HTTPS on aws CloudFront
 - !! move integration test to integration-tests project!!!!
 - move admin-ui to aws git and code pipeline
 - write libraservicetest
