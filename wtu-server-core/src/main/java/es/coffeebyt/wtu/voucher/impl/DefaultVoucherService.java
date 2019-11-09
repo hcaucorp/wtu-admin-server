@@ -148,11 +148,12 @@ public class DefaultVoucherService implements VoucherService {
                 .orElseThrow(
                         () -> new ResourceNotFoundException(format("Wallet %s not found.", voucher.getWalletId())));
 
-        voucherRepository.save(voucher.withRedeemed(true));
 
         // send money
         String transactionHash = currencyServiceSupplier.findByCurrency(wallet.getCurrency())
                 .sendMoney(wallet, detail.getDestinationAddress(), voucher.getAmount());
+
+        voucherRepository.save(voucher.withRedeemed(true));
 
         // notify all listeners
         redemptionListeners.forEach(listener -> listener.redeemed(detail));

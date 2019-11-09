@@ -37,6 +37,7 @@ import static org.apache.commons.lang3.RandomUtils.nextInt;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
@@ -301,5 +302,10 @@ public class DefaultVoucherServiceTest {
         subject.findByCode(voucher.getCode());
 
         verify(voucherRepository, times(1)).findByCode(eq(voucher.getCode()));
+    }
+
+    @Test
+    public void whenBroadcastFailsVoucherCodeShouldStayActive() {
+        fail();
     }
 }
