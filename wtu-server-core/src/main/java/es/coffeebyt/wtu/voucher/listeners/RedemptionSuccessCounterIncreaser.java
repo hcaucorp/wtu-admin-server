@@ -10,6 +10,9 @@ import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Counter implementation for redemption success.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

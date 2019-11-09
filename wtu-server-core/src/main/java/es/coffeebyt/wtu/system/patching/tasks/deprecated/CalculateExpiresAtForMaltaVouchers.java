@@ -1,15 +1,4 @@
-package es.coffeebyt.wtu.system.patching.tasks;
-
-import es.coffeebyt.wtu.repository.VoucherRepository;
-import es.coffeebyt.wtu.system.patching.PatchingResult;
-import es.coffeebyt.wtu.system.patching.PatchingTask;
-import es.coffeebyt.wtu.voucher.Voucher;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
+package es.coffeebyt.wtu.system.patching.tasks.deprecated;
 
 import static es.coffeebyt.wtu.voucher.listeners.MaltaPromotion.EXPIRATION_TIME;
 import static es.coffeebyt.wtu.voucher.listeners.MaltaPromotion.MALTA_VOUCHER_SKU;
@@ -17,12 +6,19 @@ import static java.lang.String.format;
 import static java.time.ZoneOffset.UTC;
 import static java.util.stream.Collectors.toList;
 
-/**
- * //TODO: Run this patch after publishing vouchers with sku: AI_AND_BC_SUMMIT_WINTER_EDITION_PROMOTIONAL_VOUCHER
- * //TODO: Running it before will have no effect because voucher codes must be published. Publishing by default
- * //TODO: will set expiration date in 2 years but this will shorten it and set 1st December 2019 as limit.
- */
-@Component
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+import es.coffeebyt.wtu.repository.VoucherRepository;
+import es.coffeebyt.wtu.system.patching.PatchingResult;
+import es.coffeebyt.wtu.system.patching.PatchingTask;
+import es.coffeebyt.wtu.voucher.Voucher;
+import lombok.RequiredArgsConstructor;
+
+
+//@Component
 @RequiredArgsConstructor
 public class CalculateExpiresAtForMaltaVouchers implements PatchingTask {
 
