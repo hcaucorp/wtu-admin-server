@@ -303,9 +303,4 @@ public class DefaultVoucherServiceTest {
 
         verify(voucherRepository, times(1)).findByCode(eq(voucher.getCode()));
     }
-
-    @Test
-    public void whenBroadcastFailsVoucherCodeShouldStayActive() {
-        fail();
-    }
 }
