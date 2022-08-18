@@ -215,12 +215,12 @@ public class VoucherControllerIT {
 
     @Test
     public void redeemBtcVoucher() {
-        redeemVoucher(BitcoinService.BTC, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G");
+        redeemVoucher(BitcoinService.BTC, "");
     }
 
     @Test
     public void redeemBchVoucher() {
-        redeemVoucher(BitcoinCashService.BCH, "bchtest:qrqe9azt6mdt3r04sct7l7mm2d3znp7daqlzv4zrfp");
+        redeemVoucher(BitcoinCashService.BCH, "");
     }
 
     @Test
@@ -239,7 +239,7 @@ public class VoucherControllerIT {
                 .withPublished(true)
                 .withRedeemed(false));
 
-        ResponseEntity<RedemptionResponse> responseEntity = requestRedemption(voucher, "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G", RedemptionResponse.class);
+        ResponseEntity<RedemptionResponse> responseEntity = requestRedemption(voucher, "", RedemptionResponse.class);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     }
 
@@ -247,7 +247,7 @@ public class VoucherControllerIT {
     public void redeemVoucherVerifyApiErrorValue() {
         Voucher voucher = randomVoucher()
                 .withCode(MALTA_GIFT_CODE_FAILING_WITH_ONE_PER_CUSTOMER_ERROR);
-        String destinationAddress= "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G";
+        String destinationAddress= "";
 
         ResponseEntity<ApiError> responseEntity = requestRedemption(voucher, destinationAddress, ApiError.class);
         assertEquals(BAD_REQUEST, responseEntity.getStatusCode());
@@ -264,8 +264,8 @@ public class VoucherControllerIT {
     public void redeemMultipleVouchersUsingOneCoinInTheSameBlock(String currency, String destinationAddress) {
         CurrencyService currencyService = startCurrencyService(currency);
 
-        // receive address: myAUke4cumJb6fYvHAGvXVMzHbKTusrixG
-        // in cash address: bchtest:qrqe9azt6mdt3r04sct7l7mm2d3znp7daqlzv4zrfp
+        // receive address:
+        // in cash address:
         Wallet wallet = currencyService.importWallet(new ImportWalletRequest(
                 currency,
                 "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary",
@@ -326,8 +326,8 @@ public class VoucherControllerIT {
     public void redeemVoucher(String currency, String destinationAddress) {
         CurrencyService currencyService = startCurrencyService(currency);
 
-        // receive address: myAUke4cumJb6fYvHAGvXVMzHbKTusrixG
-        // for bch: bchtest:qrqe9azt6mdt3r04sct7l7mm2d3znp7daqlzv4zrfp
+        // receive address:
+        // for bch: bchtest:
         Wallet wallet = currencyService.importWallet(new ImportWalletRequest(
                 currency,
                 "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary",

@@ -130,11 +130,11 @@ public class VoucherController_seasonal_Malta_IT {
     @Test
     public void attemptToRedeemAnotherVoucherToTheSameAddress() {
         String currency = BCH;
-        String destinationAddress = "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G";
+        String destinationAddress = "";
         CurrencyService currencyService = currencyServiceSupplier.findByCurrency(currency);
 
-        // receive address: myAUke4cumJb6fYvHAGvXVMzHbKTusrixG
-        // for bch: bchtest:qrqe9azt6mdt3r04sct7l7mm2d3znp7daqlzv4zrfp
+        // receive address:
+        // for bch: bchtest:
         Wallet wallet = currencyService.importWallet(new ImportWalletRequest(
                 currency,
                 "defense rain auction twelve arrest guitar coast oval piano crack tattoo ordinary",

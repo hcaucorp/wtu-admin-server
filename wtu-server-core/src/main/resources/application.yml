@@ -1,7 +1,7 @@
 # JWT configuration by Auth0
 auth0:
-  issuer: https://wallettopup.auth0.com/
-  apiAudience: https://wallettopup.auth0.com/api/v2/
+  issuer:
+  apiAudience:
 
 # testnet/regtest/mainnet
 bitcoinj:
@@ -28,8 +28,8 @@ es:
       # topic with results of user actions
       redemptions-topic-arn: arn:aws:sns:eu-west-2:367570967874:redemptions
       # IAM sns-access-user
-      access-key-id: AKIAITMQC6R6A773KPNQ
-      secret-key-id: na4eftnibgdw4GXj9+cnDyGTYYY60MG8adIpYttM
+      access-key-id: acccessKey
+      secret-key-id: secretKey
 
 # Spring Reference https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 spring:
@@ -38,8 +38,8 @@ spring:
     host: email-smtp.eu-west-1.amazonaws.com
     port: 25
     # SMTP credentials for IAM user: ses-smtp-user.20190218-204939
-    username: AKIAIFVDVEAXQGTMW2XA
-    password: BFZ3rSNsXmBAk3ZEVQye0u4Qoo3NyVrMbCV+zc9nEwR8
+    username: username
+    password: password
     properties:
       mail:
         transport:

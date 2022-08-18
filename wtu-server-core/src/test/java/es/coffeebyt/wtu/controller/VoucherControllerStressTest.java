@@ -98,7 +98,7 @@ public class VoucherControllerStressTest {
     public void setUpTest() throws MalformedURLException {
         base = new URL("http://localhost:" + port + "/api");
         authorizationValue = "Bearer " + auth0Service.getToken().accessToken;
-        destinationAddress = "mqTZ5Lmt1rrgFPeGeTC8DFExAxV1UK852G";
+        destinationAddress = "";
 
         voucher = voucherRepository.save(RandomUtils.randomValidVoucher());
 

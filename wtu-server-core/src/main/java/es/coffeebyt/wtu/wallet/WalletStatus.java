@@ -1,4 +1,4 @@
-package es.coffeebyt.wtu.wallet;
+package ;
 
 public enum WalletStatus {
 

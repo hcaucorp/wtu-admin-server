@@ -3,11 +3,11 @@ info:
   description: Documentation for third party wallet integration.
   version: 0.2.0
   title: Wallet Top Up REST API
-  termsOfService: 'https://www.wallettopup.co.uk/tos'
+  termsOfService: 'url'
   contact:
     name: Contact Us
-    url: 'https://www.wallettopup.co.uk/contact'
-    email: hubert.czerpak@wallettopup.co.uk
+    url: 'url'
+    email:
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0'

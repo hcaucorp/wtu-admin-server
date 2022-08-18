@@ -1,4 +1,4 @@
-package es.coffeebyt.wtu.wallet;
+package ;
 
 import es.coffeebyt.wtu.crypto.CurrencyService;
 import org.bitcoinj.wallet.UnreadableWalletException;

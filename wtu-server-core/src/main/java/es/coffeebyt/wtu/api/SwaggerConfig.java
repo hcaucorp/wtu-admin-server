@@ -29,16 +29,16 @@ public class SwaggerConfig {
                 .paths(PathSelectors.ant("/api/vouchers/*"))
                 .build()
                 .apiInfo(apiInfo())
-                .host("api.wallettopup.co.uk");
+                .host("a");
     }
 
     private ApiInfo apiInfo() {
         return new ApiInfo(
-                "Wallet Top Up REST API",
-                "Documentation for third party wallet integration.",
+                "",
+                "",
                 "0.2.0",
-                "https://www.wallettopup.co.uk/tos",
-                new Contact("Contact Us", "https://www.wallettopup.co.uk/contact", "hubert.czerpak@wallettopup.co.uk"),
+                "",
+                new Contact("Contact Us", "", ""),
                 "Apache 2.0", "http://www.apache.org/licenses/LICENSE-2.0", Collections.emptyList());
     }
 }
